@@ -1,0 +1,2353 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html,body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>UniVerse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<style>
+/* ============================================================
+   UniVerse — riso print / campus noticeboard identity.
+   Paper + ink + fluoro inks; the app is a printed object.
+   Light is the default press; dark mode is the same press run
+   on black stock, driven by the toggle in Profile.
+   ============================================================ */
+.device{
+  --paper:#F2F1EC;  --paper-2:#E7E5DC;  --paper-3:#DAD7CC;
+  --ink:#15151A;    --ink-2:#55555F;    --ink-3:#8B8B95;
+  --accent:#FF4A1C; --blue:#1F3CFF;     --pink:#FF48B0;
+  --yellow:#FFC400; --green:#00A45A;    --grey:#8B8B95;
+  --sh:rgba(21,21,26,.13);
+}
+.device[data-mode="dark"]{
+  --paper:#17171C;  --paper-2:#21212A;  --paper-3:#33333E;
+  --ink:#F2F1EC;    --ink-2:#B3B3BE;    --ink-3:#7C7C88;
+  --accent:#FF6A3D; --blue:#5B72FF;     --pink:#FF6EC2;
+  --yellow:#FFCE33; --green:#22C273;    --grey:#7C7C88;
+  --sh:rgba(0,0,0,.5);
+}
+:root{
+  --backdrop:#D9D6CB; --backdrop-ink:#15151A;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"DM Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){ --backdrop:#131317; --backdrop-ink:#F2F1EC; } }
+:root[data-theme="dark"]{ --backdrop:#131317; --backdrop-ink:#F2F1EC; }
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none !important}
+body{
+  margin:0; background:var(--backdrop); color:#15151A;
+  font-family:var(--body); font-size:15px; line-height:1.45;
+  min-height:100svh; display:flex; align-items:center; justify-content:center;
+}
+button,input,select{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--blue); outline-offset:2px}
+
+/* ---------- device shell ---------- */
+.stage{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:100svh;padding:24px}
+.marks{position:absolute;inset:14px;pointer-events:none;color:var(--backdrop-ink);opacity:.28}
+.marks span{position:absolute;width:22px;height:22px;border:1px solid currentColor;border-radius:50%}
+.marks span::before,.marks span::after{content:"";position:absolute;background:currentColor}
+.marks span::before{left:50%;top:-9px;width:1px;height:40px;transform:translateX(-.5px)}
+.marks span::after{top:50%;left:-9px;height:1px;width:40px;transform:translateY(-.5px)}
+.marks .m1{left:0;top:0}.marks .m2{right:0;top:0}.marks .m3{left:0;bottom:0}.marks .m4{right:0;bottom:0}
+.stage-note{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--backdrop-ink);opacity:.45}
+
+.device{
+  position:relative;width:min(392px,100vw);height:min(844px,100svh);
+  background:var(--paper);color:var(--ink);overflow:hidden;
+  border:2px solid #15151A;border-radius:34px;
+  box-shadow:0 18px 40px rgba(21,21,26,.22), 0 2px 0 #15151A;
+  display:flex;flex-direction:column;
+}
+@media (max-width:520px){
+  .stage{padding:0}
+  .marks,.stage-note{display:none}
+  .device{border:0;border-radius:0;box-shadow:none;height:100svh;width:100vw}
+}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--paper);color:var(--ink)}
+.screen.on{display:flex}
+
+/* ---------- shared ---------- */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+.h1{font-family:var(--display);font-weight:800;font-size:31px;line-height:1.02;letter-spacing:-.025em;text-wrap:balance;margin:0}
+.muted{color:var(--ink-2)}
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  height:52px;padding:0 20px;border:2px solid var(--ink);
+  background:var(--ink);color:var(--paper);font-family:var(--display);font-weight:700;font-size:16px;
+  letter-spacing:-.01em;transition:transform .12s ease, box-shadow .12s ease;
+  box-shadow:4px 4px 0 var(--accent);
+}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--accent)}
+.btn[disabled]{opacity:.35;box-shadow:none;pointer-events:none}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:none}
+.btn.ghost:active{transform:none;background:var(--paper-2)}
+.btn.small{height:42px;font-size:14px;padding:0 14px}
+
+.seg{display:flex;border:2px solid var(--ink);background:var(--paper)}
+.seg button{flex:1;padding:9px 6px;font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink-2);
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:background .12s,color .12s}
+.seg button + button{border-left:2px solid var(--ink)}
+.seg button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+
+.uni-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+.uni-badge i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink);display:block;flex:none}
+.pill{display:inline-flex;align-items:center;height:23px;padding:0 9px;border:1.5px solid var(--ink);
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;white-space:nowrap;color:var(--ink)}
+.pill.free{background:var(--yellow);color:#15151A}
+
+/* ---------- auth ---------- */
+.auth{padding:26px 24px 22px;display:flex;flex-direction:column;height:100%;overflow-y:auto}
+.wordmark{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.02em;flex:none}
+.unistrip{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;flex:none}
+.unistrip .u{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  border:1.5px solid var(--ink);padding:3px 7px;display:inline-flex;align-items:center;gap:5px}
+.unistrip .u i{width:8px;height:8px;border-radius:50%;display:block}
+.auth-hero{margin:auto 0 20px;flex:none}
+.auth-hero .big{font-family:var(--display);font-weight:800;font-size:42px;line-height:.95;letter-spacing:-.035em;margin:0 0 12px}
+.auth-hero .big em{font-style:normal;color:var(--accent)}
+.auth-hero p{margin:0;max-width:30ch;color:var(--ink-2);font-size:15px}
+.sso{display:flex;flex-direction:column;gap:8px;margin:14px 0 0;flex:none}
+.sso button{height:46px;border:2px solid var(--ink);display:flex;align-items:center;gap:10px;padding:0 14px;
+  font-weight:600;font-size:14.5px;background:var(--paper);color:var(--ink)}
+.sso button:active{transform:translate(1px,1px)}
+.sso button.ms{background:var(--ink);color:var(--paper)}
+.sso button.canvas{background:var(--blue);color:#fff;border-color:var(--ink)}
+.sso .mark{width:20px;height:20px;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13px}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0 12px;flex:none}
+.divider span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.divider i{flex:1;height:1px;background:var(--paper-3)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;flex:none}
+.field label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.field input{font-family:var(--body);font-size:16px;padding:12px;background:var(--paper);
+  border:2px solid var(--ink);color:var(--ink);width:100%}
+.field input::placeholder{color:var(--ink-3)}
+.err{color:var(--accent);font-size:13.5px;margin:2px 0 10px;min-height:19px;flex:none}
+.auth-foot{margin-top:12px;font-size:13px;text-align:center;color:var(--ink-2);flex:none}
+.auth-foot button{text-decoration:underline;font-weight:600;color:var(--ink)}
+.centre-screen{padding:26px;display:flex;flex-direction:column;justify-content:center;height:100%;gap:16px}
+.stamp-box{border:2px solid var(--ink);padding:18px;background:var(--yellow);color:#15151A;transform:rotate(-1.5deg);align-self:flex-start}
+.stamp-box b{font-family:var(--display);font-weight:800;font-size:19px;display:block}
+
+/* ---------- onboarding ---------- */
+.ob-head{padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none}
+.ob-steps{display:flex;gap:4px;align-items:center}
+.ob-steps i{width:22px;height:5px;background:var(--paper-3);display:block}
+.ob-steps i.on{background:var(--ink)}
+.ob-steps .n{font-family:var(--mono);font-size:12px;font-weight:500;margin-left:6px}
+.ob-skip{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);text-decoration:underline}
+.ob-title{padding:4px 20px 12px;flex:none}
+.ob-title h2{font-family:var(--display);font-weight:800;font-size:29px;line-height:1.03;letter-spacing:-.03em;margin:0}
+.ob-title p{margin:6px 0 0;color:var(--ink-2);font-size:14px}
+.ob-body{flex:1;overflow-y:auto;padding:0 20px 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.chip{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);
+  padding:9px 13px;font-size:14px;font-weight:500;line-height:1;transition:background .12s,color .12s,transform .1s}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chip:active{transform:scale(.97)}
+.chip.shake{animation:shake .32s}
+@keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-4px)}}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:10px;border:2px solid var(--ink);
+  background:var(--paper);color:var(--ink);padding:13px 14px;font-size:15px;font-weight:500;text-align:left}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.opt .sub{font-size:12.5px;font-weight:400;opacity:.72;display:block;margin-top:3px}
+.opt .tick{font-family:var(--mono);font-size:12px}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt-grid .opt{flex-direction:column;align-items:flex-start;gap:4px;min-height:118px;justify-content:flex-end}
+.opt-grid .opt .em{font-size:26px;line-height:1}
+.opt-grid .opt b{font-family:var(--display);font-weight:800;font-size:17px}
+.screen-foot{padding:12px 20px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;
+  border-top:2px solid var(--ink);background:var(--paper);flex:none}
+.screen-foot .btn{width:100%}
+.counter{font-family:var(--mono);font-size:13px;font-weight:500}
+
+/* ---------- app chrome ---------- */
+.app{display:flex;flex-direction:column;height:100%}
+.app-head{padding:15px 18px 9px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex:none}
+.app-head h1{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.03em;margin:0;line-height:1}
+.app-head .meta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-top:5px}
+.progress{font-family:var(--mono);font-size:12px;font-weight:500;border:1.5px solid var(--ink);padding:3px 7px;white-space:nowrap}
+.mode-row{padding:2px 18px 8px;flex:none}
+.tabview{flex:1;position:relative;overflow:hidden}
+.tabpane{position:absolute;inset:0;display:none;flex-direction:column}
+.tabpane.on{display:flex}
+.tabbar{display:flex;border-top:2px solid var(--ink);background:var(--paper);padding-bottom:env(safe-area-inset-bottom);flex:none}
+.tabbar button{flex:1;padding:10px 0 11px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);position:relative}
+.tabbar button[aria-selected="true"]{color:var(--ink)}
+.tabbar button[aria-selected="true"]::after{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--accent)}
+.tabbar svg{width:20px;height:20px;display:block}
+
+/* ---------- deck ---------- */
+.deck-wrap{flex:1;position:relative;padding:4px 18px 0;display:flex;flex-direction:column;min-height:0}
+.stack{position:relative;flex:1;min-height:0}
+.card{position:absolute;inset:0;background:var(--paper);border:2px solid var(--ink);
+  display:flex;flex-direction:column;overflow:hidden;will-change:transform;
+  box-shadow:5px 5px 0 var(--sh);touch-action:none}
+.card.gone{pointer-events:none}
+.card.animate{transition:transform .34s cubic-bezier(.2,.7,.3,1), opacity .3s ease}
+.card.settle{transition:transform .28s cubic-bezier(.3,1.3,.5,1)}
+.card .poster{width:100%;height:56%;flex:none;display:block;border-bottom:2px solid var(--ink);background:var(--paper-2)}
+.card .poster svg{width:100%;height:100%;display:block}
+.card-body{padding:12px 15px 14px;display:flex;flex-direction:column;gap:7px;flex:1;min-height:0}
+.card-title{font-family:var(--display);font-weight:700;font-size:21px;line-height:1.07;letter-spacing:-.02em;margin:0;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-when{font-family:var(--mono);font-size:15.5px;font-weight:500;letter-spacing:.02em;color:var(--accent);margin:0}
+.card-club{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-club .club{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink-2)}
+.card-why{margin:auto -15px -14px;border-top:2px solid var(--ink);background:var(--paper-2);
+  padding:9px 15px 10px;font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+.card-why b{font-weight:600;color:var(--ink)}
+.stamp{position:absolute;top:20px;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.02em;
+  padding:5px 12px;border:3px solid currentColor;opacity:0;pointer-events:none;background:var(--paper)}
+.stamp.save{left:16px;transform:rotate(-14deg);color:var(--green)}
+.stamp.pass{right:16px;transform:rotate(14deg);color:var(--grey)}
+.stamp.up{left:50%;top:38%;margin-left:-62px;transform:rotate(-4deg);color:var(--blue);font-size:22px}
+.deck-actions{display:flex;align-items:center;justify-content:center;gap:15px;padding:12px 0 14px;flex:none}
+.round{width:54px;height:54px;border:2px solid var(--ink);border-radius:50%;background:var(--paper);color:var(--ink);
+  display:grid;place-items:center;transition:transform .12s ease;box-shadow:3px 3px 0 var(--ink)}
+.round:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.round.big{width:62px;height:62px}
+.round svg{width:23px;height:23px}
+.round.undo{width:44px;height:44px;box-shadow:2px 2px 0 var(--ink)}
+.round.undo svg{width:18px;height:18px}
+.round[disabled]{opacity:.3;pointer-events:none}
+.round.save{background:var(--green);color:#fff}
+.round.info{width:44px;height:44px;box-shadow:2px 2px 0 var(--ink)}
+.round.info svg{width:18px;height:18px}
+
+.empty{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:13px;height:100%;padding:0 6px}
+.empty .big{font-family:var(--display);font-weight:800;font-size:29px;line-height:1.03;letter-spacing:-.03em;margin:0;max-width:16ch}
+.empty p{margin:0;color:var(--ink-2);max-width:30ch}
+.empty .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+/* ---------- browse ---------- */
+.browse{flex:1;display:flex;flex-direction:column;min-height:0}
+.searchbar{margin:0 18px 8px;display:flex;align-items:center;gap:9px;border:2px solid var(--ink);
+  background:var(--paper);padding:0 12px;height:44px;flex:none}
+.searchbar svg{width:17px;height:17px;flex:none;color:var(--ink-2)}
+.searchbar input{flex:1;font-size:15px;background:none;border:0;color:var(--ink);min-width:0}
+.searchbar input::placeholder{color:var(--ink-3)}
+.searchbar button{font-family:var(--mono);font-size:12px;color:var(--ink-2);padding:4px}
+.pillrow{display:flex;gap:7px;overflow-x:auto;padding:0 18px 10px;flex:none;scrollbar-width:none}
+.pillrow::-webkit-scrollbar{display:none}
+.fpill{flex:none;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:6px 11px;
+  font-size:13px;font-weight:500;white-space:nowrap}
+.fpill[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.blist{flex:1;overflow-y:auto;padding:0 18px 20px;display:flex;flex-direction:column;gap:10px}
+.postbar{display:flex;align-items:center;gap:9px;border:2px dashed var(--ink-3);background:var(--paper);
+  color:var(--ink);padding:11px 12px;font-weight:600;font-size:14px;flex:none}
+.postbar b{font-family:var(--display);font-weight:800;font-size:17px}
+.postbar .live{margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.postbar .live i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px}
+.card .photo,.bthumb .photo,.sheet-poster .photo{width:100%;height:100%;object-fit:cover;display:block}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.field.tight{margin-bottom:0}
+.field textarea{font-family:var(--body);font-size:15px;padding:10px;background:var(--paper);border:2px solid var(--ink);
+  color:var(--ink);width:100%;min-height:74px;resize:vertical}
+.field select{font-family:var(--body);font-size:15px;padding:11px 10px;background:var(--paper);
+  border:2px solid var(--ink);color:var(--ink);width:100%}
+.photopick{display:flex;align-items:center;gap:11px;border:2px solid var(--ink);padding:9px;background:var(--paper)}
+.photopick .prev{width:66px;height:48px;flex:none;border:1.5px solid var(--ink);background:var(--paper-2);overflow:hidden}
+.photopick .prev img{width:100%;height:100%;object-fit:cover;display:block}
+.photopick .lbl{flex:1;font-size:13px;color:var(--ink-2)}
+.chips.mini-chips .chip{padding:6px 10px;font-size:12.5px;border-width:1.5px}
+.bcard{display:flex;flex:none;min-height:112px;border:2px solid var(--ink);background:var(--paper);
+  overflow:hidden;box-shadow:3px 3px 0 var(--sh)}
+.bthumb{width:96px;flex:none;border-right:2px solid var(--ink);background:var(--paper-2)}
+.bthumb svg{width:100%;height:100%;display:block}
+.bmain{flex:1;min-width:0;padding:10px 11px;display:flex;flex-direction:column;gap:5px}
+.bmain h4{font-family:var(--display);font-weight:700;font-size:15.5px;line-height:1.12;letter-spacing:-.01em;margin:0;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bwhen{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent)}
+.bsub{font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.brow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px}
+.bheart{width:34px;height:34px;border:2px solid var(--ink);display:grid;place-items:center;flex:none;background:var(--paper);color:var(--ink)}
+.bheart.on{background:var(--green);color:#fff}
+.bheart svg{width:16px;height:16px}
+
+/* ---------- saved ---------- */
+.list{flex:1;overflow-y:auto;padding:2px 18px 24px}
+.daygroup{margin-top:14px}
+.dayhead{display:flex;align-items:baseline;gap:10px;position:sticky;top:0;background:var(--paper);padding:6px 0 7px;z-index:2}
+.dayhead h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.01em;margin:0;text-transform:uppercase}
+.dayhead .n{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.dayhead .ln{flex:1;height:2px;background:var(--ink)}
+.srow{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--paper-3);align-items:flex-start}
+.srow .t{font-family:var(--mono);font-size:12.5px;font-weight:500;width:62px;flex:none;padding-top:2px}
+.srow .m{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.srow .m h4{font-family:var(--display);font-weight:700;font-size:16px;line-height:1.15;margin:0;letter-spacing:-.01em}
+.srow .sub{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.srow .acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:2px}
+.mini{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--ink);
+  padding:4px 8px;background:var(--paper);color:var(--ink)}
+.mini.solid{background:var(--ink);color:var(--paper)}
+.mini:active{transform:translate(1px,1px)}
+.fold{margin-top:20px;border-top:2px solid var(--ink)}
+.fold > button{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 0;
+  font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.02em}
+.fold .cnt{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--ink-2)}
+.fold[data-open="false"] .foldbody{display:none}
+
+/* ---------- profile ---------- */
+.prof{padding:2px 20px 24px;overflow-y:auto;flex:1}
+.prof-card{border:2px solid var(--ink);padding:14px;display:flex;gap:13px;align-items:center;background:var(--paper)}
+.avatar{width:52px;height:52px;flex:none;border:2px solid var(--ink);background:var(--accent);color:#fff;
+  display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:19px}
+.prof-card .who{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.prof-card input.nm{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.02em;
+  border:0;border-bottom:2px dashed var(--paper-3);padding:1px 0;background:none;color:var(--ink);width:100%}
+.prof-card input.nm:focus{border-bottom-color:var(--accent);outline:none}
+.prof-card .em{font-size:12.5px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink);margin-top:14px}
+.stat{padding:11px 10px;border-right:2px solid var(--ink)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-family:var(--display);font-weight:800;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);display:block;margin-top:5px}
+.sect{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin:22px 0 9px}
+.rowline{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--paper-3)}
+.rowline .lb{font-size:14.5px;font-weight:500}
+.rowline .vl{font-family:var(--mono);font-size:12.5px;color:var(--ink-2)}
+.switch{width:52px;height:28px;border:2px solid var(--ink);background:var(--paper);position:relative;flex:none}
+.switch i{position:absolute;top:2px;left:2px;width:20px;height:20px;background:var(--ink);transition:transform .16s ease;display:block}
+.switch[aria-pressed="true"]{background:var(--green)}
+.switch[aria-pressed="true"] i{transform:translateX(24px);background:#fff}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.segsmall{display:flex;border:2px solid var(--ink)}
+.segsmall button{padding:6px 11px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.segsmall button + button{border-left:2px solid var(--ink)}
+.segsmall button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.scorebox{border:2px solid var(--ink);background:var(--paper-2);padding:12px 13px;font-family:var(--mono);
+  font-size:11.5px;line-height:1.75;white-space:pre;overflow-x:auto;color:var(--ink)}
+.note{font-size:12.5px;color:var(--ink-2);margin:9px 0 0}
+
+/* ---------- detail sheet ---------- */
+.scrim{position:absolute;inset:0;background:rgba(21,21,26,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:20}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;height:93%;background:var(--paper);border-top:2px solid var(--ink);
+  transform:translateY(101%);transition:transform .3s cubic-bezier(.2,.75,.3,1);z-index:21;display:flex;flex-direction:column;
+  border-radius:18px 18px 0 0;overflow:hidden}
+.sheet.on{transform:translateY(0)}
+.sheet-grab{position:relative;padding:11px 0 8px;display:flex;justify-content:center;flex:none;touch-action:none;cursor:grab}
+.sheet-grab i{width:44px;height:4px;background:var(--ink-3);border-radius:2px;display:block}
+.sheet-close{position:absolute;right:12px;top:5px;width:32px;height:32px;display:grid;place-items:center;
+  border:2px solid var(--ink);background:var(--paper);color:var(--ink)}
+.sheet-close svg{width:15px;height:15px}
+.sheet-scroll{overflow-y:auto;flex:1}
+.sheet-poster{height:194px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.sheet-poster svg{width:100%;height:100%;display:block}
+.sheet-body{padding:16px 20px 22px;display:flex;flex-direction:column;gap:12px}
+.sheet-body h2{font-family:var(--display);font-weight:800;font-size:26px;line-height:1.03;letter-spacing:-.025em;margin:0;text-wrap:balance}
+.kv{display:flex;gap:12px;align-items:flex-start}
+.kv .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);width:64px;flex:none;padding-top:3px}
+.kv .v{flex:1;font-size:14.5px}
+.kv .v small{display:block;color:var(--ink-2);font-size:13px}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px}
+.sheet-desc{font-size:14.5px;line-height:1.6}
+.sheet-foot{border-top:2px solid var(--ink);padding:12px 18px calc(14px + env(safe-area-inset-bottom));display:flex;gap:9px;flex:none;background:var(--paper)}
+.sheet-foot .btn{flex:1}
+.sheet-foot .icon-btn{width:52px;height:52px;border:2px solid var(--ink);display:grid;place-items:center;flex:none;background:var(--paper);color:var(--ink)}
+.sheet-foot .icon-btn.on{background:var(--green);color:#fff}
+.sheet-foot .icon-btn:active{transform:translate(2px,2px)}
+
+/* ---------- social ---------- */
+.social{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2)}
+.social b{font-weight:600;color:var(--ink)}
+.dots{display:flex;flex:none}
+.dots i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--paper);display:grid;place-items:center;
+  font-family:var(--display);font-weight:800;font-size:8.5px;color:#fff;margin-left:-6px}
+.dots i:first-child{margin-left:0}
+.tag-reg{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;background:var(--green);color:#fff;padding:3px 7px;border:1.5px solid var(--ink)}
+
+.friendrow{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--paper-3)}
+.friendrow .who{flex:1;min-width:0}
+.friendrow .who b{font-family:var(--display);font-weight:700;font-size:15px;display:block;letter-spacing:-.01em}
+.friendrow .who span{font-size:12px;color:var(--ink-2)}
+.avatar.sm{width:36px;height:36px;font-size:13px;border-width:2px}
+
+.selline{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--paper-3)}
+.selline .lb{font-size:14.5px;font-weight:500;flex:none}
+.selline select{border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:7px 9px;
+  font-family:var(--mono);font-size:12.5px;max-width:62%}
+
+/* ---------- register modal ---------- */
+.modal{position:absolute;inset:0;background:rgba(21,21,26,.72);z-index:32;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.modalcard{background:var(--paper);color:var(--ink);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--accent);
+  width:100%;max-width:340px;max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.modalcard header{padding:16px 18px 12px;border-bottom:2px solid var(--ink)}
+.modalcard header .eyebrow{margin-bottom:5px}
+.modalcard header h3{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em;margin:0;line-height:1.1}
+.modalcard .mbody{padding:14px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:11px}
+.modalcard footer{padding:12px 18px 14px;border-top:2px solid var(--ink);display:flex;flex-direction:column;gap:8px}
+.dl{display:flex;flex-direction:column;gap:0;border:2px solid var(--ink)}
+.dl .r{display:flex;gap:10px;padding:9px 11px;border-bottom:1px solid var(--paper-3);align-items:center}
+.dl .r:last-child{border-bottom:0}
+.dl .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);width:74px;flex:none}
+.dl .v{flex:1;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl input.v{border:0;border-bottom:1px dashed var(--paper-3);background:none;color:var(--ink);padding:1px 0;font-size:13.5px}
+.dl input.v:focus{border-bottom-color:var(--accent);outline:none}
+.destrow{display:flex;align-items:center;gap:11px;border:2px solid var(--ink);background:var(--paper-2);padding:10px 12px}
+.destrow > i{width:12px;height:12px;border-radius:50%;flex:none;border:1.5px solid var(--ink)}
+.destrow > span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.destrow b{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.01em}
+.destrow span span{font-size:12px;color:var(--ink-2)}
+.destlink{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin:2px 0 0;text-align:center;word-break:break-all}
+.destlink a{color:var(--ink)}
+a.btn{text-decoration:none}
+
+/* ---------- tutorial ---------- */
+.tut{position:absolute;inset:0;background:rgba(21,21,26,.7);z-index:30;display:none;align-items:center;justify-content:center;padding:24px}
+.tut.on{display:flex}
+.tutcard{background:var(--paper);color:var(--ink);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--accent);
+  padding:20px 18px;width:100%;max-width:320px;display:flex;flex-direction:column;gap:14px}
+.tutcard h3{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.025em;margin:0}
+.tutrow{display:flex;gap:12px;align-items:flex-start}
+.tutrow .g{width:38px;height:38px;flex:none;border:2px solid var(--ink);display:grid;place-items:center;font-size:19px;background:var(--paper-2)}
+.tutrow b{font-family:var(--display);font-weight:700;font-size:15px;display:block}
+.tutrow span{font-size:13px;color:var(--ink-2)}
+
+/* ---------- toast ---------- */
+.toast{position:absolute;left:50%;bottom:92px;transform:translate(-50%,12px);background:#15151A;color:#F2F1EC;
+  padding:10px 15px;font-size:13.5px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+  z-index:40;max-width:84%;text-align:center;box-shadow:3px 3px 0 var(--accent)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms !important;transition-duration:.08s !important} }
+</style>
+
+</head>
+<body>
+<div class="stage">
+  <div class="marks" aria-hidden="true"><span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span></div>
+  <div class="stage-note">UniVerse · prototype · seeded demo data</div>
+
+  <div class="device" id="device" data-mode="light">
+
+    <!-- ============ AUTH ============ -->
+    <section class="screen on" id="s-auth">
+      <div class="auth">
+        <div class="wordmark">UNIVERSE<span style="color:var(--accent)">.</span></div>
+        <div class="unistrip" id="unistrip"></div>
+        <div class="auth-hero">
+          <p class="big">Every campus.<br>One deck.<br><em>Swipe.</em></p>
+          <p>Club events from six Melbourne universities, ranked by what you're actually into.</p>
+        </div>
+
+        <div class="seg" id="auth-seg" style="flex:none">
+          <button data-mode="login" aria-selected="true">Log in</button>
+          <button data-mode="signup" aria-selected="false">Sign up</button>
+        </div>
+
+        <div class="sso">
+          <button data-sso="Google"><span class="mark">G</span>Continue with Google</button>
+          <button class="ms" data-sso="Microsoft"><span class="mark">⊞</span>Continue with Microsoft</button>
+          <button class="canvas" data-sso="Canvas"><span class="mark">◐</span>Continue with Canvas</button>
+        </div>
+
+        <div class="divider"><i></i><span>or with email</span><i></i></div>
+
+        <div class="field">
+          <label for="email">University email</label>
+          <input id="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" placeholder="you@student.rmit.edu.au">
+        </div>
+        <div class="field">
+          <label for="pw">Password</label>
+          <input id="pw" type="password" autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <p class="err" id="auth-err"></p>
+        <button class="btn" id="btn-auth">Log in</button>
+        <div class="auth-foot">
+          <button id="btn-magic">Email me a link instead</button> ·
+          <button id="btn-bypass">Demo account</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CHECK EMAIL ============ -->
+    <section class="screen" id="s-checkemail">
+      <div class="centre-screen">
+        <div class="stamp-box"><b>Check your inbox</b><span id="ce-email"></span></div>
+        <p class="muted" style="margin:0">We've sent a one-tap sign-in link. No password — we already know your university from your email.</p>
+        <button class="btn" id="btn-openlink">Open the link (demo)</button>
+        <button class="btn ghost" id="btn-backauth">Use a different email</button>
+      </div>
+    </section>
+
+    <!-- ============ ONBOARDING (5 steps) ============ -->
+    <section class="screen" id="s-onboard">
+      <div class="ob-head">
+        <div class="ob-steps" id="ob-steps"></div>
+        <button class="ob-skip" id="ob-skip">Skip</button>
+      </div>
+      <div class="ob-title"><h2 id="ob-h"></h2><p id="ob-p"></p></div>
+      <div class="ob-body" id="ob-body"></div>
+      <div class="screen-foot">
+        <button class="btn" id="ob-next">Continue</button>
+        <button class="btn ghost small" id="ob-back">Back</button>
+      </div>
+    </section>
+
+    <!-- ============ APP ============ -->
+    <section class="screen" id="s-app">
+      <div class="app">
+        <div class="app-head">
+          <div><h1 id="app-title">Discover</h1><div class="meta" id="app-sub">loading</div></div>
+          <div class="progress" id="app-progress">0 / 0</div>
+        </div>
+        <div class="mode-row" id="mode-row">
+          <div class="seg" id="mode-seg">
+            <button data-disc="swipe" aria-selected="true">👆 Swipe</button>
+            <button data-disc="browse" aria-selected="false">🗂 Browse</button>
+          </div>
+        </div>
+
+        <div class="tabview">
+          <div class="tabpane on" id="pane-discover">
+            <!-- swipe -->
+            <div class="deck-wrap" id="swipe-view">
+              <div class="stack" id="stack"></div>
+              <div class="deck-actions" id="deck-actions">
+                <button class="round pass big" id="btn-pass" aria-label="Pass">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+                </button>
+                <button class="round undo" id="btn-undo" aria-label="Undo last swipe">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a5 5 0 010 10h-4"/><path d="M7 5L3 9l4 4"/></svg>
+                </button>
+                <button class="round info" id="btn-info" aria-label="Event details">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 16v-5M12 8h.01"/><circle cx="12" cy="12" r="9"/></svg>
+                </button>
+                <button class="round save big" id="btn-save" aria-label="Save">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.7-9.4-9.1C1.1 8.5 3 5 6.5 5c2 0 3.4 1.1 4.2 2.2l1.3 1.7 1.3-1.7C14.1 6.1 15.5 5 17.5 5 21 5 22.9 8.5 21.4 11.9 19.5 16.3 12 21 12 21z"/></svg>
+                </button>
+              </div>
+            </div>
+            <!-- browse -->
+            <div class="browse" id="browse-view" hidden>
+              <div class="searchbar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <input id="q" type="search" placeholder="Search events, clubs…" autocomplete="off">
+                <button id="q-clear" hidden>clear</button>
+              </div>
+              <div class="pillrow" id="pillrow"></div>
+              <button class="postbar" id="postbar" style="margin:0 18px 10px">
+                <b>＋</b> Post a club event
+                <span class="live" id="live-ind"></span>
+              </button>
+              <div class="blist" id="blist"></div>
+            </div>
+          </div>
+
+          <div class="tabpane" id="pane-saved"><div class="list" id="saved-list"></div></div>
+          <div class="tabpane" id="pane-profile"><div class="prof" id="prof-body"></div></div>
+        </div>
+
+        <nav class="tabbar" role="tablist">
+          <button role="tab" aria-selected="false" data-tab="saved">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20s-6.5-4.1-8.2-8C2.4 9 4.1 6 7.1 6c1.7 0 3 1 3.6 1.9l1.3 1.7 1.3-1.7C14 7 15.2 6 16.9 6c3 0 4.7 3 3.3 6-1.7 3.9-8.2 8-8.2 8z"/></svg>
+            Saved
+          </button>
+          <button role="tab" aria-selected="true" data-tab="discover">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
+            Discover
+          </button>
+          <button role="tab" aria-selected="false" data-tab="profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4"/></svg>
+            Profile
+          </button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ============ POST AN EVENT ============ -->
+    <div class="modal" id="post">
+      <div class="modalcard">
+        <header>
+          <p class="eyebrow">Club submission</p>
+          <h3>Post an event</h3>
+        </header>
+        <div class="mbody" id="post-body"></div>
+        <footer id="post-foot"></footer>
+      </div>
+    </div>
+
+    <!-- ============ REGISTER HAND-OFF ============ -->
+    <div class="modal" id="reg">
+      <div class="modalcard">
+        <header>
+          <p class="eyebrow" id="reg-prov">Registration</p>
+          <h3 id="reg-title"></h3>
+        </header>
+        <div class="mbody" id="reg-body"></div>
+        <footer id="reg-foot"></footer>
+      </div>
+    </div>
+
+    <!-- ============ TUTORIAL ============ -->
+    <div class="tut" id="tut">
+      <div class="tutcard">
+        <h3>How to swipe</h3>
+        <div class="tutrow"><div class="g">👉</div><div><b>Swipe right</b><span>I'm interested — saves it to your list</span></div></div>
+        <div class="tutrow"><div class="g">👈</div><div><b>Swipe left</b><span>Not for me — skip this one</span></div></div>
+        <div class="tutrow"><div class="g">👆</div><div><b>Swipe up</b><span>See the full event details</span></div></div>
+        <button class="btn" id="tut-go">Got it, let's go</button>
+      </div>
+    </div>
+
+    <!-- ============ DETAIL SHEET ============ -->
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Event details">
+      <div class="sheet-grab" id="sheet-grab"><i></i>
+        <button class="sheet-close" id="sheet-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
+        </button>
+      </div>
+      <div class="sheet-scroll" id="sheet-scroll"></div>
+      <div class="sheet-foot" id="sheet-foot"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================================================================
+   1. SEED DATA
+   ================================================================ */
+/* Each university's student union and the platform its clubs actually
+   sell through — a paid registration is routed to the hosting
+   university's own system, so the student lands where their details
+   and their student status already mean something. */
+const UNIS = [
+  {id:'u1', name:'University of Melbourne', short:'Unimelb',   colour:'#094183', lat:-37.7963, lng:144.9614,
+   domains:['student.unimelb.edu.au','unimelb.edu.au'],
+   union:'UMSU', regLabel:'UMSU events', regUrl:'https://umsu.unimelb.edu.au/events/'},
+  {id:'u2', name:'RMIT University',         short:'RMIT',      colour:'#E60028', lat:-37.8080, lng:144.9633,
+   domains:['student.rmit.edu.au','rmit.edu.au'],
+   union:'RUSU', regLabel:'RUSU · Rubric', regUrl:'https://campus.hellorubric.com/?s=4202'},
+  {id:'u3', name:'Monash University',       short:'Monash',    colour:'#006DAE', lat:-37.9114, lng:145.1340,
+   domains:['student.monash.edu','monash.edu'],
+   union:'MSA', regLabel:'MSA · Eventbrite', regUrl:'https://www.eventbrite.com.au/o/monash-student-association-msa-13953137008'},
+  {id:'u4', name:'Deakin University',       short:'Deakin',    colour:'#C79100', lat:-37.8470, lng:145.1150,
+   domains:['deakin.edu.au','student.deakin.edu.au'],
+   union:'DUSA', regLabel:'DUSA · Rubric', regUrl:'https://campus.hellorubric.com/?s=3659'},
+  {id:'u5', name:'La Trobe University',     short:'La Trobe',  colour:'#8C1D40', lat:-37.7190, lng:145.0490,
+   domains:['students.latrobe.edu.au','latrobe.edu.au'],
+   union:'LTSU', regLabel:'LTSU clubs', regUrl:'https://www.latrobesu.org.au/clubs'},
+  {id:'u6', name:'Swinburne University',    short:'Swinburne', colour:'#E05A00', lat:-37.8221, lng:145.0389,
+   domains:['student.swin.edu.au','swin.edu.au'],
+   union:'Student Life', regLabel:'Swinburne Student Life', regUrl:'https://studentlife.swinburne.edu.au/Events'}
+];
+
+const INTERESTS = [
+  {slug:'technology-innovation',    label:'Technology & innovation',    emoji:'\u{1F4BB}'},
+  {slug:'business-entrepreneurship',label:'Business & entrepreneurship',emoji:'\u{1F4C8}'},
+  {slug:'career-networking',        label:'Career & networking',        emoji:'\u{1F91D}'},
+  {slug:'art-design',               label:'Art & design',               emoji:'\u{1F3A8}'},
+  {slug:'photography-content',      label:'Photography & content',      emoji:'\u{1F4F7}'},
+  {slug:'music-performance',        label:'Music & performance',        emoji:'\u{1F3B8}'},
+  {slug:'sport-fitness',            label:'Sport & fitness',            emoji:'\u{26BD}'},
+  {slug:'gaming',                   label:'Gaming',                     emoji:'\u{1F3AE}'},
+  {slug:'food-cafes',               label:'Food & cafés',               emoji:'\u{2615}'},
+  {slug:'culture-languages',        label:'Culture & languages',        emoji:'\u{1F30F}'},
+  {slug:'health-wellbeing',         label:'Health & wellbeing',         emoji:'\u{1F9D8}'},
+  {slug:'sustainability',           label:'Sustainability',             emoji:'\u{1F331}'},
+  {slug:'volunteering',             label:'Volunteering',               emoji:'\u{1F91F}'},
+  {slug:'melbourne-exploration',    label:'Melbourne exploration',      emoji:'\u{1F5FA}'},
+  {slug:'study-academic',           label:'Study & academic',           emoji:'\u{1F4DA}'}
+];
+
+/* activity types — from the Figma flow, step 2 */
+const ATYPES = ['Workshops','Concerts & performances','Sports events','Hackathons','Career fairs',
+                'Social mixers','Seminars & talks','Competitions','Club meetings','Outdoor activities'];
+
+const BUDGETS = [
+  {id:'free', label:'Free only',  cap:0},
+  {id:'b10',  label:'Under $10',  cap:1000},
+  {id:'b25',  label:'Under $25',  cap:2500},
+  {id:'b50',  label:'Under $50',  cap:5000},
+  {id:'any',  label:'No limit',   cap:Infinity}
+];
+const DISTANCES = [
+  {id:'d2', label:'2 km', km:2},   {id:'d5', label:'5 km', km:5},
+  {id:'d10',label:'10 km',km:10},  {id:'d25',label:'25 km',km:25},
+  {id:'d50',label:'50 km',km:50},  {id:'any',label:'Any distance', km:Infinity}
+];
+
+/* suburbs the address field understands */
+const SUBURBS = {
+  'carlton':[-37.800,144.967],'carlton north':[-37.784,144.972],'parkville':[-37.785,144.952],
+  'melbourne':[-37.814,144.963],'cbd':[-37.814,144.963],'west melbourne':[-37.806,144.940],
+  'north melbourne':[-37.799,144.942],'fitzroy':[-37.798,144.978],'collingwood':[-37.803,144.988],
+  'docklands':[-37.817,144.946],'southbank':[-37.823,144.964],'port melbourne':[-37.840,144.930],
+  'st kilda':[-37.868,144.981],'richmond':[-37.819,144.998],'brunswick':[-37.767,144.960],
+  'preston':[-37.741,145.001],'fairfield':[-37.778,145.017],'clayton':[-37.917,145.122],
+  'burwood':[-37.851,145.114],'bundoora':[-37.700,145.067],'hawthorn':[-37.822,145.035],
+  'footscray':[-37.800,144.900],'abbotsford':[-37.803,145.000]
+};
+
+const CLUBS = [
+  {id:'c1',  uniId:'u1', name:'Melbourne University Computing Club', initials:'MUCC'},
+  {id:'c2',  uniId:'u1', name:'Melbourne Uni Film Society',          initials:'MUFS'},
+  {id:'c3',  uniId:'u2', name:'RMIT Link Arts & Culture',            initials:'LINK'},
+  {id:'c4',  uniId:'u2', name:'RMIT Business Society',               initials:'RBS'},
+  {id:'c5',  uniId:'u3', name:'Monash Association of Coding',        initials:'MAC'},
+  {id:'c6',  uniId:'u3', name:'Monash Sustainability Collective',    initials:'MSC'},
+  {id:'c7',  uniId:'u4', name:'Deakin Photography Club',             initials:'DPC'},
+  {id:'c8',  uniId:'u4', name:'Deakin Entrepreneurs Society',        initials:'DES'},
+  {id:'c9',  uniId:'u5', name:'La Trobe Wellbeing Collective',       initials:'LTWC'},
+  {id:'c10', uniId:'u5', name:'La Trobe Food & Culture Club',        initials:'FCC'},
+  {id:'c11', uniId:'u6', name:'Swinburne Game Development Club',     initials:'SGDC'},
+  {id:'c12', uniId:'u6', name:'Swinburne Design Collective',         initials:'SDC'}
+];
+
+const HUM='https://events.humanitix.com/', EB='https://www.eventbrite.com.au/', TB='https://www.trybooking.com/';
+
+const SEED = [
+  {id:'e1', c:'c1', d:2,  t:'18:00', dur:360, a:'Hackathons', title:'Hack the Semester: 6-Hour Build Night', venue:'Melbourne Connect', suburb:'Carlton', addr:'700 Swanston St, Carlton', cents:0, prov:'humanitix', url:HUM, tags:['technology-innovation','study-academic'], desc:'Turn up with an idea or borrow one of ours. Six hours, free pizza at 8, demos at midnight. Every skill level — half the room has never shipped anything before.'},
+  {id:'e2', c:'c1', d:6,  t:'17:30', dur:120, a:'Workshops', title:'Intro to Rust, With Pizza', venue:'Doug McDonell Building', suburb:'Parkville', addr:'Doug McDonell Bldg, Parkville', cents:0, prov:'none', url:null, tags:['technology-innovation','food-cafes'], desc:'A two-hour, laptop-open introduction to Rust for people who already write a bit of Python or JS. Bring a laptop. We bring the pizza.'},
+  {id:'e3', c:'c1', d:9,  t:'18:00', dur:120, a:'Career fairs', title:'Grad Season: Resume Teardown with Atlassian', venue:'Kwong Lee Dow Building', suburb:'Parkville', addr:'234 Queensberry St, Carlton', cents:0, prov:'eventbrite', url:EB, tags:['career-networking','technology-innovation'], desc:'Two Atlassian engineers read real student resumes on the projector, anonymously, and say what they would actually do with them. Submit yours when you register.'},
+
+  {id:'e4', c:'c2', d:3,  t:'19:30', dur:210, a:'Concerts & performances', title:'Rooftop Film Night: Wong Kar-wai Double', venue:'Union House Rooftop', suburb:'Parkville', addr:'Union House, Parkville', cents:1200, prov:'humanitix', url:HUM, tags:['art-design','melbourne-exploration'], desc:'Chungking Express then In the Mood for Love, projected on the rooftop as it gets dark. Beanbags, blankets and a hot chip cart. Dress for Melbourne, not for the forecast.'},
+  {id:'e5', c:'c2', d:8,  t:'14:00', dur:180, a:'Concerts & performances', title:'35mm Sunday: Shorts by Melbourne Students', venue:'Cinema Nova', suburb:'Carlton', addr:'380 Lygon St, Carlton', cents:900, prov:'trybooking', url:TB, tags:['art-design','photography-content'], desc:'Nine short films by students from five universities, screened on real 35mm, with a Q&A afterwards where the directors have to answer for their choices.'},
+  {id:'e6', c:'c2', d:12, t:'19:00', dur:150, a:'Concerts & performances', title:'Score & Screen: Live Soundtrack Night', venue:'The Toff in Town', suburb:'Melbourne', addr:'252 Swanston St, Melbourne', cents:1800, prov:'humanitix', url:HUM, tags:['music-performance','art-design'], desc:'A student ensemble plays live over silent film clips they have never rehearsed against. It goes wrong at least once and that is the fun of it.'},
+
+  {id:'e7', c:'c3', d:1,  t:'18:30', dur:120, a:'Workshops', title:'Life Drawing in the Laneway', venue:'Blender Studios', suburb:'West Melbourne', addr:'33 Dudley St, West Melbourne', cents:800, prov:'none', url:null, tags:['art-design'], desc:'Charcoal, newsprint and a clothed model, in a working studio surrounded by other people making things. Materials provided. No experience whatsoever required.'},
+  {id:'e8', c:'c3', d:5,  t:'12:00', dur:240, a:'Workshops', title:'Zine Fair + Riso Workshop', venue:'RMIT Building 45', suburb:'Melbourne', addr:'Bldg 45, La Trobe St, Melbourne', cents:0, prov:'none', url:null, tags:['art-design','photography-content'], desc:'Forty student stallholders selling zines for the price of a coffee, plus a rolling risograph workshop — fold and print an eight-page zine in twenty minutes.'},
+  {id:'e9', c:'c3', d:10, t:'19:00', dur:150, a:'Concerts & performances', title:'Open Mic: First-Timers Welcome', venue:'Bar Open', suburb:'Fitzroy', addr:'317 Brunswick St, Fitzroy', cents:0, prov:'none', url:null, tags:['music-performance','melbourne-exploration'], desc:'Half the slots are held for people who have never played to a room before. Five minutes each, a house amp and a piano that is nearly in tune.'},
+  {id:'e10',c:'c3', d:4,  t:'16:00', dur:150, a:'Outdoor activities', title:'Street Photography Walk: Hosier to Fitzroy', venue:'Meet at Hosier Lane', suburb:'Melbourne', addr:'Hosier Ln, Melbourne', cents:0, prov:'humanitix', url:HUM, tags:['photography-content','melbourne-exploration'], desc:'A three-kilometre walk from Hosier Lane up to Fitzroy in the late afternoon light, with two photographers giving on-the-spot feedback. Phone cameras absolutely count.'},
+
+  {id:'e11',c:'c4', d:2,  t:'17:00', dur:120, a:'Seminars & talks', title:'Case Comp Crash Course', venue:'RMIT Building 80', suburb:'Melbourne', addr:'445 Swanston St, Melbourne', cents:0, prov:'eventbrite', url:EB, tags:['business-entrepreneurship','career-networking','study-academic'], desc:'How to structure, time and present a consulting case in under ten minutes, run by last year’s national finalists. Practice case included.'},
+  {id:'e12',c:'c4', d:7,  t:'18:30', dur:120, a:'Seminars & talks', title:'Founders on Failure: Three Startups, One Night', venue:'Goods Shed North', suburb:'Docklands', addr:'733 Collins St, Docklands', cents:500, prov:'humanitix', url:HUM, tags:['business-entrepreneurship','career-networking'], desc:'Three founders talk only about the thing that did not work — the co-founder split, the burnt runway, the product nobody wanted. Honest, specific and a bit brutal.'},
+  {id:'e13',c:'c4', d:13, t:'18:00', dur:240, a:'Social mixers', title:'End of Semester Gala Dinner', venue:'Meat Market', suburb:'North Melbourne', addr:'5 Blackwood St, North Melbourne', cents:6500, prov:'trybooking', url:TB, tags:['business-entrepreneurship','career-networking','food-cafes'], desc:'Three courses, a keynote you will actually remember, and a room full of people who will be your industry in three years. Black tie, student prices.'},
+
+  {id:'e14',c:'c5', d:3,  t:'17:30', dur:180, a:'Competitions', title:'Beginner’s CTF: Capture the Flag Night', venue:'Woodside Building', suburb:'Clayton', addr:'20 Exhibition Walk, Clayton', cents:0, prov:'none', url:null, tags:['technology-innovation','gaming'], desc:'A security capture-the-flag built for people who have never done one. Teams of three formed on the night, hints available, snacks non-negotiable.'},
+  {id:'e15',c:'c5', d:11, t:'09:00', dur:540, a:'Hackathons', title:'Ship It Weekend: 24-Hour Build', venue:'Learning & Teaching Building', suburb:'Clayton', addr:'19 Ancora Imparo Way, Clayton', cents:0, prov:'humanitix', url:HUM, tags:['technology-innovation','study-academic'], desc:'One weekend, one working thing. Mentors from four companies float between tables. Sleeping bags optional but historically popular.'},
+  {id:'e16',c:'c5', d:6,  t:'12:30', dur:90,  a:'Club meetings', title:'AI Reading Group: Papers & Pastries', venue:'Campus Centre', suburb:'Clayton', addr:'21 Chancellors Walk, Clayton', cents:0, prov:'none', url:null, tags:['technology-innovation','study-academic','food-cafes'], desc:'One paper, read aloud in sections, argued about over pastries. This fortnight: something on evaluation that everyone cites and nobody has read.'},
+
+  {id:'e17',c:'c6', d:4,  t:'11:00', dur:240, a:'Workshops', title:'Repair Café: Bring Something Broken', venue:'Monash Campus Centre', suburb:'Clayton', addr:'21 Chancellors Walk, Clayton', cents:0, prov:'none', url:null, tags:['sustainability','volunteering'], desc:'Volunteer fixers on soldering irons and sewing machines. Bring a lamp, a jacket, a kettle, a bike. You fix it, we show you how.'},
+  {id:'e18',c:'c6', d:9,  t:'09:30', dur:180, a:'Outdoor activities', title:'Yarra Bend Cleanup + Picnic', venue:'Yarra Bend Park', suburb:'Fairfield', addr:'Yarra Bend Rd, Fairfield', cents:0, prov:'eventbrite', url:EB, tags:['sustainability','volunteering','melbourne-exploration'], desc:'Two hours along the river with gloves and bags, then a picnic under the gums. Last time we pulled out nine shopping trolleys and a scooter.'},
+  {id:'e19',c:'c6', d:12, t:'17:00', dur:150, a:'Social mixers', title:'Thrift Swap & Mend Night', venue:'Monash Sports Hall', suburb:'Clayton', addr:'42 Scenic Blvd, Clayton', cents:0, prov:'none', url:null, tags:['sustainability','art-design'], desc:'Bring five things you never wear, leave with five you will. Visible-mending station running all night for anything with a hole in it.'},
+
+  {id:'e20',c:'c7', d:2,  t:'17:45', dur:120, a:'Outdoor activities', title:'Golden Hour at the Pier', venue:'Princes Pier', suburb:'Port Melbourne', addr:'Pier St, Port Melbourne', cents:0, prov:'none', url:null, tags:['photography-content','melbourne-exploration'], desc:'The old pilings at sunset are the most photographed thing in Port Melbourne for a reason. Tripods welcome, phone shooters equally welcome.'},
+  {id:'e21',c:'c7', d:8,  t:'13:00', dur:180, a:'Workshops', title:'Studio Lighting 101', venue:'Deakin Burwood Studio D', suburb:'Burwood', addr:'221 Burwood Hwy, Burwood', cents:1000, prov:'none', url:null, tags:['photography-content','art-design'], desc:'One light, then two, then a reflector — portrait lighting from the beginning in a real studio. We supply the gear, you supply a willing face.'},
+  {id:'e22',c:'c7', d:14, t:'20:00', dur:150, a:'Outdoor activities', title:'Night Long-Exposure: City Loop', venue:'Sandridge Bridge', suburb:'Southbank', addr:'Sandridge Bridge, Southbank', cents:0, prov:'humanitix', url:HUM, tags:['photography-content','melbourne-exploration'], desc:'Light trails, reflections on the Yarra and thirty-second exposures across the bridge. Bring a tripod or borrow one of our four.'},
+
+  {id:'e23',c:'c8', d:5,  t:'18:00', dur:150, a:'Competitions', title:'Pitch Night: 90 Seconds, No Slides', venue:'Deakin Downtown', suburb:'Docklands', addr:'727 Collins St, Docklands', cents:0, prov:'humanitix', url:HUM, tags:['business-entrepreneurship','career-networking'], desc:'Ninety seconds, no deck, no props. Judges from two VC funds give feedback on the spot. Sign up on the night if you are feeling brave.'},
+  {id:'e24',c:'c8', d:10, t:'10:00', dur:240, a:'Workshops', title:'Side Hustle Sunday: Build a Landing Page', venue:'Deakin Downtown', suburb:'Docklands', addr:'727 Collins St, Docklands', cents:600, prov:'eventbrite', url:EB, tags:['business-entrepreneurship','technology-innovation','study-academic'], desc:'Arrive with an idea, leave with a live page and a way to take email addresses. No coding needed, though you can if you want to.'},
+  {id:'e25',c:'c8', d:13, t:'08:30', dur:90,  a:'Social mixers', title:'Coffee with a Founder', venue:'Market Lane Coffee', suburb:'Carlton', addr:'Queen Victoria Market, Carlton', cents:0, prov:'none', url:null, tags:['business-entrepreneurship','career-networking','food-cafes'], desc:'Eight students, one founder, one long table, ninety minutes before the day starts. You get to ask the question you would not ask on a panel.'},
+
+  {id:'e26',c:'c9', d:1,  t:'06:45', dur:75,  a:'Sports events', title:'Sunrise Run Club: 5k, All Paces', venue:'Princes Park', suburb:'Carlton North', addr:'Princes Park Dr, Carlton North', cents:0, prov:'none', url:null, tags:['sport-fitness','health-wellbeing'], desc:'A flat 3.2km loop with a walk group, a jog group and a group that takes it far too seriously. Coffee at the pavilion afterwards.'},
+  {id:'e27',c:'c9', d:6,  t:'17:00', dur:90,  a:'Club meetings', title:'Exam Season Yoga & Chai', venue:'La Trobe Wellbeing Hub', suburb:'Bundoora', addr:'Kingsbury Dr, Bundoora', cents:0, prov:'none', url:null, tags:['health-wellbeing','study-academic','food-cafes'], desc:'An hour of slow, unintimidating yoga aimed squarely at people who have been at a desk for nine hours, then chai and a biscuit. Mats provided.'},
+  {id:'e28',c:'c9', d:9,  t:'18:00', dur:150, a:'Sports events', title:'Bouldering for Beginners', venue:'Northside Boulders', suburb:'Brunswick', addr:'23 Sydney Rd, Brunswick', cents:1500, prov:'none', url:null, tags:['sport-fitness','health-wellbeing'], desc:'Entry, shoes and a two-hour intro session with a coach. If you can climb a ladder you can do this, and you will ache tomorrow.'},
+  {id:'e29',c:'c9', d:3,  t:'10:00', dur:240, a:'Club meetings', title:'Silent Study Sprint + Free Coffee', venue:'La Trobe Library', suburb:'Bundoora', addr:'Kingsbury Dr, Bundoora', cents:0, prov:'none', url:null, tags:['study-academic','health-wellbeing'], desc:'Four hours of phones-away, timer-on study in blocks of fifty minutes, with a coffee cart from ten. Bring the assignment you are avoiding.'},
+  {id:'e41',c:'c9', d:13, t:'19:00', dur:90,  a:'Sports events', title:'Social Futsal: Teams Made on the Night', venue:'La Trobe Sports Centre', suburb:'Bundoora', addr:'Kingsbury Dr, Bundoora', cents:500, prov:'trybooking', url:TB, tags:['sport-fitness'], desc:'Turn up alone, get put in a team, play four short games. Mixed, genuinely social, and nobody keeps a ladder.'},
+
+  {id:'e30',c:'c10',d:4,  t:'18:00', dur:150, a:'Workshops', title:'Dumpling Night: Fold Your Own', venue:'Union Hall Kitchen', suburb:'Bundoora', addr:'Kingsbury Dr, Bundoora', cents:1200, prov:'humanitix', url:HUM, tags:['food-cafes','culture-languages'], desc:'Four fillings, three folding techniques and a competitive final round. You eat everything you make, which is motivation enough.'},
+  {id:'e31',c:'c10',d:7,  t:'17:30', dur:120, a:'Social mixers', title:'Language Exchange: 8 Tables, 8 Languages', venue:'Eagle Bar', suburb:'Bundoora', addr:'Kingsbury Dr, Bundoora', cents:0, prov:'none', url:null, tags:['culture-languages','career-networking'], desc:'Twenty minutes per table, then everyone moves. Mandarin, Hindi, Auslan, Arabic, Spanish, Vietnamese, Greek and Italian. Absolute beginners at every table.'},
+  {id:'e32',c:'c10',d:11, t:'11:00', dur:180, a:'Outdoor activities', title:'Preston Market Food Crawl', venue:'Preston Market', suburb:'Preston', addr:'Cramer St, Preston', cents:0, prov:'none', url:null, tags:['food-cafes','culture-languages','melbourne-exploration'], desc:'Six stalls, six things you have probably never eaten, chosen by people who grew up shopping here. Free to join, bring about twenty-five dollars.'},
+
+  {id:'e33',c:'c11',d:5,  t:'17:00', dur:180, a:'Hackathons', title:'Game Jam Kickoff: 48 Hours, One Theme', venue:'Swinburne ATC Building', suburb:'Hawthorn', addr:'427 Burwood Rd, Hawthorn', cents:0, prov:'humanitix', url:HUM, tags:['gaming','technology-innovation','art-design'], desc:'Theme announced at 5pm, teams formed by 6, playable builds due Sunday night. Artists and writers are as wanted as programmers.'},
+  {id:'e34',c:'c11',d:8,  t:'18:00', dur:240, a:'Competitions', title:'Retro Arcade Night + Tournament', venue:'Bartronica', suburb:'Melbourne', addr:'121 Flinders Ln, Melbourne', cents:1000, prov:'eventbrite', url:EB, tags:['gaming','melbourne-exploration'], desc:'Two floors of cabinets, a Street Fighter II bracket and a prize nobody actually wants but everybody competes for. Ticket includes a token stack.'},
+  {id:'e35',c:'c11',d:12, t:'17:30', dur:150, a:'Club meetings', title:'Playtest Party: Bring Your Build', venue:'Swinburne AMDC', suburb:'Hawthorn', addr:'469 Burwood Rd, Hawthorn', cents:0, prov:'none', url:null, tags:['gaming','technology-innovation'], desc:'Bring something half-finished and watch a stranger play it while you sit on your hands. The most useful three hours in game development.'},
+
+  {id:'e36',c:'c12',d:7,  t:'18:00', dur:150, a:'Career fairs', title:'Portfolio Night: Get Yours Reviewed', venue:'Swinburne AGSE', suburb:'Hawthorn', addr:'John St, Hawthorn', cents:0, prov:'eventbrite', url:EB, tags:['art-design','career-networking'], desc:'Fifteen-minute one-on-one reviews with working designers from studios and in-house teams. Book a slot, bring a laptop, take notes.'},
+  {id:'e37',c:'c12',d:10, t:'15:00', dur:120, a:'Outdoor activities', title:'Type Safari: Melbourne Signage Walk', venue:'Meet at Degraves St', suburb:'Melbourne', addr:'Degraves St, Melbourne', cents:0, prov:'none', url:null, tags:['art-design','melbourne-exploration','photography-content'], desc:'Hand-painted ghost signs, deco brasswork and one genuinely terrible council sign, over two hours on foot. You will never look at the CBD the same way.'},
+  {id:'e38',c:'c12',d:14, t:'10:00', dur:300, a:'Workshops', title:'Volunteer Design Day for Local Charities', venue:'Kathleen Syme Library', suburb:'Carlton', addr:'251 Faraday St, Carlton', cents:0, prov:'humanitix', url:HUM, tags:['volunteering','art-design'], desc:'Five community organisations arrive with a real design problem. You spend a day on it in a small team and they leave with something they can use.'},
+
+  {id:'e39',c:'c3', d:-3, t:'18:00', dur:150, a:'Social mixers', title:'Semester Trivia Night', venue:'Naughtons Hotel', suburb:'Parkville', addr:'43 Royal Pde, Parkville', cents:500, prov:'none', url:null, tags:['culture-languages','food-cafes'], desc:'Six rounds, one picture round that ruins everyone, and a meat tray that has been won by the same table three semesters running.'},
+  {id:'e40',c:'c1', d:-5, t:'17:30', dur:120, a:'Workshops', title:'Winter Coding Bootcamp: Week 1', venue:'Melbourne Connect', suburb:'Carlton', addr:'700 Swanston St, Carlton', cents:0, prov:'none', url:null, tags:['technology-innovation','study-academic'], desc:'The first of four evenings taking absolute beginners from nothing to a working web page they built themselves.'}
+];
+
+/* ----------------------------------------------------------------
+   Friends — first name and university only, which is all anyone
+   ever sees of anyone else. Seeded for the demo.
+   ---------------------------------------------------------------- */
+const FRIENDS = [
+  {id:'f1', name:'Priya Raman',   uniId:'u3', interested:['e10','e33','e16','e37','e5'],  registered:['e4','e30']},
+  {id:'f2', name:'Sam Okafor',    uniId:'u2', interested:['e4','e8','e34','e14','e23'],   registered:['e10','e33']},
+  {id:'f3', name:'Mia Zhou',      uniId:'u1', interested:['e30','e32','e5','e37','e2'],   registered:['e8']},
+  {id:'f4', name:'Jack Whitlam',  uniId:'u6', interested:['e33','e35','e34','e1'],        registered:['e14']},
+  {id:'f5', name:'Aisha Rahman',  uniId:'u5', interested:['e27','e29','e30','e31','e18'], registered:['e26']},
+  {id:'f6', name:'Tom Beckett',   uniId:'u4', interested:['e20','e21','e22','e10'],       registered:['e37']},
+  {id:'f7', name:'Léa Marchand',  uniId:'u1', interested:['e6','e9','e5','e4'],           registered:['e32']},
+  {id:'f8', name:'Danny Oyelaran',uniId:'u3', interested:['e15','e1','e24','e12'],        registered:['e23']}
+];
+const FRIEND_BY = {}; FRIENDS.forEach(function(f){ FRIEND_BY[f.id]=f; });
+
+/* ================================================================
+   2. DATES — the only place a date is ever formatted
+   ================================================================ */
+const TZ = 'Australia/Melbourne';
+const F = function(opts){ opts.timeZone = TZ; return new Intl.DateTimeFormat('en-AU', opts); };
+const ISO = new Intl.DateTimeFormat('en-CA', {timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit'});
+
+function melbLocal(Y, M1, D, hh, mm){          /* M1 = 1-based month */
+  var ts = Date.UTC(Y, M1-1, D, hh-10, mm);
+  var probe = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit',day:'2-digit',hour12:false});
+  for(var i=0;i<3;i++){
+    var p = probe.formatToParts(new Date(ts)), gh=0, gd=0;
+    p.forEach(function(x){ if(x.type==='hour') gh=+x.value; if(x.type==='day') gd=+x.value; });
+    var diff = (hh-gh) + (D-gd)*24;
+    if(diff === 0) break;
+    ts += diff*3600000;
+  }
+  return new Date(ts);
+}
+function melbDate(dayOffset, hhmm){
+  var parts = ISO.format(new Date()).split('-').map(Number);
+  var base = new Date(Date.UTC(parts[0], parts[1]-1, parts[2]) + dayOffset*86400000);
+  var hm = hhmm.split(':').map(Number);
+  return melbLocal(base.getUTCFullYear(), base.getUTCMonth()+1, base.getUTCDate(), hm[0], hm[1]);
+}
+function timeStr(d){
+  var p = F({hour:'numeric',minute:'2-digit',hour12:true}).formatToParts(d), h='',m='',ap='';
+  p.forEach(function(x){ if(x.type==='hour')h=x.value; if(x.type==='minute')m=x.value; if(x.type==='dayPeriod')ap=x.value; });
+  return h+':'+m+ap.toLowerCase().replace(/\./g,'');
+}
+function dayTime(d){ return F({weekday:'short'}).format(d)+' '+timeStr(d); }
+function fullDate(d){ return F({weekday:'long',day:'numeric',month:'long'}).format(d); }
+function fullWhen(s,e){ return fullDate(s)+', '+timeStr(s)+(e ? '–'+timeStr(e) : ''); }
+function dayKey(d){ return ISO.format(d); }
+function dayLabel(d){
+  var k = dayKey(d), today = ISO.format(new Date()), tomorrow = ISO.format(new Date(Date.now()+86400000));
+  if(k===today) return 'Today';
+  if(k===tomorrow) return 'Tomorrow';
+  return F({weekday:'short',day:'numeric',month:'short'}).format(d).replace(/,/g,'');
+}
+
+const EVENTS = SEED.map(function(s){
+  var start = melbDate(s.d, s.t);
+  var ll = SUBURBS[s.suburb.toLowerCase()] || [-37.814,144.963];
+  return {
+    id:s.id, clubId:s.c, title:s.title, desc:s.desc, venue:s.venue, suburb:s.suburb, addr:s.addr,
+    cents:s.cents, provider:s.prov, ticketUrl:s.url, tags:s.tags, atype:s.a,
+    lat:ll[0], lng:ll[1], start:start, end:new Date(start.getTime()+s.dur*60000)
+  };
+});
+const EV_BY={}; EVENTS.forEach(function(e){ EV_BY[e.id]=e; });
+const CLUB_BY={}; CLUBS.forEach(function(c){ CLUB_BY[c.id]=c; });
+const UNI_BY={};  UNIS.forEach(function(u){ UNI_BY[u.id]=u; });
+const INT_BY={};  INTERESTS.forEach(function(i){ INT_BY[i.slug]=i; });
+const BUD_BY={};  BUDGETS.forEach(function(b){ BUD_BY[b.id]=b; });
+const DIST_BY={}; DISTANCES.forEach(function(d){ DIST_BY[d.id]=d; });
+
+function clubOf(e){ return CLUB_BY[e.clubId]; }
+function uniOf(e){ return UNI_BY[clubOf(e).uniId]; }
+function priceStr(e){ return e.cents===0 ? 'Free' : '$'+(e.cents/100).toFixed(e.cents%100?2:0); }
+
+function haversine(a1,o1,a2,o2){
+  var R=6371, dLat=(a2-a1)*Math.PI/180, dLon=(o2-o1)*Math.PI/180;
+  var s = Math.sin(dLat/2)*Math.sin(dLat/2) +
+          Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
+}
+function homeLatLng(){
+  if(state.address){
+    var hit = SUBURBS[state.address.trim().toLowerCase()];
+    if(hit) return hit;
+  }
+  var u = state.profile ? UNI_BY[state.profile.uniId] : UNIS[1];
+  return [u.lat, u.lng];
+}
+function kmAway(e){ var h = homeLatLng(); return haversine(h[0], h[1], e.lat, e.lng); }
+
+/* ================================================================
+   3. STATE
+   ================================================================ */
+const KEY = 'universe.demo.v3';
+var state = {
+  signedIn:false, pendingEmail:'',
+  profile:null,
+  interests:[], atypes:[], budget:'any', distance:'any', address:'',
+  discovery:'swipe', dark:false, seenTutorial:false,
+  swipes:{}, order:[], registered:{}, friends:[], posted:[], tab:'discover'
+};
+function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(err){} }
+function restore(){
+  try{
+    var raw = localStorage.getItem(KEY); if(!raw) return false;
+    var s = JSON.parse(raw); if(!s || !s.profile) return false;
+    state = Object.assign(state, s);
+    return !!state.signedIn;
+  }catch(err){ return false; }
+}
+function signOut(){ try{ localStorage.removeItem(KEY); }catch(err){} location.reload(); }
+
+const DEMO = {name:'Alex Tran', email:'alex.tran@student.monash.edu', uniId:'u3'};
+const DEMO_INTERESTS = ['art-design','photography-content','food-cafes','melbourne-exploration','technology-innovation'];
+const DEMO_ATYPES = ['Workshops','Outdoor activities','Concerts & performances'];
+const DEMO_SWIPES = [['e10','like'],['e4','like'],['e30','like'],['e39','like'],['e13','pass'],['e26','pass']];
+
+/* ================================================================
+   4. RANKING
+   score = 3.0×interest overlap + 1.5×cross-campus + 1.0×imminence
+         + 1.0×activity match + 0.5×free
+   Budget and distance are filters, relaxed rather than left thin.
+   ================================================================ */
+const WINDOW_DAYS = 14, DECK_LIMIT = 15, CLUB_CAP = 3, MIN_DECK = 8;
+
+function scoreOf(e, now){
+  var mine = {}; state.interests.forEach(function(s){ mine[s]=1; });
+  var overlap = e.tags.filter(function(t){ return mine[t]; }).length;
+  var cross = state.profile && uniOf(e).id !== state.profile.uniId ? 1 : 0;
+  var imminence = 1 - ((e.start.getTime()-now)/(WINDOW_DAYS*86400000));
+  var act = state.atypes.indexOf(e.atype) > -1 ? 1 : 0;
+  var free = e.cents===0 ? 1 : 0;
+  return 3*Math.min(overlap,3) + 1.5*cross + 1*imminence + 1*act + 0.5*free;
+}
+function upcoming(){
+  var now = Date.now(), horizon = now + WINDOW_DAYS*86400000;
+  return EVENTS.filter(function(e){ return e.start.getTime() > now && e.start.getTime() < horizon; });
+}
+function passesBudget(e){ return e.cents <= BUD_BY[state.budget].cap; }
+function passesDistance(e){ return kmAway(e) <= DIST_BY[state.distance].km; }
+
+var relaxed = null;   /* what we had to drop to fill the deck */
+function rankDeck(){
+  var now = Date.now();
+  var base = upcoming().filter(function(e){ return !state.swipes[e.id]; });
+  var levels = [
+    {note:null,        f:function(e){ return passesBudget(e) && passesDistance(e); }},
+    {note:'distance',  f:function(e){ return passesBudget(e); }},
+    {note:'budget and distance', f:function(){ return true; }}
+  ];
+  var pool = [], note = null;
+  for(var i=0;i<levels.length;i++){
+    pool = base.filter(levels[i].f); note = levels[i].note;
+    if(pool.length >= MIN_DECK || i === levels.length-1) break;
+  }
+  relaxed = pool.length && note ? note : null;
+
+  var scored = pool.map(function(e){ return {e:e, s:scoreOf(e, now)}; })
+                   .sort(function(a,b){ return b.s-a.s; });
+  var perClub = {}, out = [];
+  for(var j=0;j<scored.length && out.length<DECK_LIMIT;j++){
+    var cid = scored[j].e.clubId;
+    perClub[cid] = perClub[cid] || 0;
+    if(perClub[cid] >= CLUB_CAP) continue;
+    perClub[cid]++; out.push(scored[j].e.id);
+  }
+  return out;
+}
+function whyLine(e){
+  var mine = {}; state.interests.forEach(function(s){ mine[s]=1; });
+  var hits = e.tags.filter(function(t){ return mine[t]; });
+  if(hits.length) return 'Matches <b>'+INT_BY[hits[0]].label+'</b>'+(hits.length>1 ? ' + '+(hits.length-1)+' more' : '');
+  if(state.atypes.indexOf(e.atype) > -1) return 'You’re up for <b>'+e.atype.toLowerCase()+'</b>';
+  if(state.profile && uniOf(e).id !== state.profile.uniId) return 'From another campus — <b>'+uniOf(e).short+'</b>';
+  if(e.cents===0) return '<b>Free</b>, and '+Math.round(kmAway(e))+' km away';
+  return 'On in the next 14 days';
+}
+
+/* ----------------------------------------------------------------
+   Friends — only people you've added are ever visible, and only
+   their first name and university.
+   ---------------------------------------------------------------- */
+function friendsOn(eventId){
+  var going = [], keen = [];
+  state.friends.forEach(function(fid){
+    var f = FRIEND_BY[fid]; if(!f) return;
+    if(f.registered.indexOf(eventId) > -1) going.push(f);
+    else if(f.interested.indexOf(eventId) > -1) keen.push(f);
+  });
+  return {going:going, keen:keen};
+}
+function firstName(n){ return n.split(' ')[0]; }
+function socialLine(e){
+  var s = friendsOn(e.id), all = s.going.concat(s.keen);
+  if(!all.length) return '';
+  var dots = '<span class="dots">'+ all.slice(0,3).map(function(f){
+    return '<i style="background:'+UNI_BY[f.uniId].colour+'">'+esc(firstName(f.name).charAt(0))+'</i>';
+  }).join('') +'</span>';
+  var txt;
+  if(s.going.length === 1 && !s.keen.length)      txt = '<b>'+esc(firstName(s.going[0].name))+'</b> is registered';
+  else if(s.going.length > 1 && !s.keen.length)   txt = '<b>'+s.going.length+' friends</b> are registered';
+  else if(s.going.length)                         txt = '<b>'+esc(firstName(s.going[0].name))+'</b> is registered · '+s.keen.length+' more interested';
+  else if(all.length === 1)                       txt = '<b>'+esc(firstName(all[0].name))+'</b> is interested';
+  else                                            txt = '<b>'+all.length+' friends</b> are interested';
+  return '<span class="social">'+dots+'<span>'+txt+'</span></span>';
+}
+function friendsSheet(e){
+  var s = friendsOn(e.id);
+  return s.going.concat(s.keen).map(function(f){
+    var going = s.going.indexOf(f) > -1;
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">'+
+      '<span class="dots"><i style="background:'+UNI_BY[f.uniId].colour+'">'+esc(firstName(f.name).charAt(0))+'</i></span>'+
+      '<span>'+esc(firstName(f.name))+' · '+esc(UNI_BY[f.uniId].short)+'</span>'+
+      '<span class="pill" style="'+(going?'background:var(--green);color:#fff;border-color:var(--green)':'')+'">'+
+        (going?'Registered':'Interested')+'</span></div>';
+  }).join('');
+}
+function hostOf(u){ try{ return String(u).replace(/^https?:\/\//,'').split('/')[0]; }catch(err){ return u; } }
+function isRegistered(id){ return !!state.registered[id]; }
+function regTag(){ return '<span class="tag-reg">✓ Registered</span>'; }
+function sharedCount(f){
+  var mine = savedList().map(function(e){ return e.id; });
+  var theirs = f.interested.concat(f.registered);
+  return mine.filter(function(id){ return theirs.indexOf(id) > -1; }).length;
+}
+
+/* ================================================================
+   5. POSTERS
+   ================================================================ */
+const PAL = {
+  'technology-innovation':['#1F3CFF','#FFC400'], 'business-entrepreneurship':['#15151A','#FF4A1C'],
+  'career-networking':['#00A0A8','#FFC400'],     'art-design':['#FF48B0','#1F3CFF'],
+  'photography-content':['#6B2FBE','#FFC400'],   'music-performance':['#FF4A1C','#FF48B0'],
+  'sport-fitness':['#00A45A','#FFC400'],         'gaming':['#6B2FBE','#00A45A'],
+  'food-cafes':['#FF4A1C','#FFC400'],            'culture-languages':['#00A0A8','#FF48B0'],
+  'health-wellbeing':['#00A45A','#F2F1EC'],      'sustainability':['#00A45A','#1F3CFF'],
+  'volunteering':['#FFC400','#FF4A1C'],          'melbourne-exploration':['#1F3CFF','#FF48B0'],
+  'study-academic':['#15151A','#FFC400']
+};
+var posterSeq = 0;
+function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))>>>0; } return h; }
+/* a club-supplied photo wins; otherwise we print one */
+function posterFor(e){
+  if(e.photo) return '<img class="photo" src="'+esc(e.photo)+'" alt="'+esc(e.title)+'">';
+  return posterSVG(e);
+}
+function posterSVG(e){
+  var pal = PAL[e.tags[0]] || ['#1F3CFF','#FFC400'], base = pal[0], mark = pal[1];
+  var h = hash(e.id + e.title), comp = h % 5, id = 'ht'+(posterSeq++), shapes = '';
+  if(comp===0){
+    shapes = '<circle cx="228" cy="46" r="104" fill="'+mark+'"/><rect x="0" y="150" width="300" height="11" fill="'+mark+'"/>'+
+             '<rect x="0" y="172" width="300" height="6" fill="'+mark+'"/>';
+  } else if(comp===1){
+    shapes = '<g fill="none" stroke="'+mark+'" stroke-width="13"><circle cx="150" cy="108" r="38"/>'+
+             '<circle cx="150" cy="108" r="70"/><circle cx="150" cy="108" r="102"/></g>';
+  } else if(comp===2){
+    shapes = '<g transform="rotate(-22 150 100)"><rect x="-60" y="8" width="420" height="30" fill="'+mark+'"/>'+
+             '<rect x="-60" y="66" width="420" height="14" fill="'+mark+'"/>'+
+             '<rect x="-60" y="110" width="420" height="44" fill="'+mark+'"/></g>';
+  } else if(comp===3){
+    shapes = '<path d="M46 200 V96 a64 64 0 0 1 128 0 V200 Z" fill="'+mark+'"/><circle cx="248" cy="52" r="30" fill="'+mark+'"/>';
+  } else {
+    var g='';
+    for(var r=0;r<3;r++){ for(var c=0;c<5;c++){ if(((r*5+c+h)%3)!==0) continue;
+      g += '<rect x="'+(14+c*58)+'" y="'+(16+r*62)+'" width="42" height="42" fill="'+mark+'"/>'; } }
+    shapes = g + '<circle cx="252" cy="164" r="42" fill="'+mark+'"/>';
+  }
+  return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="'+esc(e.title)+' poster">'+
+    '<defs><pattern id="'+id+'" width="7" height="7" patternUnits="userSpaceOnUse">'+
+      '<circle cx="1.8" cy="1.8" r="1.5" fill="#15151A" opacity="0.17"/></pattern></defs>'+
+    '<rect width="300" height="200" fill="'+base+'"/>'+ shapes +
+    '<rect width="300" height="200" fill="url(#'+id+')"/>'+
+    '<text x="150" y="186" text-anchor="middle" font-family="Bricolage Grotesque, Arial, sans-serif" font-weight="800" '+
+      'font-size="30" letter-spacing="1" fill="#F2F1EC" opacity="0.92" transform="rotate(-3 150 186)">'+esc(clubOf(e).initials)+'</text>'+
+  '</svg>';
+}
+
+/* ================================================================
+   6. HELPERS
+   ================================================================ */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function badge(e){ var u=uniOf(e); return '<span class="uni-badge"><i style="background:'+u.colour+'"></i>'+esc(u.short)+'</span>'; }
+var toastT;
+function toast(msg){
+  var t=$('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove('on'); }, 1900);
+}
+function showScreen(id){
+  ['s-auth','s-checkemail','s-onboard','s-app'].forEach(function(s){ $(s).classList.toggle('on', s===id); });
+}
+function applyMode(){ $('device').setAttribute('data-mode', state.dark ? 'dark' : 'light'); }
+
+/* ================================================================
+   7. AUTH
+   ================================================================ */
+$('unistrip').innerHTML = UNIS.map(function(u){
+  return '<span class="u"><i style="background:'+u.colour+'"></i>'+esc(u.short)+'</span>';
+}).join('');
+
+var authMode = 'login';
+Array.prototype.forEach.call($('auth-seg').querySelectorAll('button'), function(b){
+  b.addEventListener('click', function(){
+    authMode = b.getAttribute('data-mode');
+    Array.prototype.forEach.call($('auth-seg').querySelectorAll('button'), function(x){
+      x.setAttribute('aria-selected', x===b ? 'true':'false');
+    });
+    $('btn-auth').textContent = authMode==='login' ? 'Log in' : 'Create account';
+    $('pw').setAttribute('autocomplete', authMode==='login' ? 'current-password' : 'new-password');
+    $('auth-err').textContent = '';
+  });
+});
+
+function uniFromEmail(email){
+  var at = email.trim().toLowerCase().split('@');
+  if(at.length !== 2 || !at[0]) return null;
+  for(var i=0;i<UNIS.length;i++){
+    for(var j=0;j<UNIS[i].domains.length;j++){ if(at[1] === UNIS[i].domains[j]) return UNIS[i]; }
+  }
+  return null;
+}
+function nameFromEmail(email){
+  return email.split('@')[0].split(/[._\-0-9]+/).filter(Boolean).map(function(p){
+    return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();
+  }).join(' ') || 'Student';
+}
+function createProfile(email){
+  var u = uniFromEmail(email);
+  state.profile = {name:nameFromEmail(email), email:email, uniId:u.id};
+  state.signedIn = true;
+  state.interests = []; state.atypes = []; state.budget='any'; state.distance='any'; state.address='';
+  state.discovery='swipe'; state.seenTutorial=false;
+  state.swipes={}; state.order=[]; state.registered={}; state.friends=[];
+  persist();
+}
+function validateEmail(){
+  var email = $('email').value.trim(), err = $('auth-err');
+  if(!email){ err.textContent = 'Pop your student email in first.'; return null; }
+  if(!uniFromEmail(email)){ err.textContent = 'We don’t recognise that university yet — try your student email.'; return null; }
+  err.textContent=''; return email;
+}
+$('btn-auth').addEventListener('click', function(){
+  var email = validateEmail(); if(!email) return;
+  createProfile(email); startOnboarding();
+});
+$('email').addEventListener('input', function(){ $('auth-err').textContent=''; });
+$('email').addEventListener('keydown', function(ev){ if(ev.key==='Enter') $('btn-auth').click(); });
+$('pw').addEventListener('keydown', function(ev){ if(ev.key==='Enter') $('btn-auth').click(); });
+
+Array.prototype.forEach.call(document.querySelectorAll('[data-sso]'), function(b){
+  b.addEventListener('click', function(){
+    var email = $('email').value.trim();
+    if(!email || !uniFromEmail(email)){
+      $('auth-err').textContent = b.getAttribute('data-sso')+' sign-in is mocked for the demo — put your student email in the field first.';
+      return;
+    }
+    createProfile(email); startOnboarding();
+  });
+});
+
+$('btn-magic').addEventListener('click', function(){
+  var email = validateEmail(); if(!email) return;
+  state.pendingEmail = email; $('ce-email').textContent = email; showScreen('s-checkemail');
+});
+$('btn-backauth').addEventListener('click', function(){ showScreen('s-auth'); });
+$('btn-openlink').addEventListener('click', function(){ createProfile(state.pendingEmail); startOnboarding(); });
+
+$('btn-bypass').addEventListener('click', function(){
+  state.profile = {name:DEMO.name, email:DEMO.email, uniId:DEMO.uniId};
+  state.signedIn = true;
+  state.interests = DEMO_INTERESTS.slice();
+  state.atypes = DEMO_ATYPES.slice();
+  state.budget='b25'; state.distance='any'; state.address='Clayton';
+  state.discovery='swipe'; state.seenTutorial=false;
+  state.swipes={}; state.order=[]; state.registered={'e10':true};
+  state.friends = ['f1','f2','f3'];
+  DEMO_SWIPES.forEach(function(s){ state.swipes[s[0]] = s[1]; });
+  persist(); enterApp(true);
+});
+
+/* ================================================================
+   8. ONBOARDING — 5 steps
+   ================================================================ */
+var obStep = 0, obEditing = false, draft = {};
+const STEPS = [
+  {h:'What are you into?',           p:'Pick up to 5 topics you care about'},
+  {h:'How do you like to<br>spend time?', p:'Choose your preferred activity types'},
+  {h:'What’s your budget?',          p:'Set your spending comfort zone'},
+  {h:'How far will you go?',         p:'Your suburb and how far you’ll travel'},
+  {h:'How do you<br>discover events?', p:'You can change this any time'}
+];
+
+function startOnboarding(step){
+  obEditing = false;
+  draft = {interests:state.interests.slice(), atypes:state.atypes.slice(),
+           budget:state.budget, distance:state.distance, address:state.address, discovery:state.discovery};
+  obStep = step || 0;
+  showScreen('s-onboard'); renderStep();
+}
+function editStep(step){
+  obEditing = true;
+  draft = {interests:state.interests.slice(), atypes:state.atypes.slice(),
+           budget:state.budget, distance:state.distance, address:state.address, discovery:state.discovery};
+  obStep = step;
+  showScreen('s-onboard'); renderStep();
+}
+function renderStep(){
+  $('ob-steps').innerHTML = STEPS.map(function(_,i){ return '<i class="'+(i<=obStep?'on':'')+'"></i>'; }).join('')+
+    '<span class="n">'+(obStep+1)+' / 5</span>';
+  $('ob-h').innerHTML = STEPS[obStep].h;
+  $('ob-p').textContent = STEPS[obStep].p;
+  $('ob-skip').style.display = obEditing ? 'none' : '';
+  $('ob-back').style.display = (obStep===0 && !obEditing) ? 'none' : 'flex';
+  $('ob-back').textContent = obEditing ? 'Cancel' : 'Back';
+  var b = $('ob-body'), html = '';
+
+  if(obStep===0){
+    html = '<div class="chips">'+ INTERESTS.map(function(i){
+      var on = draft.interests.indexOf(i.slug) > -1;
+      return '<button class="chip" data-int="'+i.slug+'" aria-pressed="'+on+'"><span class="em">'+i.emoji+'</span>'+esc(i.label)+'</button>';
+    }).join('')+'</div>';
+  } else if(obStep===1){
+    html = '<div class="chips">'+ ATYPES.map(function(a){
+      var on = draft.atypes.indexOf(a) > -1;
+      return '<button class="chip" data-atype="'+esc(a)+'" aria-pressed="'+on+'">'+esc(a)+'</button>';
+    }).join('')+'</div>';
+  } else if(obStep===2){
+    html = '<div class="opts">'+ BUDGETS.map(function(x){
+      return '<button class="opt" data-budget="'+x.id+'" aria-pressed="'+(draft.budget===x.id)+'">'+esc(x.label)+
+        '<span class="tick">'+(draft.budget===x.id?'✓':'')+'</span></button>';
+    }).join('')+'</div>';
+  } else if(obStep===3){
+    html = '<div class="field" style="margin-bottom:16px"><label for="addr">Your suburb (optional)</label>'+
+      '<input id="addr" type="text" placeholder="Clayton" value="'+esc(draft.address)+'" autocomplete="off"></div>'+
+      '<p class="eyebrow" style="margin:0 0 9px">Max distance</p>'+
+      '<div class="opts">'+ DISTANCES.map(function(x){
+        return '<button class="opt" data-dist="'+x.id+'" aria-pressed="'+(draft.distance===x.id)+'">'+esc(x.label)+
+          '<span class="tick">'+(draft.distance===x.id?'✓':'')+'</span></button>';
+      }).join('')+'</div>'+
+      '<p class="note" id="addr-note"></p>';
+  } else {
+    html = '<div class="opt-grid">'+
+      '<button class="opt" data-disc="swipe" aria-pressed="'+(draft.discovery==='swipe')+'">'+
+        '<span class="em">👆</span><b>Swipe</b><span class="sub">One card at a time, until the deck ends.</span></button>'+
+      '<button class="opt" data-disc="browse" aria-pressed="'+(draft.discovery==='browse')+'">'+
+        '<span class="em">🗂</span><b>Browse</b><span class="sub">Search and filter the whole list.</span></button>'+
+      '</div>';
+  }
+  b.innerHTML = html;
+
+  if(obStep===0){
+    $('ob-next').textContent = obEditing ? 'Save' : 'Continue';
+    $('ob-next').disabled = draft.interests.length < 1;
+    $('ob-p').textContent = draft.interests.length + ' / 5 selected';
+  } else if(obStep===4){
+    $('ob-next').textContent = obEditing ? 'Save' : 'Show me what’s on';
+    $('ob-next').disabled = false;
+  } else {
+    $('ob-next').textContent = obEditing ? 'Save' : 'Continue';
+    $('ob-next').disabled = false;
+  }
+  if(obStep===3) updateAddrNote();
+}
+function updateAddrNote(){
+  var n = $('addr-note'); if(!n) return;
+  var a = (draft.address||'').trim().toLowerCase();
+  if(a && !SUBURBS[a]) n.textContent = 'We don’t know that suburb yet — using your campus as home.';
+  else if(a) n.textContent = 'Distances measured from ' + draft.address.trim() + '.';
+  else n.textContent = 'Leave it blank and we measure from your campus.';
+}
+$('ob-body').addEventListener('click', function(ev){
+  var t = ev.target.closest('[data-int],[data-atype],[data-budget],[data-dist],[data-disc]');
+  if(!t) return;
+  if(t.hasAttribute('data-int')){
+    var slug = t.getAttribute('data-int'), i = draft.interests.indexOf(slug);
+    if(i>-1) draft.interests.splice(i,1);
+    else {
+      if(draft.interests.length >= 5){
+        t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake');
+        toast('Five is the limit — tap one off first.'); return;
+      }
+      draft.interests.push(slug);
+    }
+  }
+  if(t.hasAttribute('data-atype')){
+    var a = t.getAttribute('data-atype'), j = draft.atypes.indexOf(a);
+    if(j>-1) draft.atypes.splice(j,1); else draft.atypes.push(a);
+  }
+  if(t.hasAttribute('data-budget')) draft.budget = t.getAttribute('data-budget');
+  if(t.hasAttribute('data-dist'))   draft.distance = t.getAttribute('data-dist');
+  if(t.hasAttribute('data-disc'))   draft.discovery = t.getAttribute('data-disc');
+  renderStep();
+});
+$('ob-body').addEventListener('input', function(ev){
+  if(ev.target && ev.target.id === 'addr'){ draft.address = ev.target.value; updateAddrNote(); }
+});
+function commitDraft(){
+  state.interests = draft.interests.slice(); state.atypes = draft.atypes.slice();
+  state.budget = draft.budget; state.distance = draft.distance;
+  state.address = (draft.address||'').trim(); state.discovery = draft.discovery;
+  persist();
+}
+$('ob-next').addEventListener('click', function(){
+  if(obEditing){ commitDraft(); enterApp(true); setTab('profile'); return; }
+  if(obStep < 4){ obStep++; renderStep(); return; }
+  commitDraft(); enterApp(true);
+});
+$('ob-back').addEventListener('click', function(){
+  if(obEditing){ enterApp(false); setTab('profile'); return; }
+  if(obStep > 0){ obStep--; renderStep(); }
+});
+$('ob-skip').addEventListener('click', function(){
+  if(obStep < 4){ obStep++; renderStep(); }
+  else { commitDraft(); enterApp(true); }
+});
+
+/* ================================================================
+   9. DECK
+   ================================================================ */
+var deckIds = [], cursor = 0, enterId = null;
+function rebuildDeck(){ deckIds = rankDeck(); cursor = 0; }
+
+function enterApp(rebuild){
+  applyMode();
+  if(rebuild || !deckIds.length) rebuildDeck();
+  showScreen('s-app');
+  setTab('discover');
+  if(state.discovery==='swipe' && !state.seenTutorial) $('tut').classList.add('on');
+}
+$('tut-go').addEventListener('click', function(){
+  $('tut').classList.remove('on'); state.seenTutorial = true; persist();
+});
+
+function setTab(tab){
+  state.tab = tab; persist();
+  ['discover','saved','profile'].forEach(function(t){ $('pane-'+t).classList.toggle('on', t===tab); });
+  Array.prototype.forEach.call(document.querySelectorAll('.tabbar button'), function(b){
+    b.setAttribute('aria-selected', b.getAttribute('data-tab')===tab ? 'true':'false');
+  });
+  $('mode-row').style.display = tab==='discover' ? '' : 'none';
+  if(tab==='discover'){ $('app-title').textContent = 'Discover'; renderDiscover(); }
+  if(tab==='saved'){
+    $('app-title').textContent = 'Saved';
+    $('app-progress').style.display = 'none';
+    $('app-sub').textContent = savedList().length + (savedList().length===1 ? ' event saved' : ' events saved');
+    renderSaved();
+  }
+  if(tab==='profile'){
+    $('app-title').textContent = 'Profile';
+    $('app-progress').style.display = 'none';
+    $('app-sub').textContent = UNI_BY[state.profile.uniId].short;
+    renderProfile();
+  }
+}
+Array.prototype.forEach.call(document.querySelectorAll('.tabbar button'), function(b){
+  b.addEventListener('click', function(){ setTab(b.getAttribute('data-tab')); });
+});
+Array.prototype.forEach.call($('mode-seg').querySelectorAll('button'), function(b){
+  b.addEventListener('click', function(){
+    state.discovery = b.getAttribute('data-disc'); persist(); renderDiscover();
+    if(state.discovery==='swipe' && !state.seenTutorial) $('tut').classList.add('on');
+  });
+});
+
+function renderDiscover(){
+  var swipe = state.discovery === 'swipe';
+  Array.prototype.forEach.call($('mode-seg').querySelectorAll('button'), function(b){
+    b.setAttribute('aria-selected', b.getAttribute('data-disc')===state.discovery ? 'true':'false');
+  });
+  $('swipe-view').hidden = !swipe;
+  $('browse-view').hidden = swipe;
+  if(swipe) renderDeck(); else renderBrowse();
+}
+
+function cardHTML(e){
+  var soc = socialLine(e);
+  return '<div class="poster">'+posterFor(e)+'</div>'+
+    '<div class="card-body">'+
+      '<h3 class="card-title">'+esc(e.title)+'</h3>'+
+      '<p class="card-when">'+dayTime(e.start)+'</p>'+
+      '<div class="card-club"><span class="club">'+esc(clubOf(e).name)+'</span>'+badge(e)+'</div>'+
+      '<div class="card-meta"><span>'+esc(e.suburb)+' · '+Math.round(kmAway(e))+' km</span>'+
+        '<span class="pill'+(e.cents===0?' free':'')+'">'+priceStr(e)+'</span></div>'+
+      (soc ? '<div style="padding-top:1px">'+soc+'</div>' : '')+
+      '<div class="card-why">'+(isRegistered(e.id) ? regTag() : whyLine(e))+'</div>'+
+    '</div>'+
+    '<div class="stamp save">SAVED</div><div class="stamp pass">PASS</div><div class="stamp up">DETAILS</div>';
+}
+
+function renderDeck(){
+  var stack = $('stack'), remaining = deckIds.length - cursor;
+  $('app-sub').textContent = deckIds.length + ' events · next 14 days';
+  $('app-progress').style.display = '';
+  $('app-progress').textContent = remaining > 0 ? (cursor+1)+' / '+deckIds.length : deckIds.length+' / '+deckIds.length;
+  $('btn-undo').disabled = state.order.length === 0;
+
+  if(remaining <= 0){
+    if(stack.querySelector('.card.gone')){ setTimeout(renderDeck, 330); return; }
+    $('deck-actions').style.display = 'none';
+    var n = savedList().length;
+    stack.innerHTML = '<div class="empty">'+
+      '<p class="big">That’s everything for now.</p>'+
+      '<p>'+(n ? 'You saved '+n+' event'+(n===1?'':'s')+'.' : 'Nothing saved this time.')+
+        ' New events land here as clubs post them.</p>'+
+      '<div class="row"><button class="btn small" id="go-saved">See what you saved</button>'+
+      '<button class="btn ghost small" id="go-browse">Browse instead</button>'+
+      '<button class="btn ghost small" id="go-again">Start over</button></div></div>';
+    $('go-saved').addEventListener('click', function(){ setTab('saved'); });
+    $('go-browse').addEventListener('click', function(){ state.discovery='browse'; persist(); renderDiscover(); });
+    $('go-again').addEventListener('click', function(){
+      Object.keys(state.swipes).forEach(function(k){ if(state.swipes[k]==='pass') delete state.swipes[k]; });
+      state.order = state.order.filter(function(id){ return !!state.swipes[id]; });
+      persist(); rebuildDeck(); renderDeck(); toast('Passed events are back in the deck.');
+    });
+    return;
+  }
+  $('deck-actions').style.display = 'flex';
+  if(stack.querySelector('.empty')) stack.innerHTML = '';
+
+  var want = deckIds.slice(cursor, cursor+3);
+  Array.prototype.forEach.call(stack.querySelectorAll('.card'), function(node){
+    if(node.classList.contains('gone')) return;
+    if(want.indexOf(node.getAttribute('data-id')) === -1) node.remove();
+  });
+  want.forEach(function(id, idx){
+    var node = stack.querySelector('.card[data-id="'+id+'"]:not(.gone)'), isNew = false;
+    if(!node){
+      node = document.createElement('div');
+      node.className = 'card'; node.setAttribute('data-id', id);
+      node.innerHTML = cardHTML(EV_BY[id]);
+      stack.appendChild(node); attachGesture(node); isNew = true;
+    }
+    node.style.zIndex = String(3-idx); node.style.opacity = '1';
+    var target = 'translateY('+(idx*13)+'px) scale('+(1-idx*0.045)+')';
+    if(isNew && id === enterId){
+      enterId = null; node.classList.remove('animate');
+      node.style.transform = 'translateX(-115%) rotate(-16deg)';
+      (function(n,t){ requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        n.classList.add('animate'); n.style.transform = t; }); }); })(node, target);
+    } else {
+      node.classList.add('animate'); node.style.transform = target;
+    }
+    ['save','pass','up'].forEach(function(k){
+      var s = node.querySelector('.stamp.'+k); if(s) s.style.opacity = '0';
+    });
+  });
+}
+
+function attachGesture(node){
+  if(node.hasAttribute('data-bound')) return;
+  node.setAttribute('data-bound','1');
+  var startX=0,startY=0,startT=0,lastX=0,lastT=0,vel=0,active=false,moved=false,w=1;
+  var sSave, sPass, sUp;
+
+  node.addEventListener('pointerdown', function(ev){
+    if(node.classList.contains('gone')) return;
+    if(node.getAttribute('data-id') !== deckIds[cursor]) return;
+    active=true; moved=false; vel=0; w = node.offsetWidth || 1;
+    sSave = node.querySelector('.stamp.save'); sPass = node.querySelector('.stamp.pass'); sUp = node.querySelector('.stamp.up');
+    startX=lastX=ev.clientX; startY=ev.clientY; startT=lastT=performance.now();
+    node.classList.remove('animate','settle');
+    try{ node.setPointerCapture(ev.pointerId); }catch(err){}
+  });
+  node.addEventListener('pointermove', function(ev){
+    if(!active) return;
+    var now=performance.now(), dx=ev.clientX-startX, dy=ev.clientY-startY;
+    if(Math.abs(dx)>6 || Math.abs(dy)>6) moved = true;
+    var upward = dy < -30 && Math.abs(dy) > Math.abs(dx)*1.4;
+    if(upward){
+      node.style.transform = 'translate('+(dx*0.3)+'px,'+dy+'px) scale(0.98)';
+      sUp.style.opacity = Math.min(1, Math.abs(dy)/110);
+      sSave.style.opacity = 0; sPass.style.opacity = 0;
+    } else {
+      node.style.transform = 'translate('+dx+'px,'+(dy*0.32)+'px) rotate('+(dx/w*8)+'deg)';
+      var op = Math.min(1, Math.abs(dx)/(w*0.25));
+      sSave.style.opacity = dx>0 ? op : 0;
+      sPass.style.opacity = dx<0 ? op : 0;
+      sUp.style.opacity = 0;
+    }
+    var dt = now-lastT;
+    if(dt > 8){ vel = (ev.clientX-lastX)/dt*1000; lastX = ev.clientX; lastT = now; }
+  });
+  function settle(){
+    node.classList.add('settle'); node.style.transform='translateY(0) scale(1)';
+    if(sSave) sSave.style.opacity=0; if(sPass) sPass.style.opacity=0; if(sUp) sUp.style.opacity=0;
+  }
+  node.addEventListener('pointerup', function(ev){
+    if(!active) return; active=false;
+    var dx=ev.clientX-startX, dy=ev.clientY-startY;
+    var v = (performance.now()-lastT) > 140 ? 0 : vel;
+    if(!moved && (performance.now()-startT) < 400 && Math.abs(dx)<8 && Math.abs(dy)<8){
+      settle(); openSheet(node.getAttribute('data-id')); return;
+    }
+    if(dy < -110 && Math.abs(dy) > Math.abs(dx)*1.4){ settle(); openSheet(node.getAttribute('data-id')); return; }
+    if(Math.abs(dx) > w*0.25 || (Math.abs(v) > 800 && Math.abs(dx) > 24)){
+      flyOut(node, (Math.abs(dx) > w*0.25 ? dx > 0 : v > 0) ? 'like' : 'pass');
+    } else settle();
+  });
+  node.addEventListener('pointercancel', function(){ active=false; settle(); });
+}
+
+function flyOut(node, direction){
+  var id = node.getAttribute('data-id');
+  if(!id || state.swipes[id] || node.classList.contains('gone')) return;
+  node.classList.add('animate','gone');
+  node.style.transform = 'translate('+(direction==='like'?1:-1)*window.innerWidth*1.2+'px,-40px) rotate('+(direction==='like'?22:-22)+'deg)';
+  node.style.opacity = '0';
+  var st = node.querySelector('.stamp.'+(direction==='like'?'save':'pass'));
+  if(st) st.style.opacity = 1;
+  setTimeout(function(){ if(node.parentNode) node.remove(); }, 300);
+  cursor++;
+  recordSwipe(id, direction);
+  if(direction==='like') toast('Saved!');
+  renderDeck();
+}
+function recordSwipe(id, direction){
+  state.swipes[id] = direction;
+  var i = state.order.indexOf(id); if(i>-1) state.order.splice(i,1);
+  state.order.push(id); persist();
+}
+function undoSwipe(){
+  if(!state.order.length) return;
+  var id = state.order.pop();
+  delete state.swipes[id]; persist();
+  var at = deckIds.indexOf(id);
+  if(at === cursor-1){ cursor--; }
+  else { if(at>-1) deckIds.splice(at,1); deckIds.splice(cursor,0,id); }
+  enterId = id;
+  var stale = $('stack').querySelector('.card[data-id="'+id+'"]');
+  if(stale) stale.remove();
+  renderDeck(); toast('Brought that one back.');
+}
+$('btn-undo').addEventListener('click', undoSwipe);
+$('btn-pass').addEventListener('click', function(){ actTop('pass'); });
+$('btn-save').addEventListener('click', function(){ actTop('like'); });
+$('btn-info').addEventListener('click', function(){ if(cursor < deckIds.length) openSheet(deckIds[cursor]); });
+function actTop(dir){
+  if(cursor >= deckIds.length) return;
+  var node = $('stack').querySelector('.card[data-id="'+deckIds[cursor]+'"]:not(.gone)');
+  if(node) flyOut(node, dir);
+}
+
+/* ================================================================
+   10. BROWSE
+   ================================================================ */
+var query = '', filter = 'all';
+function renderPills(){
+  var pills = [{k:'all', l:'All'}].concat(
+    (state.interests.length ? state.interests : INTERESTS.map(function(i){ return i.slug; }))
+      .map(function(s){ return {k:s, l:INT_BY[s].label}; }));
+  $('pillrow').innerHTML = pills.map(function(p){
+    return '<button class="fpill" data-f="'+p.k+'" aria-pressed="'+(filter===p.k)+'">'+esc(p.l)+'</button>';
+  }).join('');
+}
+function browseList(ignoreFilters){
+  var q = query.trim().toLowerCase();
+  return upcoming().filter(function(e){
+    if(filter!=='all' && e.tags.indexOf(filter)===-1) return false;
+    if(!ignoreFilters && (!passesBudget(e) || !passesDistance(e))) return false;
+    if(!q) return true;
+    var hay = (e.title+' '+clubOf(e).name+' '+uniOf(e).short+' '+e.venue+' '+e.suburb+' '+e.atype+' '+
+               e.tags.map(function(t){ return INT_BY[t].label; }).join(' ')).toLowerCase();
+    return hay.indexOf(q) > -1;
+  }).sort(function(a,b){ return a.start-b.start; });
+}
+function renderBrowse(){
+  renderPills();
+  $('live-ind').innerHTML = liveCount
+    ? '<i></i>'+liveCount+' club-posted'
+    : 'Paste a link or an invite';
+  var list = browseList();
+  $('app-sub').textContent = list.length + (list.length===1?' event · ':' events · ') +
+    BUD_BY[state.budget].label.toLowerCase() + ' · ' + DIST_BY[state.distance].label.toLowerCase();
+  $('app-progress').style.display = 'none';
+  $('q-clear').hidden = !query;
+  if(!list.length){
+    var wider = browseList(true).length;
+    $('blist').innerHTML = '<div class="empty" style="height:auto;padding:34px 2px">'+
+      '<p class="big">Nothing matches.</p>'+
+      '<p>'+(wider
+        ? wider+' event'+(wider===1?'':'s')+' match'+(wider===1?'es':'')+' outside your budget or distance.'
+        : 'Try a different word or another category.')+'</p>'+
+      '<div class="row">'+
+        (wider ? '<button class="btn small" id="b-widen">Ignore my filters</button>' : '')+
+        '<button class="btn ghost small" id="b-reset">Clear search</button></div></div>';
+    var w = $('b-widen');
+    if(w) w.addEventListener('click', function(){
+      state.budget='any'; state.distance='any'; persist(); rebuildDeck(); renderBrowse();
+      toast('Budget and distance opened up.');
+    });
+    var r = $('b-reset');
+    if(r) r.addEventListener('click', function(){ query=''; filter='all'; $('q').value=''; renderBrowse(); });
+    return;
+  }
+  $('blist').innerHTML = list.map(function(e){
+    var liked = state.swipes[e.id]==='like', soc = socialLine(e);
+    return '<article class="bcard" data-id="'+e.id+'">'+
+      '<div class="bthumb">'+posterFor(e)+'</div>'+
+      '<div class="bmain">'+
+        '<div class="bwhen">'+dayTime(e.start)+'</div>'+
+        '<h4>'+esc(e.title)+'</h4>'+
+        '<div class="bsub">'+badge(e)+'<span>'+esc(e.suburb)+' · '+Math.round(kmAway(e))+' km</span></div>'+
+        (soc ? '<div class="bsub">'+soc+'</div>' : '')+
+        (isRegistered(e.id) ? '<div class="bsub">'+regTag()+'</div>' : '')+
+        '<div class="brow"><span class="pill'+(e.cents===0?' free':'')+'">'+priceStr(e)+'</span>'+
+          '<button class="bheart'+(liked?' on':'')+'" data-heart="'+e.id+'" aria-label="'+(liked?'Remove from saved':'Save')+'">'+
+          '<svg viewBox="0 0 24 24" fill="'+(liked?'currentColor':'none')+'" stroke="currentColor" stroke-width="2" stroke-linejoin="round">'+
+          '<path d="M12 20s-6.5-4.1-8.2-8C2.4 9 4.1 6 7.1 6c1.7 0 3 1 3.6 1.9l1.3 1.7 1.3-1.7C14 7 15.2 6 16.9 6c3 0 4.7 3 3.3 6-1.7 3.9-8.2 8-8.2 8z"/></svg>'+
+          '</button></div>'+
+      '</div></article>';
+  }).join('');
+}
+$('postbar').addEventListener('click', openPost);
+$('q').addEventListener('input', function(){ query = $('q').value; renderBrowse(); });
+$('q-clear').addEventListener('click', function(){ query=''; $('q').value=''; renderBrowse(); });
+$('pillrow').addEventListener('click', function(ev){
+  var b = ev.target.closest('[data-f]'); if(!b) return;
+  filter = b.getAttribute('data-f'); renderBrowse();
+});
+$('blist').addEventListener('click', function(ev){
+  var h = ev.target.closest('[data-heart]');
+  if(h){ toggleSave(h.getAttribute('data-heart')); renderBrowse(); return; }
+  var c = ev.target.closest('.bcard'); if(c) openSheet(c.getAttribute('data-id'));
+});
+
+/* ================================================================
+   11. SAVED
+   ================================================================ */
+function savedList(){
+  return Object.keys(state.swipes).filter(function(id){ return state.swipes[id]==='like' && EV_BY[id]; })
+    .map(function(id){ return EV_BY[id]; }).sort(function(a,b){ return a.start-b.start; });
+}
+function passedList(){
+  return Object.keys(state.swipes).filter(function(id){ return state.swipes[id]==='pass' && EV_BY[id]; })
+    .map(function(id){ return EV_BY[id]; }).sort(function(a,b){ return a.start-b.start; });
+}
+function rowHTML(e, actions){
+  var soc = socialLine(e);
+  return '<div class="srow" data-id="'+e.id+'">'+
+    '<div class="t">'+timeStr(e.start)+'</div>'+
+    '<div class="m"><h4>'+esc(e.title)+'</h4>'+
+      '<div class="sub">'+badge(e)+'<span>'+esc(clubOf(e).name)+'</span></div>'+
+      '<div class="sub"><span>'+esc(e.venue)+', '+esc(e.suburb)+'</span>'+
+        '<span class="pill'+(e.cents===0?' free':'')+'">'+priceStr(e)+'</span>'+
+        (isRegistered(e.id) ? regTag() : '')+'</div>'+
+      (soc ? '<div class="sub">'+soc+'</div>' : '')+
+      '<div class="acts">'+actions+'</div>'+
+    '</div></div>';
+}
+function renderSaved(){
+  var all = savedList(), now = Date.now();
+  var up = all.filter(function(e){ return e.start.getTime() > now; });
+  var past = all.filter(function(e){ return e.start.getTime() <= now; });
+  var html = '';
+
+  if(!all.length){
+    html = '<div class="empty" style="height:auto;padding:44px 2px">'+
+      '<p class="big">Nothing saved yet.</p><p>Swipe right, or tap the heart in Browse, and it lands here grouped by day.</p>'+
+      '<div class="row"><button class="btn small" id="sv-todeck">Back to Discover</button></div></div>';
+  } else {
+    var groups = {}, keys = [];
+    up.forEach(function(e){ var k=dayKey(e.start); if(!groups[k]){ groups[k]=[]; keys.push(k); } groups[k].push(e); });
+    keys.forEach(function(k){
+      var list = groups[k];
+      html += '<section class="daygroup"><div class="dayhead"><h3>'+esc(dayLabel(list[0].start))+'</h3>'+
+        '<span class="ln"></span><span class="n">'+list.length+'</span></div>'+
+        list.map(function(e){
+          var reg = isRegistered(e.id)
+            ? '<button class="mini" data-act="ticket" data-id="'+e.id+'">View ticket</button>'
+            : '<button class="mini solid" data-act="register" data-id="'+e.id+'">Register</button>';
+          return rowHTML(e, reg + '<button class="mini" data-act="open" data-id="'+e.id+'">Details</button>'+
+            '<button class="mini" data-act="remove" data-id="'+e.id+'">Remove</button>');
+        }).join('') + '</section>';
+    });
+    if(!up.length){
+      html += '<div class="empty" style="height:auto;padding:30px 2px"><p class="big">Nothing coming up.</p>'+
+        '<p>Everything you saved has already been and gone.</p>'+
+        '<div class="row"><button class="btn small" id="sv-todeck">Back to Discover</button></div></div>';
+    }
+    if(past.length){
+      html += '<div class="fold" data-open="false"><button type="button">Past<span class="cnt">'+past.length+' ▾</span></button>'+
+        '<div class="foldbody">'+ past.map(function(e){
+          return rowHTML(e, '<span class="mini" style="border-style:dashed">'+dayLabel(e.start)+'</span>'+
+            '<button class="mini" data-act="open" data-id="'+e.id+'">Details</button>'); }).join('') +'</div></div>';
+    }
+  }
+  $('saved-list').innerHTML = html;
+  var back = $('sv-todeck');
+  if(back) back.addEventListener('click', function(){ setTab('discover'); });
+}
+$('saved-list').addEventListener('click', function(ev){
+  var f = ev.target.closest('.fold > button');
+  if(f){ var fold=f.parentNode; fold.setAttribute('data-open', fold.getAttribute('data-open')==='true'?'false':'true'); return; }
+  var b = ev.target.closest('[data-act]'); if(!b) return;
+  var id = b.getAttribute('data-id'), act = b.getAttribute('data-act'), e = EV_BY[id];
+  if(act==='open') openSheet(id);
+  if(act==='register' || act==='ticket') openRegister(id);
+  if(act==='remove'){
+    delete state.swipes[id];
+    state.order = state.order.filter(function(x){ return x!==id; });
+    persist(); rebuildDeck(); renderSaved();
+    $('app-sub').textContent = savedList().length + (savedList().length===1?' event saved':' events saved');
+    toast('Removed — it’s back in the deck.');
+  }
+});
+
+/* shared save toggle used by browse + sheet */
+function toggleSave(id){
+  if(state.swipes[id]==='like'){
+    delete state.swipes[id];
+    state.order = state.order.filter(function(x){ return x!==id; });
+    persist(); rebuildDeck(); toast('Removed from Saved.');
+  } else {
+    var at = deckIds.indexOf(id);
+    recordSwipe(id, 'like');
+    if(at === cursor) cursor++;
+    else if(at > cursor) deckIds.splice(at,1);
+    toast('Saved!');
+  }
+  if(state.tab==='saved'){ renderSaved(); $('app-sub').textContent = savedList().length + ' events saved'; }
+  else if(state.tab==='discover' && state.discovery==='swipe') renderDeck();
+}
+
+/* ================================================================
+   12. DETAIL SHEET
+   ================================================================ */
+var sheetId = null;
+function openSheet(id){
+  var e = EV_BY[id]; if(!e) return;
+  sheetId = id;
+  var liked = state.swipes[id]==='like';
+  var tags = e.tags.map(function(t){ return '<span class="pill">'+esc(INT_BY[t].label)+'</span>'; }).join(' ');
+  $('sheet-scroll').innerHTML =
+    '<div class="sheet-poster">'+posterFor(e)+'</div>'+
+    '<div class="sheet-body">'+
+      '<h2>'+esc(e.title)+'</h2>'+
+      '<div class="kv"><div class="k">When</div><div class="v">'+fullWhen(e.start,e.end)+'<small>Melbourne time</small></div></div>'+
+      '<div class="kv"><div class="k">Where</div><div class="v">'+esc(e.venue)+'<small>'+esc(e.addr)+' · '+Math.round(kmAway(e))+' km from you</small></div></div>'+
+      '<div class="kv"><div class="k">Host</div><div class="v">'+esc(clubOf(e).name)+'<small>'+esc(uniOf(e).name)+'</small></div></div>'+
+      '<div class="kv"><div class="k">Type</div><div class="v">'+esc(e.atype)+'</div></div>'+
+      '<div class="kv"><div class="k">Price</div><div class="v">'+priceStr(e)+
+        (e.cents?'<small>paid on the club’s ticketing page</small>':'<small>no ticket needed</small>')+'</div></div>'+
+      (friendsOn(e.id).going.length + friendsOn(e.id).keen.length
+        ? '<div class="kv"><div class="k">Friends</div><div class="v">'+ friendsSheet(e) +'</div></div>' : '')+
+      (isRegistered(e.id) ? '<div>'+regTag()+'</div>' : '')+
+      '<div class="tagrow">'+tags+'</div>'+
+      '<p class="sheet-desc">'+esc(e.desc)+'</p>'+
+      '<p class="muted" style="font-size:12.5px;margin:0">'+whyLine(e)+'</p>'+
+    '</div>';
+  $('sheet-foot').innerHTML =
+    '<button class="btn" id="sh-reg">'+(isRegistered(e.id) ? 'View registration' : 'Register')+'</button>'+
+    '<button class="icon-btn'+(liked?' on':'')+'" id="sh-save" aria-label="Save">'+
+      '<svg viewBox="0 0 24 24" width="22" height="22" fill="'+(liked?'currentColor':'none')+'" stroke="currentColor" stroke-width="2" stroke-linejoin="round">'+
+      '<path d="M12 20s-6.5-4.1-8.2-8C2.4 9 4.1 6 7.1 6c1.7 0 3 1 3.6 1.9l1.3 1.7 1.3-1.7C14 7 15.2 6 16.9 6c3 0 4.7 3 3.3 6-1.7 3.9-8.2 8-8.2 8z"/></svg></button>'+
+    '<button class="icon-btn" id="sh-share" aria-label="Share">'+
+      '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+      '<path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 13v6h14v-6"/></svg></button>';
+  var reg = $('sh-reg');
+  if(reg) reg.addEventListener('click', function(){ openRegister(id); });
+  $('sh-save').addEventListener('click', function(){
+    toggleSave(id);
+    if(state.tab==='discover' && state.discovery==='browse') renderBrowse();
+    var btn = $('sh-save'), nowLiked = state.swipes[id]==='like';
+    btn.classList.toggle('on', nowLiked);
+    btn.querySelector('svg').setAttribute('fill', nowLiked ? 'currentColor' : 'none');
+  });
+  $('sh-share').addEventListener('click', function(){
+    var text = e.title+' — '+dayTime(e.start)+', '+e.venue+'. '+(e.ticketUrl||'');
+    if(navigator.share) navigator.share({title:e.title, text:text}).catch(function(){});
+    else if(navigator.clipboard) navigator.clipboard.writeText(text).then(function(){ toast('Copied to share.'); }, function(){});
+    else toast('Sharing isn’t available here.');
+  });
+  $('sheet').classList.add('on'); $('scrim').classList.add('on');
+}
+function closeSheet(){
+  var sh = $('sheet');
+  sh.style.transition=''; sh.style.transform='';
+  sh.classList.remove('on'); $('scrim').classList.remove('on'); sheetId = null;
+}
+$('scrim').addEventListener('click', closeSheet);
+$('sheet-close').addEventListener('click', closeSheet);
+(function(){
+  var g=$('sheet-grab'), sheet=$('sheet'), sy=0, on=false;
+  g.addEventListener('pointerdown', function(ev){
+    if(ev.target.closest('#sheet-close')) return;
+    on=true; sy=ev.clientY; sheet.style.transition='none';
+    try{ g.setPointerCapture(ev.pointerId); }catch(err){}
+  });
+  g.addEventListener('pointermove', function(ev){ if(!on) return; sheet.style.transform='translateY('+Math.max(0,ev.clientY-sy)+'px)'; });
+  g.addEventListener('pointerup', function(ev){
+    if(!on) return; on=false; sheet.style.transition=''; sheet.style.transform='';
+    if(ev.clientY-sy > 110) closeSheet();
+  });
+  g.addEventListener('pointercancel', function(){ on=false; sheet.style.transition=''; sheet.style.transform=''; });
+})();
+
+/* ================================================================
+   12a. LIVE CATALOGUE
+   Clubs post their own events into a store shared by everyone who
+   opens UniVerse, so a new event from any campus shows up for
+   every student without anyone republishing anything. Aggregation
+   is a club-first partnership, not a scraper.
+   ================================================================ */
+var liveCount = 0;
+
+function initialsOf(name){
+  var w = String(name||'').trim().split(/\s+/).filter(function(x){ return /[A-Za-z]/.test(x); });
+  if(!w.length) return 'CLUB';
+  return w.slice(0,4).map(function(x){ return x.charAt(0).toUpperCase(); }).join('');
+}
+/* Everything here arrives from other viewers: validate, clamp, never trust. */
+function ingestDoc(docId, d){
+  if(!d || typeof d !== 'object' || !d.title || !d.startISO) return null;
+  var start = new Date(d.startISO);
+  if(isNaN(start.getTime())) return null;
+  var evId = 'x_'+docId, clubId = 'xc_'+docId;
+  var uniId = UNI_BY[d.uniId] ? d.uniId : 'u2';
+  var suburb = String(d.suburb||'Melbourne').slice(0,40);
+  var ll = SUBURBS[suburb.toLowerCase()] || [-37.814,144.963];
+  CLUB_BY[clubId] = {id:clubId, uniId:uniId, name:String(d.clubName||'Student club').slice(0,80),
+                     initials:initialsOf(d.clubName)};
+  var tags = (Array.isArray(d.tags) ? d.tags : []).filter(function(t){ return INT_BY[t]; }).slice(0,3);
+  if(!tags.length) tags = ['melbourne-exploration'];
+  var end = d.endISO ? new Date(d.endISO) : null;
+  var ev = {
+    id:evId, clubId:clubId,
+    title:String(d.title).slice(0,120),
+    desc:String(d.desc||'').slice(0,1500),
+    venue:String(d.venue||'').slice(0,90),
+    suburb:suburb,
+    addr:String(d.addr||d.venue||'').slice(0,140),
+    cents:Math.max(0, Math.min(2000000, parseInt(d.cents,10)||0)),
+    provider:['humanitix','eventbrite','trybooking','external','none'].indexOf(d.provider)>-1 ? d.provider : 'none',
+    ticketUrl:(typeof d.ticketUrl==='string' && /^https:\/\/[^\s"'<>]+$/i.test(d.ticketUrl)) ? d.ticketUrl : null,
+    tags:tags,
+    atype:ATYPES.indexOf(d.atype)>-1 ? d.atype : 'Club meetings',
+    lat:ll[0], lng:ll[1],
+    start:start, end:(end && !isNaN(end.getTime())) ? end : new Date(start.getTime()+7200000),
+    photo:(typeof d.photo==='string' && /^data:image\/(png|jpeg|webp);base64,/.test(d.photo)) ? d.photo : '',
+    community:true, addedBy:String(d.addedBy||'a student').slice(0,40)
+  };
+  var idx = -1;
+  for(var i=0;i<EVENTS.length;i++){ if(EVENTS[i].id===evId){ idx=i; break; } }
+  if(idx>-1) EVENTS[idx] = ev; else EVENTS.push(ev);
+  EV_BY[evId] = ev;
+  return ev;
+}
+function dropMissing(seen){
+  for(var i=EVENTS.length-1;i>=0;i--){
+    if(EVENTS[i].community && !seen[EVENTS[i].id]){ delete EV_BY[EVENTS[i].id]; EVENTS.splice(i,1); }
+  }
+}
+function onCatalogueChanged(added){
+  if($('s-app').classList.contains('on')){
+    if(state.tab==='discover'){
+      if(state.discovery==='browse') renderBrowse();
+      else if(cursor === 0){ rebuildDeck(); renderDeck(); }
+      else if(added) toast(added+' new event'+(added===1?'':'s')+' just landed.');
+    } else if(state.tab==='saved') renderSaved();
+  }
+}
+/* No shared server-side store in this build, so the artifact stays
+   publicly shareable. Events a club posts here are kept on this
+   device; the Supabase backend in the project folder is what makes
+   them live across every student. */
+
+/* ---- paste an .ics block or a link and we fill in what we can ---- */
+function icsDate(v){
+  var m = String(v).match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/);
+  if(!m) return null;
+  if(m[7]) return new Date(Date.UTC(+m[1], +m[2]-1, +m[3], +(m[4]||0), +(m[5]||0), +(m[6]||0)));
+  return melbLocal(+m[1], +m[2], +m[3], +(m[4]||0), +(m[5]||0));
+}
+function parsePaste(text){
+  var out = {};
+  var t = String(text||'').trim();
+  if(!t) return out;
+  if(/BEGIN:VEVENT/i.test(t)){
+    var lines = t.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
+    lines.forEach(function(l){
+      var m = l.match(/^([A-Z\-]+)(?:;[^:]*)?:(.*)$/);
+      if(!m) return;
+      var k = m[1], v = m[2].replace(/\\n/g,' ').replace(/\\,/g,',').replace(/\\;/g,';').trim();
+      if(k==='SUMMARY') out.title = v;
+      if(k==='DESCRIPTION') out.desc = v;
+      if(k==='LOCATION') out.venue = v;
+      if(k==='URL' && /^https:\/\//i.test(v)) out.ticketUrl = v;
+      if(k==='DTSTART') out.start = icsDate(v);
+      if(k==='DTEND') out.end = icsDate(v);
+    });
+    return out;
+  }
+  var url = t.match(/https:\/\/[^\s"'<>]+/);
+  if(url){
+    out.ticketUrl = url[0];
+    var host = url[0].toLowerCase();
+    out.provider = host.indexOf('humanitix')>-1 ? 'humanitix'
+                 : host.indexOf('eventbrite')>-1 ? 'eventbrite'
+                 : host.indexOf('trybooking')>-1 ? 'trybooking' : 'external';
+  }
+  var rest = t.replace(/https:\/\/[^\s"'<>]+/g,'').trim();
+  if(rest && !out.title) out.title = rest.split(/\n/)[0].slice(0,120);
+  return out;
+}
+
+/* ---- the submission form ---- */
+var postDraft = null;
+function pad(n){ return (n<10?'0':'')+n; }
+function defaultDateStr(){
+  var d = new Date(Date.now()+3*86400000);
+  return ISO.format(d);
+}
+function openPost(){
+  postDraft = {title:'', clubName:'', uniId:(state.profile?state.profile.uniId:'u2'), date:defaultDateStr(),
+               time:'18:00', dur:'120', venue:'', suburb:'Melbourne', price:'0', ticketUrl:'', provider:'none',
+               atype:'Club meetings', tags:[], desc:'', photo:''};
+  renderPost(); $('post').classList.add('on');
+}
+function renderPost(){
+  var d = postDraft;
+  $('post-body').innerHTML =
+    '<div class="field tight"><label for="pp-paste">Paste a calendar invite or ticket link</label>'+
+      '<textarea id="pp-paste" placeholder="Paste an .ics block from Google Calendar, or a Humanitix / Eventbrite link"></textarea></div>'+
+    '<button class="btn ghost small" id="pp-fill" style="width:100%">Fill from paste</button>'+
+
+    '<div class="photopick"><span class="prev">'+(d.photo?'<img src="'+esc(d.photo)+'" alt="">':'')+'</span>'+
+      '<span class="lbl">'+(d.photo?'Photo ready':'Add a poster or photo')+'</span>'+
+      '<label class="mini solid" for="pp-photo" style="cursor:pointer">'+(d.photo?'Change':'Choose')+'</label>'+
+      '<input id="pp-photo" type="file" accept="image/*" hidden></div>'+
+
+    '<div class="field tight"><label for="pp-title">Event title</label>'+
+      '<input id="pp-title" type="text" value="'+esc(d.title)+'" placeholder="Rooftop film night"></div>'+
+    '<div class="field tight"><label for="pp-club">Club</label>'+
+      '<input id="pp-club" type="text" value="'+esc(d.clubName)+'" placeholder="Melbourne Uni Film Society"></div>'+
+    '<div class="field tight"><label for="pp-uni">University</label><select id="pp-uni">'+
+      UNIS.map(function(u){ return '<option value="'+u.id+'"'+(d.uniId===u.id?' selected':'')+'>'+esc(u.name)+'</option>'; }).join('')+
+      '</select></div>'+
+    '<div class="formgrid">'+
+      '<div class="field tight"><label for="pp-date">Date</label><input id="pp-date" type="date" value="'+esc(d.date)+'"></div>'+
+      '<div class="field tight"><label for="pp-time">Start</label><input id="pp-time" type="time" value="'+esc(d.time)+'"></div>'+
+    '</div>'+
+    '<div class="formgrid">'+
+      '<div class="field tight"><label for="pp-dur">Minutes</label><input id="pp-dur" type="number" min="15" step="15" value="'+esc(d.dur)+'"></div>'+
+      '<div class="field tight"><label for="pp-price">Price ($)</label><input id="pp-price" type="number" min="0" step="1" value="'+esc(d.price)+'"></div>'+
+    '</div>'+
+    '<div class="field tight"><label for="pp-venue">Venue</label>'+
+      '<input id="pp-venue" type="text" value="'+esc(d.venue)+'" placeholder="Union House Rooftop"></div>'+
+    '<div class="field tight"><label for="pp-suburb">Suburb</label><select id="pp-suburb">'+
+      Object.keys(SUBURBS).sort().map(function(s){
+        var label = s.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        return '<option value="'+esc(label)+'"'+(d.suburb.toLowerCase()===s?' selected':'')+'>'+esc(label)+'</option>';
+      }).join('')+'</select></div>'+
+    '<div class="field tight"><label for="pp-url">Ticket link (https)</label>'+
+      '<input id="pp-url" type="url" value="'+esc(d.ticketUrl)+'" placeholder="https://events.humanitix.com/…"></div>'+
+    '<div class="field tight"><label for="pp-atype">Activity type</label><select id="pp-atype">'+
+      ATYPES.map(function(a){ return '<option'+(d.atype===a?' selected':'')+'>'+esc(a)+'</option>'; }).join('')+
+      '</select></div>'+
+    '<div class="field tight"><label>Interests · up to 3</label>'+
+      '<div class="chips mini-chips" id="pp-tags">'+ INTERESTS.map(function(i){
+        return '<button class="chip" data-t="'+i.slug+'" aria-pressed="'+(d.tags.indexOf(i.slug)>-1)+'">'+esc(i.label)+'</button>';
+      }).join('') +'</div></div>'+
+    '<div class="field tight"><label for="pp-desc">Description</label>'+
+      '<textarea id="pp-desc" placeholder="What actually happens on the night">'+esc(d.desc)+'</textarea></div>';
+
+  $('post-foot').innerHTML =
+    '<button class="btn" id="pp-go">Post it</button>'+
+    '<button class="btn ghost small" id="pp-cancel">Cancel</button>'+
+    '<p class="note" style="margin:0;text-align:center">Added to your catalogue straight away.</p>';
+
+  function bind(id, key){ var el = $(id); if(el) el.addEventListener('input', function(){ postDraft[key] = el.value; }); }
+  bind('pp-title','title'); bind('pp-club','clubName'); bind('pp-date','date'); bind('pp-time','time');
+  bind('pp-dur','dur'); bind('pp-price','price'); bind('pp-venue','venue'); bind('pp-url','ticketUrl');
+  bind('pp-desc','desc');
+  $('pp-uni').addEventListener('change', function(){ postDraft.uniId = $('pp-uni').value; });
+  $('pp-suburb').addEventListener('change', function(){ postDraft.suburb = $('pp-suburb').value; });
+  $('pp-atype').addEventListener('change', function(){ postDraft.atype = $('pp-atype').value; });
+  $('pp-tags').addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-t]'); if(!b) return;
+    var t = b.getAttribute('data-t'), i = postDraft.tags.indexOf(t);
+    if(i>-1) postDraft.tags.splice(i,1);
+    else { if(postDraft.tags.length>=3){ toast('Three interests is plenty.'); return; } postDraft.tags.push(t); }
+    b.setAttribute('aria-pressed', postDraft.tags.indexOf(t)>-1 ? 'true':'false');
+  });
+  $('pp-fill').addEventListener('click', function(){
+    var got = parsePaste($('pp-paste').value);
+    if(!Object.keys(got).length){ toast('Couldn’t read that — try an .ics block or a link.'); return; }
+    if(got.title) postDraft.title = got.title;
+    if(got.desc) postDraft.desc = got.desc;
+    if(got.venue) postDraft.venue = got.venue;
+    if(got.ticketUrl) postDraft.ticketUrl = got.ticketUrl;
+    if(got.provider) postDraft.provider = got.provider;
+    if(got.start){
+      postDraft.date = ISO.format(got.start);
+      var hm = F({hour:'2-digit',minute:'2-digit',hour12:false}).format(got.start);
+      postDraft.time = hm.replace(/[^\d:]/g,'');
+      if(got.end) postDraft.dur = String(Math.max(15, Math.round((got.end-got.start)/60000)));
+    }
+    renderPost(); toast('Filled in what we could read.');
+  });
+  $('pp-photo').addEventListener('change', function(ev){
+    var file = ev.target.files && ev.target.files[0]; if(!file) return;
+    shrinkImage(file, function(dataUrl){
+      if(!dataUrl){ toast('Couldn’t read that image.'); return; }
+      postDraft.photo = dataUrl; renderPost(); toast('Photo added.');
+    });
+  });
+  $('pp-cancel').addEventListener('click', function(){ $('post').classList.remove('on'); });
+  $('pp-go').addEventListener('click', submitPost);
+}
+/* keep photos well inside the 256 KiB document limit */
+function shrinkImage(file, cb){
+  var reader = new FileReader();
+  reader.onerror = function(){ cb(null); };
+  reader.onload = function(){
+    var img = new Image();
+    img.onerror = function(){ cb(null); };
+    img.onload = function(){
+      var w = Math.min(720, img.width), h = Math.round(img.height * (w/img.width));
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      var q = 0.72, out = c.toDataURL('image/jpeg', q);
+      while(out.length > 150000 && q > 0.3){ q -= 0.12; out = c.toDataURL('image/jpeg', q); }
+      cb(out.length > 200000 ? null : out);
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+function submitPost(){
+  var d = postDraft;
+  if(!d.title.trim()){ toast('Give it a title.'); return; }
+  if(!d.clubName.trim()){ toast('Which club is hosting?'); return; }
+  var dm = d.date.split('-').map(Number), tm = d.time.split(':').map(Number);
+  if(dm.length !== 3 || isNaN(dm[0])){ toast('Pick a date.'); return; }
+  var start = melbLocal(dm[0], dm[1], dm[2], tm[0]||0, tm[1]||0);
+  var payload = {
+    title:d.title.trim(), clubName:d.clubName.trim(), uniId:d.uniId,
+    startISO:start.toISOString(),
+    endISO:new Date(start.getTime() + (parseInt(d.dur,10)||120)*60000).toISOString(),
+    venue:d.venue.trim(), suburb:d.suburb, addr:d.venue.trim()+', '+d.suburb,
+    cents:Math.round((parseFloat(d.price)||0)*100),
+    ticketUrl:/^https:\/\//i.test(d.ticketUrl) ? d.ticketUrl.trim() : '',
+    provider:d.provider, atype:d.atype, tags:d.tags.slice(), desc:d.desc.trim(),
+    photo:d.photo, addedBy:state.profile ? firstName(state.profile.name) : 'a student',
+    createdAt:new Date().toISOString()
+  };
+  ingestDoc('local' + Date.now(), payload);
+  liveCount++;
+  state.posted = (state.posted || []).concat([payload]);
+  persist();
+  $('post').classList.remove('on');
+  onCatalogueChanged(0);
+  toast('Posted — it’s in the deck now.');
+}
+$('post').addEventListener('click', function(ev){ if(ev.target === $('post')) $('post').classList.remove('on'); });
+
+/* ================================================================
+   12b. REGISTRATION HAND-OFF
+   The club sells its own tickets on its own platform. UniVerse
+   fills in what it already knows about you and hands it over —
+   we never take a payment.
+   ================================================================ */
+const PROVIDER = {humanitix:'Humanitix', eventbrite:'Eventbrite', trybooking:'TryBooking',
+                  external:'the club’s site', none:'the club’s page'};
+function studentNumber(){ return 's' + (3000000 + (hash(state.profile.email) % 999999)); }
+
+/* Where a registration actually goes.
+   Free  → we take the name here; nobody needs a checkout for a $0 ticket.
+   Paid  → the club's own ticket page if it has one, otherwise the
+           hosting university's union platform. Payment never happens
+           in UniVerse. */
+function destinationFor(e){
+  var u = uniOf(e);
+  if(e.cents === 0) return {kind:'free', label:'UniVerse', url:null, uni:u};
+  if(e.ticketUrl)   return {kind:'club', label:PROVIDER[e.provider] || 'the club’s page', url:e.ticketUrl, uni:u};
+  return {kind:'union', label:u.regLabel, url:u.regUrl, uni:u};
+}
+function regDetails(e){
+  return [
+    ['Name', state.profile.name],
+    ['Student email', state.profile.email],
+    ['University', UNI_BY[state.profile.uniId].name],
+    ['Student no.', studentNumber()],
+    ['Ticket', (e.cents===0 ? 'General admission · Free' : 'General admission · '+priceStr(e))],
+    ['Event', e.title + ' — ' + fullWhen(e.start, e.end)]
+  ];
+}
+function detailsText(e){
+  return regDetails(e).map(function(r){ return r[0]+': '+r[1]; }).join('\n');
+}
+var regId = null;
+function openRegister(id){
+  var e = EV_BY[id]; if(!e) return;
+  regId = id;
+  var dest = destinationFor(e);
+  var done = isRegistered(id);
+  $('reg-prov').textContent = done ? 'Your registration'
+    : (dest.kind==='free' ? 'Free · one tap' : 'Register · ' + dest.label);
+  $('reg-title').textContent = e.title;
+  $('reg-body').innerHTML =
+    (dest.kind !== 'free'
+      ? '<div class="destrow"><i style="background:'+dest.uni.colour+'"></i>'+
+          '<span><b>'+esc(dest.label)+'</b><span>'+
+            (dest.kind==='club' ? 'The club sells this one directly' : esc(dest.uni.short)+' registrations go through their union')+
+          '</span></span></div>'
+      : '')+
+    '<div class="dl">'+ regDetails(e).map(function(r, i){
+      return '<div class="r"><span class="k">'+esc(r[0])+'</span>'+
+        (i===0 ? '<input class="v" id="rg-name" value="'+esc(r[1])+'" aria-label="Name on the ticket">'
+               : '<span class="v" title="'+esc(r[1])+'">'+esc(r[1])+'</span>')+'</div>';
+    }).join('') +'</div>'+
+    '<p class="note" style="margin:0">'+ (done
+      ? (dest.kind==='free'
+          ? 'You’re on the list. The club gets your name and student email.'
+          : 'Your details went across to '+esc(dest.label)+' — change or cancel with them.')
+      : dest.kind==='free'
+        ? 'It’s free, so there’s no checkout. One tap puts you on the club’s list — no forms, no redirect.'
+        : 'We’ll copy these to your clipboard and open '+esc(dest.label)+', so you paste instead of typing. Payment happens there — never in UniVerse.')
+    +'</p>';
+
+  /* A real anchor, not window.open: scripted popups are blocked inside
+     the viewer's sandbox, a user-activated link is not. */
+  function linkBtn(id, cls, label){
+    return '<a class="'+cls+'" id="'+id+'" href="'+esc(dest.url)+'" target="_blank" rel="noopener noreferrer">'+label+'</a>';
+  }
+  var foot = '';
+  if(!done){
+    foot += dest.kind==='free'
+      ? '<button class="btn" id="rg-go">Register me</button>'
+      : linkBtn('rg-go','btn','Continue to '+esc(dest.label));
+    if(dest.kind !== 'free') foot += '<button class="btn ghost small" id="rg-mark">Just mark me as registered</button>';
+  } else {
+    if(dest.url) foot += linkBtn('rg-open','btn','Open '+esc(dest.label)+' again');
+    foot += '<button class="btn ghost small" id="rg-copy">Copy my details</button>';
+    foot += '<button class="btn ghost small" id="rg-cancel">I’m no longer going</button>';
+  }
+  if(dest.url) foot += '<p class="destlink">'+esc(hostOf(dest.url))+' — <a href="'+esc(dest.url)+
+    '" target="_blank" rel="noopener noreferrer">open in a new tab</a></p>';
+  foot += '<button class="btn ghost small" id="rg-close">Close</button>';
+  $('reg-foot').innerHTML = foot;
+
+  var nameField = $('rg-name');
+  if(nameField) nameField.addEventListener('input', function(){
+    state.profile.name = nameField.value || 'Student'; persist();
+  });
+  function copyDetails(quiet){
+    var txt = detailsText(e);
+    if(navigator.clipboard) navigator.clipboard.writeText(txt).then(function(){
+      if(!quiet) toast('Details copied — paste them on the club’s page.');
+    }, function(){});
+  }
+  function markRegistered(){
+    state.registered[id] = true;
+    if(state.swipes[id] !== 'like'){
+      var at = deckIds.indexOf(id);
+      recordSwipe(id, 'like');
+      if(at === cursor) cursor++; else if(at > cursor) deckIds.splice(at,1);
+    }
+    persist();
+  }
+  var go = $('rg-go');
+  if(go) go.addEventListener('click', function(){
+    markRegistered();
+    if(dest.kind === 'free'){
+      closeRegister(); refreshAfterRegister();
+      toast('You’re on the list — no checkout needed.');
+      return;
+    }
+    copyDetails(true);                       /* the anchor does the navigating */
+    setTimeout(function(){ closeRegister(); refreshAfterRegister(); }, 120);
+    toast('Details copied — finish up on '+dest.label+'.');
+  });
+  var mark = $('rg-mark');
+  if(mark) mark.addEventListener('click', function(){
+    markRegistered(); closeRegister(); refreshAfterRegister(); toast('Marked as registered.');
+  });
+  var open = $('rg-open');
+  if(open) open.addEventListener('click', function(){ copyDetails(false); });
+  var cp = $('rg-copy'); if(cp) cp.addEventListener('click', function(){ copyDetails(false); });
+  var cn = $('rg-cancel');
+  if(cn) cn.addEventListener('click', function(){
+    delete state.registered[id]; persist(); closeRegister(); refreshAfterRegister();
+    toast('Registration cleared here — cancel with the club too.');
+  });
+  $('rg-close').addEventListener('click', closeRegister);
+  $('reg').classList.add('on');
+}
+function closeRegister(){ $('reg').classList.remove('on'); regId = null; }
+function refreshAfterRegister(){
+  if(state.tab==='saved'){
+    renderSaved();
+    $('app-sub').textContent = savedList().length + (savedList().length===1?' event saved':' events saved');
+  } else if(state.tab==='discover'){
+    if(state.discovery==='browse') renderBrowse(); else renderDeck();
+  }
+  if(sheetId) openSheet(sheetId);
+}
+$('reg').addEventListener('click', function(ev){ if(ev.target === $('reg')) closeRegister(); });
+
+/* ================================================================
+   13. PROFILE
+   ================================================================ */
+function initials(n){
+  return n.trim().split(/\s+/).slice(0,2).map(function(p){ return p.charAt(0).toUpperCase(); }).join('') || 'U';
+}
+function renderProfile(){
+  var u = UNI_BY[state.profile.uniId];
+  var saved = savedList(), cross = saved.filter(function(e){ return uniOf(e).id !== state.profile.uniId; });
+  var pct = saved.length ? Math.round(cross.length/saved.length*100) : 0;
+  $('prof-body').innerHTML =
+    '<div class="prof-card">'+
+      '<div class="avatar">'+esc(initials(state.profile.name))+'</div>'+
+      '<div class="who"><input class="nm" id="pf-name" value="'+esc(state.profile.name)+'" aria-label="Display name">'+
+        '<span class="em">'+esc(state.profile.email)+'</span>'+
+        '<span class="uni-badge" style="margin-top:3px"><i style="background:'+u.colour+'"></i>'+esc(u.short)+'</span></div>'+
+    '</div>'+
+    '<div class="stats">'+
+      '<div class="stat"><b>'+saved.length+'</b><span>Saved</span></div>'+
+      '<div class="stat"><b>'+cross.length+'</b><span>Cross-campus</span></div>'+
+      '<div class="stat"><b>'+pct+'%</b><span>Cross-uni rate</span></div>'+
+    '</div>'+
+    '<p class="note">Cross-university rate is the share of your saved events hosted by a club at another university — the number no single-campus platform can measure.</p>'+
+
+    '<p class="sect">Appearance</p>'+
+    '<div class="rowline"><span class="lb">Dark mode</span>'+
+      '<button class="switch" id="pf-dark" aria-pressed="'+(state.dark?'true':'false')+'" aria-label="Dark mode"><i></i></button></div>'+
+
+    '<p class="sect">Discovery</p>'+
+    '<div class="rowline"><span class="lb">Discovery mode</span>'+
+      '<div class="segsmall" id="pf-disc">'+
+        '<button data-disc="swipe" aria-selected="'+(state.discovery==='swipe')+'">Swipe</button>'+
+        '<button data-disc="browse" aria-selected="'+(state.discovery==='browse')+'">Browse</button></div></div>'+
+    '<div class="selline"><span class="lb">Home suburb</span>'+
+      '<select id="pf-suburb" aria-label="Home suburb">'+
+        '<option value=""'+(state.address?'':' selected')+'>'+esc(u.short)+' campus</option>'+
+        Object.keys(SUBURBS).sort().map(function(s){
+          var label = s.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+          return '<option value="'+esc(label)+'"'+((state.address||'').toLowerCase()===s?' selected':'')+'>'+esc(label)+'</option>';
+        }).join('')+
+      '</select></div>'+
+    '<div class="selline"><span class="lb">Max distance</span>'+
+      '<select id="pf-dist" aria-label="Max distance">'+ DISTANCES.map(function(d){
+        return '<option value="'+d.id+'"'+(state.distance===d.id?' selected':'')+'>'+esc(d.label)+'</option>'; }).join('')+
+      '</select></div>'+
+    '<div class="selline"><span class="lb">Budget</span>'+
+      '<select id="pf-budget" aria-label="Budget">'+ BUDGETS.map(function(b){
+        return '<option value="'+b.id+'"'+(state.budget===b.id?' selected':'')+'>'+esc(b.label)+'</option>'; }).join('')+
+      '</select></div>'+
+
+    '<p class="sect">Friends <span style="text-transform:none;letter-spacing:0">— first name and university only</span></p>'+
+    '<div id="pf-friends"></div>'+
+
+    '<p class="sect">Your picks</p>'+
+    '<div class="chiprow">'+ (state.interests.length
+      ? state.interests.map(function(s){ return '<span class="pill">'+INT_BY[s].emoji+' '+esc(INT_BY[s].label)+'</span>'; }).join('')
+      : '<span class="muted">None picked yet.</span>') +'</div>'+
+    '<div class="chiprow" style="margin-top:7px">'+ (state.atypes.length
+      ? state.atypes.map(function(a){ return '<span class="pill">'+esc(a)+'</span>'; }).join('')
+      : '<span class="muted">No activity types picked.</span>') +'</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
+      '<button class="btn ghost small" data-edit="0">Interests</button>'+
+      '<button class="btn ghost small" data-edit="1">Activities</button>'+
+      '<button class="btn ghost small" data-edit="2">Budget</button>'+
+      '<button class="btn ghost small" data-edit="3">Distance</button>'+
+    '</div>'+
+
+    '<p class="sect">Run a club?</p>'+
+    '<button class="btn ghost small" id="pf-post" style="width:100%">Post an event</button>'+
+    '<p class="note">Events you post appear on every campus’s deck straight away — paste a calendar invite or a ticket link and we fill in the rest.</p>'+
+
+    '<p class="sect">Account</p>'+
+    '<button class="btn ghost small" id="pf-signout" style="width:100%">Sign out &amp; reset the demo</button>';
+
+  $('pf-name').addEventListener('input', function(){
+    state.profile.name = $('pf-name').value || 'Student'; persist();
+    $('prof-body').querySelector('.avatar').textContent = initials(state.profile.name);
+  });
+  $('pf-dark').addEventListener('click', function(){
+    state.dark = !state.dark; persist(); applyMode();
+    $('pf-dark').setAttribute('aria-pressed', state.dark ? 'true':'false');
+  });
+  Array.prototype.forEach.call($('pf-disc').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      state.discovery = b.getAttribute('data-disc'); persist(); renderProfile();
+      toast('Discovery set to '+state.discovery+'.');
+    });
+  });
+  Array.prototype.forEach.call($('prof-body').querySelectorAll('[data-edit]'), function(b){
+    b.addEventListener('click', function(){ editStep(parseInt(b.getAttribute('data-edit'),10)); });
+  });
+  $('pf-suburb').addEventListener('change', function(){
+    state.address = $('pf-suburb').value; persist(); rebuildDeck(); renderProfile();
+    toast(state.address ? 'Home set to '+state.address+'.' : 'Home set to your campus.');
+  });
+  $('pf-dist').addEventListener('change', function(){
+    state.distance = $('pf-dist').value; persist(); rebuildDeck(); renderProfile();
+    toast('Max distance: '+DIST_BY[state.distance].label+'.');
+  });
+  $('pf-budget').addEventListener('change', function(){
+    state.budget = $('pf-budget').value; persist(); rebuildDeck(); renderProfile();
+    toast('Budget: '+BUD_BY[state.budget].label+'.');
+  });
+  $('pf-post').addEventListener('click', openPost);
+  $('pf-signout').addEventListener('click', signOut);
+  renderFriends();
+}
+
+var showSuggestions = false;
+function renderFriends(){
+  var host = $('pf-friends'); if(!host) return;
+  var mine = state.friends.map(function(id){ return FRIEND_BY[id]; }).filter(Boolean);
+  var others = FRIENDS.filter(function(f){ return state.friends.indexOf(f.id) === -1; });
+  var html = mine.length ? mine.map(function(f){
+      return '<div class="friendrow"><span class="avatar sm" style="background:'+UNI_BY[f.uniId].colour+'">'+
+        esc(firstName(f.name).charAt(0))+'</span>'+
+        '<span class="who"><b>'+esc(firstName(f.name))+'</b><span>'+esc(UNI_BY[f.uniId].short)+' · '+
+          sharedCount(f)+' of your saved events</span></span>'+
+        '<button class="mini" data-unfriend="'+f.id+'">Remove</button></div>';
+    }).join('')
+    : '<p class="note" style="margin:0 0 4px">No friends yet. Add one and their interest shows up on the cards.</p>';
+
+  html += '<button class="btn ghost small" id="pf-addfriends" style="width:100%;margin-top:10px">'+
+    (showSuggestions ? 'Done' : 'Add friends') +'</button>';
+
+  if(showSuggestions){
+    html += '<p class="eyebrow" style="margin:14px 0 6px">Students you might know</p>'+
+      (others.length ? others.map(function(f){
+        return '<div class="friendrow"><span class="avatar sm" style="background:'+UNI_BY[f.uniId].colour+'">'+
+          esc(firstName(f.name).charAt(0))+'</span>'+
+          '<span class="who"><b>'+esc(firstName(f.name))+'</b><span>'+esc(UNI_BY[f.uniId].short)+'</span></span>'+
+          '<button class="mini solid" data-friend="'+f.id+'">Add</button></div>';
+      }).join('') : '<p class="note" style="margin:0">You’ve added everyone in the demo.</p>');
+  }
+  host.innerHTML = html;
+
+  host.querySelectorAll('[data-friend]').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.friends.push(b.getAttribute('data-friend')); persist();
+      toast(firstName(FRIEND_BY[b.getAttribute('data-friend')].name)+' added.');
+      renderFriends();
+    });
+  });
+  host.querySelectorAll('[data-unfriend]').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.friends = state.friends.filter(function(x){ return x !== b.getAttribute('data-unfriend'); });
+      persist(); renderFriends();
+    });
+  });
+  var add = $('pf-addfriends');
+  if(add) add.addEventListener('click', function(){ showSuggestions = !showSuggestions; renderFriends(); });
+}
+
+/* ================================================================
+   14. BOOT
+   ================================================================ */
+document.addEventListener('keydown', function(ev){
+  if(ev.key === 'Escape'){ if(sheetId) closeSheet(); else if($('tut').classList.contains('on')) $('tut-go').click(); }
+});
+if(restore() && state.profile){
+  applyMode();
+  (state.posted || []).forEach(function(p, i){ if(ingestDoc('saved'+i, p)) liveCount++; });
+  if(!state.interests.length) startOnboarding(0);
+  else { rebuildDeck(); showScreen('s-app'); setTab(state.tab || 'discover'); }
+} else {
+  showScreen('s-auth');
+}
+})();
+</script>
+
+</body>
+</html>
