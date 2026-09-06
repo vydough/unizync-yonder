@@ -3,58 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>html,body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>UniVerse</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-
-<title>UniVerse</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-
-<title>UniVerse</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-
-/* One line, in the student's words, for why this card is here. It
-   names whichever component actually contributed most to the score —
-   so it can never drift out of sync with the ranking. */
-function whyLine(e){
-  var now = Date.now();
-  switch(topPart(e, now)){
-    case 'interest':
-      var mine = {}; state.interests.forEach(function(s){ mine[s]=1; });
-      var hits = e.tags.filter(function(t){ return mine[t]; });
-      if(hits.length) return 'Matches <b>'+INT_BY[hits[0]].label+'</b>'+
-        (hits.length>1 ? ' + '+(hits.length-1)+' more' : '');
-      break;
-    case 'activity': return 'You’re up for <b>'+e.atype.toLowerCase()+'</b>';
-    case 'cross':    return 'From another campus — <b>'+uniOf(e).short+'</b>';
-    case 'social':
-      var s = friendsOn(e.id), all = s.going.concat(s.keen);
-      if(all.length) return '<b>'+firstName(all[0].name)+'</b>'+
-        (all.length>1 ? ' and '+(all.length-1)+' more' : '')+' from your friends';
-      break;
-    case 'distance': return '<b>'+Math.round(kmAway(e))+' km</b> from you';
-    case 'price':    return e.cents===0 ? '<b>Free</b> entry' : 'Well inside your budget';
-    case 'timing':   return 'On <b>'+dayLabel(e.start)+'</b>';
-  }
-  return 'On in the next 14 days';
-}
-
-<title>UniVerse</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-
-<title>UniVerse</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
-
 <title>UniVerse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -486,11 +434,7 @@ a.btn{text-decoration:none}
 .parsebox{border:2px solid var(--ink);background:var(--paper-2);padding:11px 12px;display:flex;flex-direction:column;gap:8px}
 .parsebox .hdr{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .parsebox .hdr b{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:-.01em}
-.conf{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;color:var(--ink-2);flex:none}
-.conf .bar{width:54px;height:8px;border:1.5px solid var(--ink);background:var(--paper);position:relative;flex:none}
-.conf .bar i{position:absolute;inset:0;right:auto;background:var(--green);display:block}
-.conf.low .bar i{background:var(--yellow)}
-.conf.vlow .bar i{background:var(--accent)}
+.parsebox .hdr .n{font-family:var(--mono);font-size:11px;color:var(--ink-2);flex:none}
 .fieldsrc{display:flex;flex-wrap:wrap;gap:5px}
 .fieldsrc span{font-family:var(--mono);font-size:10px;letter-spacing:.04em;border:1.5px solid var(--ink-3);
   padding:2px 6px;color:var(--ink-2);white-space:nowrap}
@@ -2182,7 +2126,7 @@ function onCatalogueChanged(added){
 
    Flow:  URL → validate → fetch (server-side only) → JSON-LD /
    OpenGraph / meta / microdata → detect provider → provider parser →
-   merge by confidence → normalise → preview → save
+   merge (last wins, blanks skipped) → normalise → preview → save
    ================================================================ */
 var UniVerseParser = (function(){
 "use strict";
@@ -2234,38 +2178,11 @@ var UniVerseParser = (function(){
  * @property {string}   [ticketUrl]   where to actually buy
  * @property {string}   [organiser]   the club's name, as the page gives it
  * @property {EventSource} source
- * @property {Object.<string, FieldProvenance>} [provenance]
+ * @property {Object.<string, string>} [sources]
+ *           which parser gave us each field — 'json-ld', 'opengraph',
+ *           'humanitix' … Used by the preview screen to show an
+ *           organiser where each answer came from and what's missing.
  */
-
-/**
- * Where each field came from and how much to trust it. This is what
- * lets the merger pick between two different answers for `title`
- * without a pile of if-statements, and what lets the preview screen
- * show a student which fields are worth checking by hand.
- *
- * @typedef {Object} FieldProvenance
- * @property {string} source      'json-ld' | 'opengraph' | 'meta' | 'title-tag' | provider name
- * @property {number} confidence  0–1
- */
-
-/**
- * How much each extraction method is worth. Straight from the
- * architecture doc — a provider that publishes structured data about
- * itself is more reliable than us reading its HTML, which is in turn
- * more reliable than a generic <meta> tag.
- */
-const CONFIDENCE = {
-  'provider-api':  0.99,
-  'json-ld':       0.95,
-  'provider-html': 0.90,
-  'opengraph':     0.85,
-  'microdata':     0.80,
-  'ics':           0.90,
-  'meta':          0.70,
-  'generic-html':  0.60,
-  'title-tag':     0.50,
-  'url-only':      0.30
-};
 
 /**
  * The contract every provider parser follows.
@@ -2283,7 +2200,7 @@ const CONFIDENCE = {
  * @property {(url: URL, html: string) => Partial<NormalisedEvent>} parse
  */
 const EMPTY = Object.freeze({
-  title: '', source: { provider: 'generic', url: '' }, provenance: {}
+  title: '', source: { provider: 'generic', url: '' }, sources: {}
 });
 
 /* ---------- lib/event-parser/safeUrl.js ---------- */
@@ -2413,17 +2330,25 @@ function isFetchable(raw) {
  * Several parsers run over the same page and each returns whatever it
  * could read. This decides what the final answer is.
  *
- * The rule from the architecture doc — "provider-specific data should
- * normally have higher priority, but empty or undefined values should
- * not overwrite valid universal data" — is exactly right, and the
- * clean way to express it is per-field confidence rather than a
- * fixed order. A provider parser that confidently found a price and
- * guessed at a venue shouldn't overwrite the JSON-LD venue just
- * because it ran last.
+ * Two rules, and that's the whole file:
  *
- * So: every field carries where it came from and how sure we are, and
- * the highest confidence wins. Ties go to whoever ran later, which is
- * the provider parser, which is what the doc asked for.
+ *   1. LAST ONE WINS. Parsers run worst-to-best, so the better one
+ *      always runs later and simply overwrites:
+ *
+ *        <title>  →  meta  →  microdata  →  OpenGraph  →  JSON-LD  →  provider
+ *
+ *   2. A BLANK NEVER OVERWRITES. An empty string, an empty array or a
+ *      missing key means "I didn't find anything", not "the answer is
+ *      empty" — so it's skipped. This is what lets a page with a good
+ *      og:image and an empty JSON-LD image end up with the og:image.
+ *
+ * Together those give exactly the priority the architecture asks for:
+ * provider-specific data wins, but never by replacing something real
+ * with nothing.
+ *
+ * We still record WHICH parser gave us each field — one line, no
+ * scoring — because the preview screen showing "venue · not on the
+ * page" is what tells an organiser which field to check.
  */
 
 /** Values that mean "I didn't find anything", not "the answer is empty". */
@@ -2439,76 +2364,56 @@ function isBlank(v) {
 /**
  * Merge one parser's result into the accumulator.
  *
- * @param {Object} into      the event being built up
- * @param {Object} patch     what this parser found
+ * @param {Object} into       the event being built up
+ * @param {Object} patch      what this parser found
  * @param {string} sourceName 'json-ld', 'opengraph', 'humanitix', …
- * @param {number} [confidence] defaults to the table in types.js
  */
-function mergeInto(into, patch, sourceName, confidence) {
+function mergeInto(into, patch, sourceName) {
   if (!patch) return into;
-  const conf = confidence != null ? confidence : (CONFIDENCE[sourceName] ?? 0.5);
-  into.provenance = into.provenance || {};
+  into.sources = into.sources || {};
 
   for (const [key, value] of Object.entries(patch)) {
-    if (key === 'source' || key === 'provenance') continue;
-    if (isBlank(value)) continue;                      // never overwrite with nothing
+    if (key === 'source' || key === 'sources') continue;
+    if (isBlank(value)) continue;                    // rule 2
 
-    const held = into.provenance[key];
-
-    // Venue is two fields pretending to be one — merge it key by key so
-    // a provider that knows the venue name doesn't wipe a JSON-LD address.
-    if (key === 'venue' && typeof value === 'object' && into.venue) {
+    // Venue is two fields pretending to be one, so merge it key by key:
+    // a provider that knows the venue name shouldn't wipe a JSON-LD
+    // address just because it didn't happen to find one.
+    if (key === 'venue' && typeof value === 'object') {
+      into.venue = into.venue || {};
       for (const [vk, vv] of Object.entries(value)) {
         if (isBlank(vv)) continue;
-        const vHeld = into.provenance['venue.' + vk];
-        if (!vHeld || conf >= vHeld.confidence) {
-          into.venue[vk] = vv;
-          into.provenance['venue.' + vk] = { source: sourceName, confidence: conf };
-        }
+        into.venue[vk] = vv;
+        into.sources['venue.' + vk] = sourceName;
       }
       continue;
     }
 
-    // Tickets: more detail beats less. A provider that found three tiers
-    // is worth more than JSON-LD's single cheapest offer.
+    // Tickets: the longer list wins. JSON-LD carries the cheapest offer
+    // only, so a provider parser that found all three tiers should keep
+    // them — but a provider that found one shouldn't throw three away.
     if (key === 'tickets' && Array.isArray(value) && Array.isArray(into.tickets)) {
-      if (value.length > into.tickets.length || conf > (held?.confidence ?? 0)) {
+      if (value.length >= into.tickets.length) {
         into.tickets = value;
-        into.provenance.tickets = { source: sourceName, confidence: conf };
+        into.sources.tickets = sourceName;
       }
       continue;
     }
 
-    if (!held || conf >= held.confidence) {
-      into[key] = value;
-      into.provenance[key] = { source: sourceName, confidence: conf };
-    }
+    into[key] = value;                               // rule 1
+    into.sources[key] = sourceName;
   }
   return into;
 }
 
 /**
  * Merge a list of [patch, sourceName] pairs in order.
- * Later entries win ties, so pass generic first and provider last.
+ * Pass the least reliable parser first and the provider last.
  */
 function mergeDefined(...pairs) {
-  const out = { provenance: {} };
-  for (const [patch, sourceName, conf] of pairs) mergeInto(out, patch, sourceName, conf);
+  const out = { sources: {} };
+  for (const [patch, sourceName] of pairs) mergeInto(out, patch, sourceName);
   return out;
-}
-
-/** The average confidence across the fields that matter, 0–1.
- *  Shown on the preview screen so an organiser knows whether to
- *  read every field carefully or just glance at it. */
-function overallConfidence(event) {
-  const weighted = { title: 3, startDate: 3, venue: 1, imageUrl: 1, tickets: 1, description: 1 };
-  let sum = 0, total = 0;
-  for (const [field, weight] of Object.entries(weighted)) {
-    const p = event.provenance?.[field] || event.provenance?.['venue.name'];
-    total += weight;
-    if (p) sum += weight * p.confidence;
-  }
-  return total ? sum / total : 0;
 }
 
 /** Fields we found nothing for — the ones a human has to fill in. */
@@ -2746,7 +2651,11 @@ function collectEvents(node, out = [], depth = 0) {
   return out;
 }
 
-/** Pull every <script type="application/ld+json"> block out of raw HTML. */
+/** Pull every ld+json block out of raw HTML.
+ *  The tag name is never written out in full anywhere in this file:
+ *  it gets inlined into the app, and a literal opening tag inside
+ *  script text flips the HTML parser into double-escaped mode, which
+ *  breaks the page silently. tools/check-app.mjs guards against it. */
 function extractLdBlocks(html) {
   const blocks = [];
   const re = /<script[^>]+type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
@@ -2972,10 +2881,11 @@ const humanitix = {
       }
     }
 
-    // The checkout URL is the event page plus /tickets — always true on
-    // Humanitix, and it saves a student one tap.
+    // Humanitix checkout is always the event page plus /tickets, which
+    // saves a student one tap. It's still a derivation, so it goes in
+    // ticketUrlFallback: a checkout link the page declares itself wins.
     const base = url.href.split('?')[0].replace(/\/+$/, '');
-    if (!/\/tickets$/.test(base)) out.ticketUrl = base + '/tickets';
+    if (!/\/tickets$/.test(base)) out.ticketUrlFallback = base + '/tickets';
     out.pageUrl = base;
     return out;
   }
@@ -3049,7 +2959,7 @@ const eventbrite = {
     const canonical = meta(html, 'og:url') || url.href;
     const base = canonical.split('?')[0].replace(/\/+$/, '');
     out.pageUrl = base;
-    out.ticketUrl = base + '#tickets';
+    out.ticketUrlFallback = base + '#tickets';
     return out;
   }
 };
@@ -3130,7 +3040,7 @@ const rubric = {
     if (society === '3659') out.organiserUnion = 'DUSA';
 
     out.pageUrl = url.href.split('#')[0];
-    out.ticketUrl = out.pageUrl;
+    out.ticketUrlFallback = out.pageUrl;   // Rubric has no separate checkout
     return out;
   }
 };
@@ -3178,7 +3088,7 @@ const trybooking = {
     // /events/<id> and /b/<id> both resolve; keep whichever they pasted
     const base = url.href.split('?')[0].replace(/\/+$/, '');
     out.pageUrl = base;
-    out.ticketUrl = base;
+    out.ticketUrlFallback = base;
     return out;
   }
 };
@@ -3281,7 +3191,7 @@ const university = {
     if (uni) out.university = uni;
 
     out.pageUrl = url.href.split('#')[0];
-    out.ticketUrl = out.pageUrl;
+    out.ticketUrlFallback = out.pageUrl;   // most union events are free
     return out;
   }
 };
@@ -3351,9 +3261,8 @@ function knownHostPatterns() {
  *
  *   URL → validate → fetch → generic parsers (JSON-LD, OpenGraph,
  *   meta, microdata, title) → detect provider → provider parser →
- *   merge by confidence → normalise → validate → preview → save
+ *   merge (last wins, blanks skipped) → normalise → preview → save
  */
-
 
 
 
@@ -3369,15 +3278,18 @@ function knownHostPatterns() {
  */
 function parseEventFromHtml(text, sourceUrl) {
   const raw = String(text || '');
-  const event = { provenance: {} };
+  const event = { sources: {} };
 
   // The link they pasted is the event's page unless the page itself
   // names a canonical one — which the parsers below may well do, and
-  // which outranks this because its confidence is higher.
+  // which wins because they run after this.
   const firstUrl = sourceUrl || (raw.match(/https:\/\/[^\s"'<>]+/) || [])[0] || '';
   const cleanFirst = firstUrl.replace(/[).,;'"]+$/, '');
   if (cleanFirst) {
-    mergeInto(event, { pageUrl: cleanFirst, ticketUrl: cleanFirst }, 'url-only');
+    // ticketUrl goes in as a fallback: if the page turns out to declare
+    // a real checkout link, or a provider knows where its checkout
+    // lives, that beats "wherever they pasted from".
+    mergeInto(event, { pageUrl: cleanFirst, ticketUrlFallback: cleanFirst }, 'url-only');
   }
 
   // A calendar invite is not HTML and is more accurate than either.
@@ -3387,7 +3299,8 @@ function parseEventFromHtml(text, sourceUrl) {
 
   const looksLikeHtml = /<[a-z!][\s\S]*>/i.test(raw);
   if (looksLikeHtml) {
-    // Order here is only about ties — the confidence table decides.
+    // Worst first, best last. The merger's rule is "last one wins,
+    // and a blank never overwrites", so this order IS the priority.
     mergeInto(event, parseTitleTag(raw),  'title-tag');
     mergeInto(event, parseMetaTags(raw),  'meta');
     mergeInto(event, parseMicrodata(raw), 'microdata');
@@ -3400,14 +3313,15 @@ function parseEventFromHtml(text, sourceUrl) {
       mergeInto(event, ld, 'json-ld');
     }
 
-    // Provider-specific last, so it wins ties, as the doc asks.
+    // Provider-specific last, so it wins — but only for the fields it
+    // actually found something for.
     let url = null;
     try { url = new URL(cleanFirst || event.pageUrl || ''); } catch { /* none */ }
     if (url) {
       const provider = parserFor(url);
       if (provider) {
         try {
-          mergeInto(event, provider.parse(url, raw), provider.name, CONFIDENCE['provider-html']);
+          mergeInto(event, provider.parse(url, raw), provider.name);
           event.providerName = provider.name;
         } catch (err) {
           // A provider parser must never take the whole parse down with
@@ -3474,9 +3388,9 @@ async function parseEventFromUrl(rawUrl, opts = {}) {
 }
 
 /**
- * Everything downstream reads this shape and nothing else.
- * Also attaches the things a preview screen needs: how confident we
- * are overall, and which fields a human still has to fill in.
+ * Everything downstream reads this shape and nothing else. Also
+ * attaches what the preview screen needs: which parser gave us each
+ * field, and which fields a human still has to fill in.
  */
 function normalise(event, sourceUrl) {
   const tickets = (event.tickets || []).filter(t => t && !isNaN(Number(t.price)));
@@ -3494,16 +3408,16 @@ function normalise(event, sourceUrl) {
     isFree:      cheapest === 0,
     organiser:   event.organiser || '',
     university:  event.university || '',
-    ticketUrl:   event.ticketUrl || '',
+    // A checkout link the page declared beats one a provider derived.
+    ticketUrl:   event.ticketUrl || event.ticketUrlFallback || '',
     source: {
       provider: event.providerName || 'generic',
       url: sourceUrl || event.pageUrl || '',
       pageUrl: event.pageUrl || sourceUrl || ''
     },
-    provenance: event.provenance || {}
+    sources: event.sources || {}
   };
 
-  out.confidence = overallConfidence(event);
   out.missing = missingFields(out);
   if (event.foundCount > 1) out.otherEventsOnPage = event.foundCount - 1;
   if (event.providerError) out.providerError = event.providerError;
@@ -3514,8 +3428,7 @@ return {
   checkUrl: checkUrl,
   isFetchable: isFetchable,
   parserFor: parserFor,
-  ALLOWED_HOSTS: ALLOWED_HOSTS,
-  CONFIDENCE: CONFIDENCE
+  ALLOWED_HOSTS: ALLOWED_HOSTS
 };
 })();
 /* === END GENERATED PARSER === */
@@ -3548,10 +3461,9 @@ function parsePaste(text){
                : host ? 'external' : 'none';
 
   /* what the preview screen shows the organiser */
-  out.confidence = n.confidence;
   out.missing = n.missing;
   out.sourceName = n.source ? n.source.provider : 'generic';
-  out.provenance = n.provenance;
+  out.sources = n.sources;
   return out;
 }
 
@@ -3739,17 +3651,15 @@ const FIELD_LABEL = {
 };
 function parsePreview(){
   var r = parseReport;
-  if(!r || r.confidence == null) return '';
-  var pct = Math.round(r.confidence * 100);
-  var cls = pct >= 80 ? '' : pct >= 50 ? ' low' : ' vlow';
+  if(!r || !r.sources) return '';
 
-  var chips = Object.keys(r.provenance || {})
-    .filter(function(k){ return k.indexOf('venue.') !== 0; })
-    .map(function(k){
-      var lbl = FIELD_LABEL[k] || k;
-      var src = SRC_LABEL[r.provenance[k].source] || r.provenance[k].source;
-      return '<span>'+esc(lbl)+' · '+esc(src)+'</span>';
-    });
+  var found = Object.keys(r.sources)
+    .filter(function(k){ return k.indexOf('venue.') !== 0 && k !== 'ticketUrlFallback'; });
+
+  var chips = found.map(function(k){
+    return '<span>'+esc(FIELD_LABEL[k] || k)+' · '+
+      esc(SRC_LABEL[r.sources[k]] || r.sources[k])+'</span>';
+  });
 
   var missing = (r.missing && r.missing.required || []).concat(r.missing && r.missing.optional || []);
   chips = chips.concat(missing.map(function(k){
@@ -3758,7 +3668,7 @@ function parsePreview(){
 
   return '<div class="parsebox">'+
     '<div class="hdr"><b>Read off '+esc(SRC_LABEL[r.sourceName] || 'the page')+'</b>'+
-      '<span class="conf'+cls+'"><span class="bar"><i style="width:'+pct+'%"></i></span>'+pct+'%</span></div>'+
+      '<span class="n">'+found.length+' field'+(found.length===1?'':'s')+'</span></div>'+
     '<div class="fieldsrc">'+ chips.join('') +'</div>'+
     (missing.length
       ? '<p class="note" style="margin:0">Check the '+

@@ -408,28 +408,26 @@ async function renderPoster(verified) {
       return;
     }
 
-    const pct = Math.round((got.confidence || 0) * 100);
-    const prov = got.provenance || {};
+    const src = got.sources || {};
     const rows = [
-      ['Title', got.title, prov.title], ['When', got.startDate, prov.startDate],
-      ['Ends', got.endDate, prov.endDate],
-      ['Venue', got.venue && (got.venue.name || got.venue.address), prov['venue.name'] || prov.venue],
-      ['Club', got.organiser, prov.organiser],
-      ['Price', got.priceCents != null ? '$' + (got.priceCents / 100).toFixed(2) : '', prov.tickets],
-      ['Event page', got.source?.pageUrl, prov.pageUrl],
-      ['Checkout', got.ticketUrl, prov.ticketUrl],
-      ['Poster', got.imageUrl, prov.imageUrl]
+      ['Title', got.title, src.title], ['When', got.startDate, src.startDate],
+      ['Ends', got.endDate, src.endDate],
+      ['Venue', got.venue && (got.venue.name || got.venue.address), src['venue.name'] || src.venue],
+      ['Club', got.organiser, src.organiser],
+      ['Price', got.priceCents != null ? '$' + (got.priceCents / 100).toFixed(2) : '', src.tickets],
+      ['Event page', got.source?.pageUrl, src.pageUrl],
+      ['Checkout', got.ticketUrl, src.ticketUrl || src.ticketUrlFallback],
+      ['Poster', got.imageUrl, src.imageUrl]
     ];
 
     $('pe-preview').innerHTML = `
       <p style="margin:0 0 8px"><b>Read off ${esc(got.source?.provider || 'the page')}</b>
-        <span class="pill">${pct}% confident</span>
         ${got.otherEventsOnPage ? `<span class="pill">${got.otherEventsOnPage} other events on that page</span>` : ''}</p>
       <table style="border-collapse:collapse;font-size:14px">
         ${rows.filter(r => r[1]).map(r => `<tr>
           <td class="meta" style="padding:3px 12px 3px 0">${r[0]}</td>
           <td style="padding:3px 12px 3px 0">${esc(String(r[1]).slice(0, 80))}</td>
-          <td class="meta" style="padding:3px 0;font-size:11px">${r[2] ? esc(r[2].source) : ''}</td>
+          <td class="meta" style="padding:3px 0;font-size:11px">${r[2] ? esc(r[2]) : ''}</td>
         </tr>`).join('')}
       </table>
       ${got.missing?.required?.length
