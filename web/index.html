@@ -710,6 +710,7 @@ a.btn{text-decoration:none}
 <script src="./config.js"></script>
 <script type="module">
 import * as U from '../lib/universe.js';
+import { checkUrl } from '../lib/event-parser/safeUrl.js';
 
 const $ = (id) => document.getElementById(id);
 const cfg = window.UNIVERSE_CONFIG;
@@ -728,6 +729,7 @@ const authClient = window.supabase.createClient(cfg.url, cfg.anonKey);
 
 let currentUser = null;
 let profile = null;
+let currentOrganiser = null;
 let allInterests = [];
 let selectedInterestIds = [];
 let deck = [];
@@ -739,6 +741,7 @@ let discoveryMode = 'swipe';
 let activeTab = 'discover';
 let watchersBound = false;
 let toastTimer = null;
+let postDraft = null;
 
 /* ------------------------------------------------------------
    Helpers
@@ -1168,6 +1171,13 @@ function renderInterestPicker() {
 async function enterApp() {
   showScreen('s-app');
   bindAppChrome();
+  try { currentOrganiser = await U.myOrganiser(); } catch { currentOrganiser = null; }
+  if ($('postbar')) {
+    $('postbar').hidden = currentOrganiser?.status !== 'verified';
+    if (currentOrganiser?.status === 'verified' && $('live-ind')) {
+      $('live-ind').innerHTML = '<i></i> verified club';
+    }
+  }
   await Promise.all([loadDeck(), loadSaved(), refreshBell()]);
   setTab(activeTab);
 
@@ -1210,7 +1220,7 @@ function bindAppChrome() {
     renderBrowse();
   });
 
-  if ($('postbar')) $('postbar').hidden = true;
+  $('postbar')?.addEventListener('click', openPostModal);
 
   $('scrim')?.addEventListener('click', closeSheet);
   $('sheet-close')?.addEventListener('click', closeSheet);
@@ -1219,6 +1229,134 @@ function bindAppChrome() {
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') closeSheet();
   });
+}
+
+function localDateTimeValue(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
+
+function providerLabel(provider) {
+  return ({ humanitix: 'Humanitix', eventbrite: 'Eventbrite', rubric: 'Rubric' }[provider] || 'event page');
+}
+
+function parserTicketProvider(provider) {
+  return ['humanitix', 'eventbrite', 'rubric', 'trybooking'].includes(provider) ? provider : 'external';
+}
+
+function postModalClose() {
+  $('post')?.classList.remove('on');
+  postDraft = null;
+}
+
+function openPostModal() {
+  if (currentOrganiser?.status !== 'verified') {
+    toast('Only verified club organisers can post events.');
+    return;
+  }
+
+  $('post-body').innerHTML = `
+    <p class="muted" style="margin:0">Paste the exact public event page from Humanitix, Rubric or Eventbrite. We will read it and show you a preview before publishing.</p>
+    <div class="field"><label for="post-url">Event link</label><input id="post-url" type="url" inputmode="url" placeholder="https://events.humanitix.com/your-event" autocomplete="url" spellcheck="false"></div>
+    <p class="err" id="post-err"></p>`;
+  $('post-foot').innerHTML = '<button class="btn" id="post-preview">Preview event</button><button class="btn ghost" id="post-cancel">Cancel</button>';
+  $('post').classList.add('on');
+  $('post-cancel').onclick = postModalClose;
+  $('post-preview').onclick = previewPostedEvent;
+  $('post-url').focus();
+}
+
+async function previewPostedEvent() {
+  const input = $('post-url');
+  const errorBox = $('post-err');
+  const button = $('post-preview');
+  const rawUrl = input?.value.trim() || '';
+  const check = checkUrl(rawUrl);
+  if (!check.ok) {
+    if (errorBox) errorBox.textContent = check.reason;
+    return;
+  }
+
+  if (errorBox) errorBox.textContent = '';
+  button.disabled = true;
+  button.textContent = 'Reading event page…';
+  try {
+    const { data, error } = await authClient.functions.invoke('parse-event', { body: { url: check.url.href } });
+    if (error) {
+      let message = error.message;
+      try {
+        const body = await error.context?.json();
+        message = body?.error || message;
+      } catch {}
+      throw new Error(message);
+    }
+    if (!data?.event) throw new Error('No event details came back from that page.');
+    postDraft = { ...data.event, pageUrl: check.url.href };
+    renderPostPreview();
+  } catch (error) {
+    if (errorBox) errorBox.textContent = error?.message || 'Could not read that event page.';
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Preview event';
+  }
+}
+
+function renderPostPreview() {
+  const event = postDraft;
+  const venue = event.venue || {};
+  const interests = allInterests.filter((i) => selectedInterestIds.includes(String(i.id))).map((i) => i.slug);
+  $('post-body').innerHTML = `
+    <div class="parsebox"><div class="hdr"><b>${esc(providerLabel(event.source?.provider))} page read</b><span class="n">${esc(event.source?.url || event.pageUrl)}</span></div><div class="fieldsrc"><span>title</span><span>date</span><span class="${event.imageUrl ? '' : 'miss'}">${event.imageUrl ? 'image' : 'image missing'}</span></div></div>
+    <div class="field"><label for="post-title">Title</label><input id="post-title" value="${esc(event.title)}"></div>
+    <div class="formgrid"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
+    <div class="field"><label for="post-venue">Venue</label><input id="post-venue" value="${esc(venue.name || '')}" placeholder="Venue name"></div>
+    <div class="formgrid"><div class="field tight"><label for="post-suburb">Suburb</label><input id="post-suburb" value="${esc(venue.suburb || '')}"></div><div class="field tight"><label for="post-price">Price (AUD)</label><input id="post-price" type="number" min="0" step="0.01" value="${event.priceCents == null ? '0' : (event.priceCents / 100).toFixed(2)}"></div></div>
+    <div class="field"><label for="post-description">Description</label><textarea id="post-description">${esc(event.description || '')}</textarea></div>
+    <p class="err" id="post-err"></p>`;
+  $('post-foot').innerHTML = '<button class="btn" id="post-submit">Publish event</button><button class="btn ghost" id="post-back">Back</button>';
+  $('post-submit').onclick = submitPostedEvent;
+  $('post-back').onclick = openPostModal;
+}
+
+async function submitPostedEvent() {
+  const title = $('post-title')?.value.trim();
+  const startsAt = $('post-start')?.value;
+  const errorBox = $('post-err');
+  if (!title || !startsAt) {
+    if (errorBox) errorBox.textContent = 'Add a title and start time before publishing.';
+    return;
+  }
+  const button = $('post-submit');
+  button.disabled = true;
+  button.textContent = 'Publishing…';
+  try {
+    await U.postClubEvent({
+      title,
+      description: $('post-description')?.value.trim(),
+      startsAt: new Date(startsAt).toISOString(),
+      endsAt: $('post-end')?.value ? new Date($('post-end').value).toISOString() : null,
+      venueName: $('post-venue')?.value.trim(),
+      suburb: $('post-suburb')?.value.trim(),
+      address: postDraft.venue?.address || null,
+      priceCents: Math.round(Math.max(0, Number($('post-price')?.value || 0)) * 100),
+      ticketUrl: postDraft.ticketUrl || postDraft.pageUrl,
+      ticketProvider: parserTicketProvider(postDraft.source?.provider),
+      imageUrl: postDraft.imageUrl || null,
+      pageUrl: postDraft.pageUrl,
+      sourceUrl: postDraft.pageUrl,
+      interestSlugs: allInterests.filter((i) => selectedInterestIds.includes(String(i.id))).map((i) => i.slug)
+    });
+    postModalClose();
+    await loadDeck();
+    toast('Event published to UniVerse.');
+  } catch (error) {
+    if (errorBox) errorBox.textContent = error?.message || 'Could not publish this event.';
+    button.disabled = false;
+    button.textContent = 'Publish event';
+  }
 }
 
 async function setTab(tab) {

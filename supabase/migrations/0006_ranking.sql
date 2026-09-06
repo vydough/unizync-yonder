@@ -126,7 +126,7 @@ begin
     nullif(p->>'address',''),
     s.lat, s.lng,
     coalesce((p->>'price_cents')::int, 0),
-    nullif(p->>'ticket_url',''),
+    coalesce(nullif(p->>'ticket_url',''), nullif(p->>'page_url','')),
     nullif(p->>'page_url',''),
     coalesce(nullif(p->>'ticket_provider','')::ticket_provider, 'none'),
     (select id from activity_types where slug = p->>'activity_type' or label = p->>'activity_type' limit 1),
