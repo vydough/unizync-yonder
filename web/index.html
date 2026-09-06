@@ -1885,11 +1885,173 @@ function closeSheet() {
   $('scrim')?.classList.remove('on');
   activeSheetEvent = null;
 }
+/* ------------------------------------------------------------
+   Friends
+------------------------------------------------------------ */
+async function renderFriends() {
+  const host = $('prof-view');
+  host.innerHTML = '<p class="muted">Loading…</p>';
+  try {
+    const [friends, requests, sent] = await Promise.all([
+      U.getFriends(),
+      U.pendingRequests(),
+      U.sentRequests()
+    ]);
+
+    host.innerHTML = `
+      <p class="sect" style="margin-top:12px">Add a friend</p>
+      <div class="field">
+        <label for="friend-email">Their university email</label>
+        <input id="friend-email" type="email" inputmode="email" autocomplete="off" spellcheck="false" placeholder="friend@student.unimelb.edu.au">
+      </div>
+      <p class="err" id="friend-add-err"></p>
+      <button class="btn" id="friend-add-btn" style="width:100%">Send request</button>
+      <p class="note">Works even if they haven't signed up yet — it'll be waiting for them.</p>
+
+      <p class="sect">Requests${requests.length ? ' · ' + requests.length : ''}</p>
+      ${requests.length
+        ? requests.map((r) => `
+          <div class="friendrow">
+            <span class="avatar sm" style="background:${esc(r.colour || '#8B8B95')}">${esc((r.firstName || '?').slice(0, 1).toUpperCase())}</span>
+            <div class="who"><b>${esc(r.firstName || 'Someone')}</b><span>${esc(r.university || '')}</span></div>
+            <button class="mini solid" data-accept="${esc(r.id)}">Accept</button>
+            <button class="mini" data-decline="${esc(r.id)}">Decline</button>
+          </div>`).join('')
+        : '<p class="note" style="margin:0">No pending requests.</p>'}
+
+      <p class="sect">Your friends${friends.length ? ' · ' + friends.length : ''}</p>
+      ${friends.length
+        ? friends.map((f) => `
+          <div class="friendrow">
+            <span class="avatar sm" style="background:${esc(f.university?.brand_colour || '#8B8B95')}">${esc((f.display_name || '?').slice(0, 1).toUpperCase())}</span>
+            <div class="who"><b>${esc(f.display_name || 'Student')}</b><span>${esc(f.university?.short_name || '')}</span></div>
+            <button class="mini" data-remove="${esc(f.id)}">Remove</button>
+          </div>`).join('')
+        : '<p class="note" style="margin:0">No friends yet. Add one above and their interest shows up on event cards.</p>'}
+
+      ${sent.toInvited.length ? `
+        <p class="sect">Waiting on</p>
+        ${sent.toInvited.map((email) => `
+          <div class="friendrow">
+            <div class="who"><b>${esc(email)}</b><span>Not on UniVerse yet</span></div>
+            <button class="mini" data-cancel-invite="${esc(email)}">Cancel</button>
+          </div>`).join('')}
+      ` : ''}
+      ${sent.toMembers.length ? `<p class="note">${sent.toMembers.length} more request${sent.toMembers.length === 1 ? '' : 's'} sent, waiting to be accepted.</p>` : ''}
+    `;
+
+    $('friend-add-btn').addEventListener('click', async () => {
+      const emailInput = $('friend-email');
+      const err = $('friend-add-err');
+      const email = emailInput.value.trim();
+      err.textContent = '';
+
+      if (!email) { err.textContent = 'Enter an email first.'; return; }
+
+      const button = $('friend-add-btn');
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Sending…';
+
+      try {
+        const result = await U.requestFriendByEmail(email);
+        const messages = {
+          sent: 'Request sent.',
+          accepted: "You're now friends!",
+          already_friends: "You're already friends.",
+          self: "That's your own email.",
+          unknown_university: "We don't recognise that university email."
+        };
+        toast(messages[result] || 'Done.');
+        if (result === 'sent' || result === 'accepted') {
+          emailInput.value = '';
+          await renderFriends();
+        }
+      } catch (error) {
+        err.textContent = error?.message || 'Could not send that request.';
+      } finally {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    });
+
+    $('friend-email')?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') $('friend-add-btn')?.click();
+    });
+
+    host.querySelectorAll('[data-accept]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        try {
+          await U.acceptFriend(button.getAttribute('data-accept'));
+          toast('Friend added.');
+          await renderFriends();
+        } catch (error) {
+          toast(error?.message || 'Could not accept that request.');
+        }
+      });
+    });
+
+    host.querySelectorAll('[data-decline]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        try {
+          await U.removeFriend(button.getAttribute('data-decline'));
+          await renderFriends();
+        } catch (error) {
+          toast(error?.message || 'Could not decline that request.');
+        }
+      });
+    });
+
+    host.querySelectorAll('[data-remove]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        try {
+          await U.removeFriend(button.getAttribute('data-remove'));
+          toast('Removed.');
+          await renderFriends();
+        } catch (error) {
+          toast(error?.message || 'Could not remove that friend.');
+        }
+      });
+    });
+
+    host.querySelectorAll('[data-cancel-invite]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        try {
+          await U.cancelInvite(button.getAttribute('data-cancel-invite'));
+          await renderFriends();
+        } catch (error) {
+          toast(error?.message || 'Could not cancel that invite.');
+        }
+      });
+    });
+
+  } catch (error) {
+    host.innerHTML = `<p class="err">${esc(error?.message || 'Could not load friends.')}</p>`;
 
 /* ------------------------------------------------------------
    Profile
 ------------------------------------------------------------ */
+let provileView = 'me';
 async function renderProfile() {
+  $('prof-body').innerHTML = `
+    <div class="seg pf-views" id="pf-views">
+      <button data-pv="me" aria-selected="${profileView === 'me'}">Me</button>
+      <button data-pv="friends" aria-selected="${profileView === 'friends'}">Friends</button>
+    </div>
+    <div id="prof-view"></div>`;
+
+  $('pf-views').querySelectorAll('[data-pv]').forEach((button) => {
+    button.addEventListener('click', () => {
+      profileView = button.getAttribute('data-pv');
+      renderProfile();
+    });
+  });
+
+  if (profileView === 'friends') await renderFriends();
+  else await renderProfileMe();
+}
+
+async function renderProfileMe() {
   try {
     profile = await U.getProfile();
     if (!currentOrganiser) {
@@ -1901,11 +2063,17 @@ async function renderProfile() {
     const rate = saved.length ? Math.round(cross / saved.length * 100) : 0;
 
     $('app-sub').textContent = u.short_name || u.name || 'Student';
-    $('prof-body').innerHTML = `
+    $('prof-view').innerHTML = `
       <div class="prof-card" style="margin-top:12px">
         <div class="avatar">${esc((profile.display_name || profile.email || 'U').slice(0, 1).toUpperCase())}</div>
         <div class="who">
-          <div style="font-family:var(--display);font-weight:800;font-size:21px">${esc(profile.display_name || 'Student')}</div>
+           <span id="profile-name-view" title="Click to edit your name" style="font-family:var(--display);font-weight:800;font-size:21px;cursor:pointer;width:max-content">${esc(profile.display_name || 'Student')}</span>
+          <div id="profile-name-form" hidden style="display:flex;gap:6px;align-items:center;margin:2px 0 4px">
+            <input id="profile-name-input" type="text" value="${esc(profile.display_name || '')}" maxlength="60"
+              style="border:2px solid var(--ink);padding:6px 9px;font-family:var(--display);font-weight:700;font-size:15px;flex:1;min-width:0">
+            <button class="mini solid" id="profile-name-save">Save</button>
+            <button class="mini" id="profile-name-cancel">Cancel</button>
+          </div>
           <span class="em">${esc(profile.email || '')}</span>
           <span class="uni-badge" style="margin-top:3px"><i style="background:${esc(u.brand_colour || '#8B8B95')}"></i>${esc(u.name || u.short_name || '')}</span>
         </div>
@@ -1950,12 +2118,84 @@ async function renderProfile() {
         try {
           await U.setMyInterests(selectedInterestIds);
           await loadDeck();
-          await renderProfile();
+          await renderProfileMe();
           toast('Deck updated.');
         } catch (error) {
           toast(error?.message || 'Could not update interests.');
         }
       });
+    });
+
+    $('profile-name-view')?.addEventListener('click', () => {
+      $('profile-name-view').hidden = true;
+      $('profile-name-form').hidden = false;
+      $('profile-name-input').focus();
+      $('profile-name-input').select();
+    });
+
+    $('profile-name-cancel')?.addEventListener('click', () => {
+      $('profile-name-form').hidden = true;
+      $('profile-name-view').hidden = false;
+    });
+
+    $('profile-name-input')?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') $('profile-name-save')?.click();
+      if (event.key === 'Escape') $('profile-name-cancel')?.click();
+    });
+
+    $('profile-name-save')?.addEventListener('click', async () => {
+      const newName = $('profile-name-input')?.value.trim();
+      if (!newName) { toast('Name can\'t be empty.'); return; }
+      const button = $('profile-name-save');
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Saving…';
+      try {
+        await U.updateProfile({ display_name: newName });
+        profile.display_name = newName;
+        await renderProfileMe();
+        toast('Name updated.');
+      } catch (error) {
+        toast(error?.message || 'Could not update name.');
+        button.disabled = false;
+        button.textContent = original;
+      }
+    });
+    
+    $('profile-suburb')?.addEventListener('change', async (event) => {
+      const value = event.target.value || null;
+      try {
+        await U.updateProfile({ home_suburb: value });
+        profile.home_suburb = value;
+        await loadDeck(false);
+        toast('Home updated.');
+      } catch (error) {
+        toast(error?.message || 'Could not update home suburb.');
+      }
+    });
+
+    $('profile-budget')?.addEventListener('change', async (event) => {
+      const cents = budgetCentsForId(event.target.value);
+      try {
+        await U.updateProfile({ budget_cents: cents });
+        profile.budget_cents = cents;
+        await loadDeck(false);
+        toast('Budget updated.');
+      } catch (error) {
+        toast(error?.message || 'Could not update budget.');
+      }
+    });
+
+    $('profile-distance')?.addEventListener('change', async (event) => {
+      const km = distanceKmForId(event.target.value);
+      try {
+        await U.updateProfile({ max_distance_km: km });
+        profile.max_distance_km = km;
+        await loadDeck(false);
+        toast('Distance updated.');
+      } catch (error) {
+        toast(error?.message || 'Could not update distance.');
+      }
     });
 
     $('profile-verify')?.addEventListener('click', openVerifyModal);
