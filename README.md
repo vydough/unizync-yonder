@@ -64,3 +64,10 @@ The aim is to reduce effort and friction required to find university events whil
   - A rule-based scoring system was used to score the events based on user selection
   - Events are normalised into one format so multiple providers (Humanitix, EventBrite, UMSU) can be supported.
   - Swipe-based discovery was chosen to make finding events faster and more engaging/fun
+
+## Acknowledgements
+This project was developed with assistance from the following AI-powered development tools:
+- Claude Code — used to support code generation, debugging, and implementation.
+- GitHub Copilot — used for code completion, suggestions, and development assistance.
+
+All final implementation decisions and concepts were managed by the project team.
