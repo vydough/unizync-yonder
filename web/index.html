@@ -265,7 +265,6 @@ button{cursor:pointer}
 .field.tight{margin-bottom:0}
 .field textarea{font-family:var(--body);font-size:15px;padding:10px;background:var(--paper);border:2px solid var(--ink);
   color:var(--ink);width:100%;min-height:74px;resize:vertical}
-#post-description{min-height:180px}
 .field select{font-family:var(--body);font-size:15px;padding:11px 10px;background:var(--paper);
   border:2px solid var(--ink);color:var(--ink);width:100%}
 .photopick{display:flex;align-items:center;gap:11px;border:2px solid var(--ink);padding:9px;background:var(--paper)}
@@ -364,7 +363,7 @@ button{cursor:pointer}
 .kv .v{flex:1;font-size:14.5px}
 .kv .v small{display:block;color:var(--ink-2);font-size:13px}
 .tagrow{display:flex;flex-wrap:wrap;gap:6px}
-.sheet-desc{font-size:14.5px;line-height:1.6;white-space:pre-line}
+.sheet-desc{font-size:14.5px;line-height:1.6}
 .sheet-foot{border-top:2px solid var(--ink);padding:12px 18px calc(14px + env(safe-area-inset-bottom));display:flex;gap:9px;flex:none;background:var(--paper)}
 .sheet-foot .btn{flex:1}
 .sheet-foot .icon-btn{width:52px;height:52px;border:2px solid var(--ink);display:grid;place-items:center;flex:none;background:var(--paper);color:var(--ink)}
@@ -440,9 +439,9 @@ a.btn{text-decoration:none}
 
 /* ---------- parse preview ---------- */
 .parsebox{border:2px solid var(--ink);background:var(--paper-2);padding:11px 12px;display:flex;flex-direction:column;gap:8px}
-.parsebox .hdr{display:flex;flex-direction: column;gap:3px}
+.parsebox .hdr{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .parsebox .hdr b{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:-.01em}
-.parsebox .hdr .n{font-family:var(--mono);font-size:11px;color:var(--ink-2);word-break: break-all}
+.parsebox .hdr .n{font-family:var(--mono);font-size:11px;color:var(--ink-2);flex:none}
 .fieldsrc{display:flex;flex-wrap:wrap;gap:5px}
 .fieldsrc span{font-family:var(--mono);font-size:10px;letter-spacing:.04em;border:1.5px solid var(--ink-3);
   padding:2px 6px;color:var(--ink-2);white-space:nowrap}
@@ -524,7 +523,7 @@ a.btn{text-decoration:none}
 
         <div class="field">
           <label for="email">University email</label>
-          <input id="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" placeholder="you@student.rmit.edu.au">
+          <input id="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" placeholder="Enter an edu.au address">
         </div>
         <div class="field">
           <label for="pw">Password</label>
@@ -755,34 +754,6 @@ let activeTab = 'discover';
 let watchersBound = false;
 let toastTimer = null;
 let postDraft = null;
-let allSuburbs = [];
-
-const BUDGET_TIERS = [
-  { id: 'any',  cents: null,  label: 'No limit' },
-  { id: 'free', cents: 0,     label: 'Free only' },
-  { id: '10',   cents: 1000,  label: 'Up to $10' },
-  { id: '25',   cents: 2000,  label: 'Up to $25' }
-];
-const DISTANCE_TIERS = [
-  { id: 'any', km: null, label: 'Any distance' },
-  { id: '2',   km: 2,    label: 'Within 2 km' },
-  { id: '5',   km: 5,    label: 'Within 5 km' },
-  { id: '10',  km: 10,   label: 'Within 10 km' },
-  { id: '20',  km: 20,   label: 'Within 20 km' },
-  { id: '50',  km: 50,   label: 'Within 50 km' }
-];
-function budgetCentsForId(id) {
-  return (BUDGET_TIERS.find((t) => t.id === id) || BUDGET_TIERS[0]).cents;
-}
-function budgetIdForCents(cents) {
-  return (BUDGET_TIERS.find((t) => t.cents === cents) || BUDGET_TIERS[0]).id;
-}
-function distanceKmForId(id) {
-  return (DISTANCE_TIERS.find((t) => t.id === id) || DISTANCE_TIERS[0]).km;
-}
-function distanceIdForKm(km) {
-  return (DISTANCE_TIERS.find((t) => t.km === km) || DISTANCE_TIERS[0]).id;
-}
 
 /* ------------------------------------------------------------
    Helpers
@@ -1139,10 +1110,9 @@ async function boot() {
 async function enterAuthenticatedApp(user) {
   currentUser = user;
   try {
-    [profile, allInterests, allSuburbs] = await Promise.all([
+    [profile, allInterests] = await Promise.all([
       U.getProfile(),
-      U.getInterests(),
-      U.getSuburbs()
+      U.getInterests()
     ]);
     profile.email = user.email;
     selectedInterestIds = (await U.getMyInterests()).map((i) => String(i.id));
@@ -1296,7 +1266,7 @@ function providerLabel(provider) {
 function defaultSuburbForUniversity(university) {
   return ({
     Unimelb: 'Parkville',
-    RMIT: 'Melbourne',
+    RMIT: 'Melbourne CBD',
     Monash: 'Clayton',
     Deakin: 'Burwood',
     'La Trobe': 'Bundoora',
@@ -1424,11 +1394,10 @@ function renderPostPreview() {
     <div class="parsebox"><div class="hdr"><b>${esc(providerLabel(event.source?.provider))} page read</b><span class="n">${esc(event.source?.url || event.pageUrl)}</span></div><div class="fieldsrc"><span>title</span><span>date</span><span class="${organiser ? '' : 'miss'}">${organiser ? `host: ${esc(organiser)}` : 'host missing'}</span><span class="${event.imageUrl ? '' : 'miss'}">${event.imageUrl ? 'image' : 'image missing'}</span></div></div>
     <div class="field"><label for="post-title">Title</label><input id="post-title" value="${esc(event.title)}"></div>
     ${organiser ? '' : '<div class="field"><label for="post-organiser">Club or host</label><input id="post-organiser" placeholder="Enter your club name here" autocomplete="organization"><span class="muted" style="font-size:12px">This page did not identify the host. Enter the club name before publishing.</span></div>'}
-    ${event.imageUrl ? '' : '<div class="field"><label for="post-image">Event photo</label><input id="post-image" type="file" accept="image/jpeg,image/png,image/webp"><span class="muted" style="font-size:12px">Optional. JPG, PNG, or WebP up to 5 MB.</span></div>'}
-    <div class="formgrid" style="grid-template-columns:1fr"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
+    <div class="formgrid"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
     <div class="field"><label for="post-venue">Venue</label><input id="post-venue" value="${esc(venue.name || '')}" placeholder="Venue name"></div>
     <div class="formgrid"><div class="field tight"><label for="post-suburb">Suburb</label><input id="post-suburb" value="${esc(venue.suburb || defaultSuburb)}"><span class="muted" style="font-size:12px">Defaulted to ${esc(defaultSuburb)} from the host university. Change it if needed.</span></div><div class="field tight"><label for="post-price">Price (AUD)</label><input id="post-price" type="number" min="0" step="0.01" value="${event.priceCents == null ? '0' : (event.priceCents / 100).toFixed(2)}"></div></div>
-    <div class="field"><label for="post-description">Description</label><textarea id="post-description" rows="8">${esc(event.description || '')}</textarea></div>
+    <div class="field"><label for="post-description">Description</label><textarea id="post-description">${esc(event.description || '')}</textarea></div>
     <p class="err" id="post-err"></p>`;
   $('post-foot').innerHTML = '<button class="btn" id="post-submit">Publish event</button><button class="btn ghost" id="post-back">Back</button>';
   $('post-submit').onclick = submitPostedEvent;
@@ -1450,8 +1419,6 @@ async function submitPostedEvent() {
   button.disabled = true;
   button.textContent = 'Publishing…';
   try {
-    const imageFile = $('post-image')?.files?.[0];
-    const imageUrl = imageFile ? await U.uploadEventImage(imageFile) : (postDraft.imageUrl || null);
     await U.postClubEvent({
       title,
       organiser,
@@ -1465,7 +1432,7 @@ async function submitPostedEvent() {
       priceCents: Math.round(Math.max(0, Number($('post-price')?.value || 0)) * 100),
       ticketUrl: postDraft.ticketUrl || postDraft.pageUrl,
       ticketProvider: parserTicketProvider(postDraft.source?.provider),
-      imageUrl,
+      imageUrl: postDraft.imageUrl || null,
       pageUrl: postDraft.pageUrl,
       sourceUrl: postDraft.pageUrl,
       interestSlugs: allInterests.filter((i) => selectedInterestIds.includes(String(i.id))).map((i) => i.slug)
@@ -1948,175 +1915,9 @@ function closeSheet() {
   $('scrim')?.classList.remove('on');
   activeSheetEvent = null;
 }
-/* ------------------------------------------------------------
-   Friends
------------------------------------------------------------- */
-async function renderFriends() {
-  const host = $('prof-view');
-  host.innerHTML = '<p class="muted">Loading…</p>';
-  try {
-    const [friends, requests, sent] = await Promise.all([
-      U.getFriends(),
-      U.pendingRequests(),
-      U.sentRequests()
-    ]);
 
-    host.innerHTML = `
-      <p class="sect" style="margin-top:12px">Add a friend</p>
-      <div class="field">
-        <label for="friend-email">Their university email</label>
-        <input id="friend-email" type="email" inputmode="email" autocomplete="off" spellcheck="false" placeholder="friend@student.unimelb.edu.au">
-      </div>
-      <p class="err" id="friend-add-err"></p>
-      <button class="btn" id="friend-add-btn" style="width:100%">Send request</button>
-      <p class="note">Works even if they haven't signed up yet — it'll be waiting for them.</p>
-
-      <p class="sect">Requests${requests.length ? ' · ' + requests.length : ''}</p>
-      ${requests.length
-        ? requests.map((r) => `
-          <div class="friendrow">
-            <span class="avatar sm" style="background:${esc(r.colour || '#8B8B95')}">${esc((r.firstName || '?').slice(0, 1).toUpperCase())}</span>
-            <div class="who"><b>${esc(r.firstName || 'Someone')}</b><span>${esc(r.university || '')}</span></div>
-            <button class="mini solid" data-accept="${esc(r.id)}">Accept</button>
-            <button class="mini" data-decline="${esc(r.id)}">Decline</button>
-          </div>`).join('')
-        : '<p class="note" style="margin:0">No pending requests.</p>'}
-
-      <p class="sect">Your friends${friends.length ? ' · ' + friends.length : ''}</p>
-      ${friends.length
-        ? friends.map((f) => `
-          <div class="friendrow">
-            <span class="avatar sm" style="background:${esc(f.university?.brand_colour || '#8B8B95')}">${esc((f.display_name || '?').slice(0, 1).toUpperCase())}</span>
-            <div class="who"><b>${esc(f.display_name || 'Student')}</b><span>${esc(f.university?.short_name || '')}</span></div>
-            <button class="mini" data-remove="${esc(f.id)}">Remove</button>
-          </div>`).join('')
-        : '<p class="note" style="margin:0">No friends yet. Add one above and their interest shows up on event cards.</p>'}
-
-      ${sent.toInvited.length ? `
-        <p class="sect">Waiting on</p>
-        ${sent.toInvited.map((email) => `
-          <div class="friendrow">
-            <div class="who"><b>${esc(email)}</b><span>Not on UniVerse yet</span></div>
-            <button class="mini" data-cancel-invite="${esc(email)}">Cancel</button>
-          </div>`).join('')}
-      ` : ''}
-      ${sent.toMembers.length ? `<p class="note">${sent.toMembers.length} more request${sent.toMembers.length === 1 ? '' : 's'} sent, waiting to be accepted.</p>` : ''}
-    `;
-
-    $('friend-add-btn').addEventListener('click', async () => {
-      const emailInput = $('friend-email');
-      const err = $('friend-add-err');
-      const email = emailInput.value.trim();
-      err.textContent = '';
-
-      if (!email) { err.textContent = 'Enter an email first.'; return; }
-
-      const button = $('friend-add-btn');
-      const original = button.textContent;
-      button.disabled = true;
-      button.textContent = 'Sending…';
-
-      try {
-        const result = await U.requestFriendByEmail(email);
-        const messages = {
-          sent: 'Request sent.',
-          accepted: "You're now friends!",
-          already_friends: "You're already friends.",
-          self: "That's your own email.",
-          unknown_university: "We don't recognise that university email."
-        };
-        toast(messages[result] || 'Done.');
-        if (result === 'sent' || result === 'accepted') {
-          emailInput.value = '';
-          await renderFriends();
-        }
-      } catch (error) {
-        err.textContent = error?.message || 'Could not send that request.';
-      } finally {
-        button.disabled = false;
-        button.textContent = original;
-      }
-    });
-
-    $('friend-email')?.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') $('friend-add-btn')?.click();
-    });
-
-    host.querySelectorAll('[data-accept]').forEach((button) => {
-      button.addEventListener('click', async () => {
-        try {
-          await U.acceptFriend(button.getAttribute('data-accept'));
-          toast('Friend added.');
-          await renderFriends();
-        } catch (error) {
-          toast(error?.message || 'Could not accept that request.');
-        }
-      });
-    });
-
-    host.querySelectorAll('[data-decline]').forEach((button) => {
-      button.addEventListener('click', async () => {
-        try {
-          await U.removeFriend(button.getAttribute('data-decline'));
-          await renderFriends();
-        } catch (error) {
-          toast(error?.message || 'Could not decline that request.');
-        }
-      });
-    });
-
-    host.querySelectorAll('[data-remove]').forEach((button) => {
-      button.addEventListener('click', async () => {
-        try {
-          await U.removeFriend(button.getAttribute('data-remove'));
-          toast('Removed.');
-          await renderFriends();
-        } catch (error) {
-          toast(error?.message || 'Could not remove that friend.');
-        }
-      });
-    });
-
-    host.querySelectorAll('[data-cancel-invite]').forEach((button) => {
-      button.addEventListener('click', async () => {
-        try {
-          await U.cancelInvite(button.getAttribute('data-cancel-invite'));
-          await renderFriends();
-        } catch (error) {
-          toast(error?.message || 'Could not cancel that invite.');
-        }
-      });
-    });
-
-  } catch (error) {
-    host.innerHTML = `<p class="err">${esc(error?.message || 'Could not load friends.')}</p>`;
-  }
-}
-
-/* ------------------------------------------------------------
-   Profile
------------------------------------------------------------- */
-let profileView = 'me';
+/* Profile */
 async function renderProfile() {
-  $('prof-body').innerHTML = `
-    <div class="seg pf-views" id="pf-views">
-      <button data-pv="me" aria-selected="${profileView === 'me'}">Me</button>
-      <button data-pv="friends" aria-selected="${profileView === 'friends'}">Friends</button>
-    </div>
-    <div id="prof-view"></div>`;
-
-  $('pf-views').querySelectorAll('[data-pv]').forEach((button) => {
-    button.addEventListener('click', () => {
-      profileView = button.getAttribute('data-pv');
-      renderProfile();
-    });
-  });
-
-  if (profileView === 'friends') await renderFriends();
-  else await renderProfileMe();
-}
-
-async function renderProfileMe() {
   try {
     profile = await U.getProfile();
     if (!currentOrganiser) {
@@ -2128,17 +1929,11 @@ async function renderProfileMe() {
     const rate = saved.length ? Math.round(cross / saved.length * 100) : 0;
 
     $('app-sub').textContent = u.short_name || u.name || 'Student';
-    $('prof-view').innerHTML = `
+    $('prof-body').innerHTML = `
       <div class="prof-card" style="margin-top:12px">
         <div class="avatar">${esc((profile.display_name || profile.email || 'U').slice(0, 1).toUpperCase())}</div>
         <div class="who">
-           <span id="profile-name-view" title="Click to edit your name" style="font-family:var(--display);font-weight:800;font-size:21px;cursor:pointer;width:max-content">${esc(profile.display_name || 'Student')}</span>
-          <div id="profile-name-form" hidden style="display:flex;gap:6px;align-items:center;margin:2px 0 4px">
-            <input id="profile-name-input" type="text" value="${esc(profile.display_name || '')}" maxlength="60"
-              style="border:2px solid var(--ink);padding:6px 9px;font-family:var(--display);font-weight:700;font-size:15px;flex:1;min-width:0">
-            <button class="mini solid" id="profile-name-save">Save</button>
-            <button class="mini" id="profile-name-cancel">Cancel</button>
-          </div>
+          <div style="font-family:var(--display);font-weight:800;font-size:21px">${esc(profile.display_name || 'Student')}</div>
           <span class="em">${esc(profile.email || '')}</span>
           <span class="uni-badge" style="margin-top:3px"><i style="background:${esc(u.brand_colour || '#8B8B95')}"></i>${esc(u.name || u.short_name || '')}</span>
         </div>
@@ -2168,25 +1963,9 @@ async function renderProfileMe() {
       </div>
 
       <p class="sect">Account</p>
-      <div class="selline">
-        <span class="lb">Home</span>
-        <select id="profile-suburb">
-          <option value=""${profile.home_suburb ? '' : ' selected'}>Campus</option>
-          ${allSuburbs.map((s) => `<option value="${esc(s.name)}"${profile.home_suburb === s.name ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}
-        </select>
-      </div>
-      <div class="selline">
-        <span class="lb">Budget</span>
-        <select id="profile-budget">
-          ${BUDGET_TIERS.map((t) => `<option value="${t.id}"${budgetIdForCents(profile.budget_cents) === t.id ? ' selected' : ''}>${esc(t.label)}</option>`).join('')}
-        </select>
-      </div>
-      <div class="selline">
-        <span class="lb">Distance</span>
-        <select id="profile-distance">
-          ${DISTANCE_TIERS.map((t) => `<option value="${t.id}"${distanceIdForKm(profile.max_distance_km) === t.id ? ' selected' : ''}>${esc(t.label)}</option>`).join('')}
-        </select>
-      </div>
+      <div class="rowline"><span class="lb">Home</span><span class="vl">${esc(profile.home_suburb || 'Campus')}</span></div>
+      <div class="rowline"><span class="lb">Budget</span><span class="vl">${profile.budget_cents == null ? 'No limit' : '$' + (profile.budget_cents / 100).toFixed(0)}</span></div>
+      <div class="rowline"><span class="lb">Distance</span><span class="vl">${profile.max_distance_km == null ? 'Any' : profile.max_distance_km + ' km'}</span></div>
       <button class="btn ghost" id="profile-signout" style="width:100%;margin-top:22px">Sign out</button>`;
 
     $('profile-interests').querySelectorAll('[data-profile-interest]').forEach((button) => {
@@ -2199,84 +1978,12 @@ async function renderProfileMe() {
         try {
           await U.setMyInterests(selectedInterestIds);
           await loadDeck();
-          await renderProfileMe();
+          await renderProfile();
           toast('Deck updated.');
         } catch (error) {
           toast(error?.message || 'Could not update interests.');
         }
       });
-    });
-
-    $('profile-name-view')?.addEventListener('click', () => {
-      $('profile-name-view').hidden = true;
-      $('profile-name-form').hidden = false;
-      $('profile-name-input').focus();
-      $('profile-name-input').select();
-    });
-
-    $('profile-name-cancel')?.addEventListener('click', () => {
-      $('profile-name-form').hidden = true;
-      $('profile-name-view').hidden = false;
-    });
-
-    $('profile-name-input')?.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') $('profile-name-save')?.click();
-      if (event.key === 'Escape') $('profile-name-cancel')?.click();
-    });
-
-    $('profile-name-save')?.addEventListener('click', async () => {
-      const newName = $('profile-name-input')?.value.trim();
-      if (!newName) { toast('Name can\'t be empty.'); return; }
-      const button = $('profile-name-save');
-      const original = button.textContent;
-      button.disabled = true;
-      button.textContent = 'Saving…';
-      try {
-        await U.updateProfile({ display_name: newName });
-        profile.display_name = newName;
-        await renderProfileMe();
-        toast('Name updated.');
-      } catch (error) {
-        toast(error?.message || 'Could not update name.');
-        button.disabled = false;
-        button.textContent = original;
-      }
-    });
-    
-    $('profile-suburb')?.addEventListener('change', async (event) => {
-      const value = event.target.value || null;
-      try {
-        await U.updateProfile({ home_suburb: value });
-        profile.home_suburb = value;
-        await loadDeck(false);
-        toast('Home updated.');
-      } catch (error) {
-        toast(error?.message || 'Could not update home suburb.');
-      }
-    });
-
-    $('profile-budget')?.addEventListener('change', async (event) => {
-      const cents = budgetCentsForId(event.target.value);
-      try {
-        await U.updateProfile({ budget_cents: cents });
-        profile.budget_cents = cents;
-        await loadDeck(false);
-        toast('Budget updated.');
-      } catch (error) {
-        toast(error?.message || 'Could not update budget.');
-      }
-    });
-
-    $('profile-distance')?.addEventListener('change', async (event) => {
-      const km = distanceKmForId(event.target.value);
-      try {
-        await U.updateProfile({ max_distance_km: km });
-        profile.max_distance_km = km;
-        await loadDeck(false);
-        toast('Distance updated.');
-      } catch (error) {
-        toast(error?.message || 'Could not update distance.');
-      }
     });
 
     $('profile-verify')?.addEventListener('click', openVerifyModal);
