@@ -754,6 +754,36 @@ let activeTab = 'discover';
 let watchersBound = false;
 let toastTimer = null;
 let postDraft = null;
+let allSuburbs = [];
+
+const BUDGET_TIERS = [
+  { id: 'any',  cents: null,  label: 'No limit' },
+  { id: 'free', cents: 0,     label: 'Free only' },
+  { id: '10',   cents: 1000,  label: 'Up to $10' },
+  { id: '20',   cents: 2000,  label: 'Up to $20' },
+  { id: '50',   cents: 5000,  label: 'Up to $50' },
+  { id: '100',  cents: 10000, label: 'Up to $100' }
+];
+const DISTANCE_TIERS = [
+  { id: 'any', km: null, label: 'Any distance' },
+  { id: '2',   km: 2,    label: 'Within 2 km' },
+  { id: '5',   km: 5,    label: 'Within 5 km' },
+  { id: '10',  km: 10,   label: 'Within 10 km' },
+  { id: '20',  km: 20,   label: 'Within 20 km' },
+  { id: '50',  km: 50,   label: 'Within 50 km' }
+];
+function budgetCentsForId(id) {
+  return (BUDGET_TIERS.find((t) => t.id === id) || BUDGET_TIERS[0]).cents;
+}
+function budgetIdForCents(cents) {
+  return (BUDGET_TIERS.find((t) => t.cents === cents) || BUDGET_TIERS[0]).id;
+}
+function distanceKmForId(id) {
+  return (DISTANCE_TIERS.find((t) => t.id === id) || DISTANCE_TIERS[0]).km;
+}
+function distanceIdForKm(km) {
+  return (DISTANCE_TIERS.find((t) => t.km === km) || DISTANCE_TIERS[0]).id;
+}
 
 /* ------------------------------------------------------------
    Helpers
@@ -1110,9 +1140,10 @@ async function boot() {
 async function enterAuthenticatedApp(user) {
   currentUser = user;
   try {
-    [profile, allInterests] = await Promise.all([
+    [profile, allInterests, allSuburbs] = await Promise.all([
       U.getProfile(),
-      U.getInterests()
+      U.getInterests(),
+      U.getSuburbs()
     ]);
     profile.email = user.email;
     selectedInterestIds = (await U.getMyInterests()).map((i) => String(i.id));
