@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>UniVerse</title>
+<title>Yonder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
@@ -109,23 +109,26 @@ button{cursor:pointer}
 
 /* ---------- auth ---------- */
 .auth{padding:20px 28px 8px;display:flex;flex-direction:column;height:100%;overflow-y:auto}
-.wordmark{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.02em;flex:none}
-.unistrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:12px 0 0;flex:none}
+.auth-brand{display:flex;align-items:center;gap:10px;flex:none;margin-bottom:8px}
+.brand-mark{width:40px;height:40px;display:block;flex:none;object-fit:contain}
+.brand-mark svg{width:100%;height:100%;display:block}
+.wordmark{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.03em;flex:none;line-height:1}
+.unistrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:8px 0 0;flex:none}
 .unistrip .u{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;
   border:1.5px solid var(--ink);padding:3px 4px;display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
 .unistrip .u i{width:8px;height:8px;border-radius:50%;display:block}
-.auth-hero{margin:14px 0 12px;flex:none}
-.auth-hero .big{font-family:var(--display);font-weight:800;font-size:35px;line-height:.98;letter-spacing:-.035em;margin:0 0 8px}
+.auth-hero{margin:10px 0 8px;flex:none}
+.auth-hero .big{font-family:var(--display);font-weight:800;font-size:38px;line-height:.9;letter-spacing:-.04em;margin:0 0 8px}
 .auth-hero .big em{font-style:normal;color:var(--accent)}
-.auth-hero p{margin:0;max-width:34ch;color:var(--ink-2);font-size:14px}
-.sso-group{display:flex;flex-direction:column;gap:5px;margin:10px 0 0;flex:none}
+.auth-hero p{margin:0;max-width:34ch;color:var(--ink-2);font-size:13.5px}
+.sso-group{display:flex;flex-direction:column;gap:5px;margin:6px 0 0;flex:none}
 .sso-group button{position:relative;height:48px;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;padding:0 12px;
   font-weight:600;font-size:14px;background:var(--paper);color:var(--ink);flex-shrink:0}
 .sso-group button:active{transform:translate(1px,1px)}
 .sso-group button.ms{background:var(--ink);color:var(--paper)}
 .sso-group button.canvas{background:var(--blue);color:#fff;border-color:var(--ink)}
 .sso-group .mark{position:absolute;left:12px;width:20px;height:20px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13px}
-.divider{display:flex;align-items:center;gap:10px;margin:12px 0 10px;flex:none}
+.divider{display:flex;align-items:center;gap:10px;margin:8px 0 8px;flex:none}
 .divider span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .divider i{flex:1;height:1px;background:var(--paper-3)}
 .field{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;flex:none}
@@ -487,14 +490,17 @@ a.btn{text-decoration:none}
 
 <div class="stage">
   <div class="marks" aria-hidden="true"><span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span></div>
-  <div class="stage-note">UniVerse · live · Supabase</div>
+  <div class="stage-note">Yonder · live · Supabase</div>
 
   <div class="device" id="device" data-mode="light">
 
     <!-- ============ AUTH ============ -->
     <section class="screen on" id="s-auth">
       <div class="auth">
-        <div class="wordmark">UNIVERSE<span style="color:var(--accent)">.</span></div>
+        <div class="auth-brand">
+          <img class="brand-mark" src="./yonder_logo_transparent2.png" alt="Yonder logo" aria-label="Yonder logo">
+          <div class="wordmark">YONDER<span style="color:var(--accent)">.</span></div>
+        </div>
         <div class="unistrip" id="unistrip"></div>
         <div class="auth-hero">
           <p class="big">Every campus.<br>One deck.<br><em>Swipe.</em></p>
@@ -732,6 +738,10 @@ let currentOrganiser = null;
 let allInterests = [];
 let selectedInterestIds = [];
 let deck = [];
+let browseEvents = [];
+let browseLoaded = false;
+let browseLoading = false;
+let browseError = null;
 let saved = [];
 let cursor = 0;
 let lastSwipedId = null;
@@ -766,7 +776,10 @@ function toast(message) {
 
 function eventById(id) {
   const key = String(id);
-  return deck.find((e) => String(e.id) === key) || saved.find((e) => String(e.id) === key) || null;
+  return deck.find((e) => String(e.id) === key)
+    || browseEvents.find((e) => String(e.id) === key)
+    || saved.find((e) => String(e.id) === key)
+    || null;
 }
 
 function eventImage(e) {
@@ -1185,6 +1198,7 @@ async function enterApp() {
     U.watchEvents(async () => {
       await loadDeck(false);
       if (activeTab === 'saved') await loadSaved();
+      if (browseLoaded) await loadBrowseEvents(true);
     });
     U.watchNotifications(refreshBell);
   }
@@ -1217,6 +1231,9 @@ function bindAppChrome() {
   $('q-clear')?.addEventListener('click', () => {
     $('q').value = '';
     renderBrowse();
+  });
+  $('blist')?.addEventListener('click', (event) => {
+    if (event.target.closest('#browse-retry')) loadBrowseEvents(true);
   });
 
   $('postbar')?.addEventListener('click', openPostModal);
@@ -1442,7 +1459,10 @@ function renderDiscover() {
     button.setAttribute('aria-selected', button.dataset.disc === discoveryMode ? 'true' : 'false');
   });
   if (swipe) renderDeck();
-  else renderBrowse();
+  else {
+    renderBrowse();
+    if (!browseLoaded && !browseLoading) loadBrowseEvents();
+  }
 }
 
 /* ------------------------------------------------------------
@@ -1457,6 +1477,24 @@ async function loadDeck(resetCursor = true) {
   } catch (error) {
     console.error('Failed to load deck:', error);
     $('stack').innerHTML = `<div class="empty"><p class="big">Couldn’t load events.</p><p>${esc(error?.message || 'Try again.')}</p></div>`;
+  }
+}
+
+async function loadBrowseEvents(force = false) {
+  if (browseLoading || (browseLoaded && !force)) return;
+  browseLoading = true;
+  browseError = null;
+  const visible = activeTab === 'discover' && discoveryMode === 'browse';
+  if (visible) renderBrowse();
+  try {
+    browseEvents = await U.browseEvents({ limit: 200 });
+    browseLoaded = true;
+  } catch (error) {
+    console.error('Failed to load Browse events:', error);
+    browseError = error;
+  } finally {
+    browseLoading = false;
+    if (visible) renderBrowse();
   }
 }
 
@@ -1660,11 +1698,23 @@ async function undoLastSwipe() {
    Browse
 ------------------------------------------------------------ */
 function renderBrowse() {
+  if (browseLoading) {
+    $('app-sub').textContent = 'loading events';
+    $('app-progress').style.display = 'none';
+    $('blist').innerHTML = '<div class="empty" style="height:auto;padding:34px 2px"><p class="big">Loading events…</p><p>Fetching the upcoming campus calendar.</p></div>';
+    return;
+  }
+  if (browseError) {
+    $('app-sub').textContent = 'could not load events';
+    $('app-progress').style.display = 'none';
+    $('blist').innerHTML = `<div class="empty" style="height:auto;padding:34px 2px"><p class="big">Browse is unavailable.</p><p>${esc(browseError?.message || 'Try again.')}</p><button class="btn small" id="browse-retry">Retry</button></div>`;
+    return;
+  }
   const q = ($('q')?.value || '').trim().toLowerCase();
   if ($('q-clear')) $('q-clear').hidden = !q;
   if ($('pillrow')) $('pillrow').innerHTML = '<button class="fpill" aria-pressed="true">All</button>';
 
-  const list = deck.filter((e) => {
+  const list = browseEvents.filter((e) => {
     if (!q) return true;
     const hay = [e.title, eventClubName(e), eventUniName(e), e.venue_name, e.suburb, e.description].join(' ').toLowerCase();
     return hay.includes(q);
@@ -1679,7 +1729,7 @@ function renderBrowse() {
         <h4>${esc(e.title)}</h4>
         <div class="bwhen">${esc(eventWhen(e))}</div>
         <div class="bsub">${esc(eventClubName(e))} · ${esc(eventUniName(e))}</div>
-        <div class="brow"><span class="pill ${e.is_free ? 'free' : ''}">${esc(priceLabel(e))}</span><button class="bheart" data-save-browse="${esc(e.id)}" aria-label="Save">♡</button></div>
+        <div class="brow"><span class="pill ${e.is_free ? 'free' : ''}">${esc(priceLabel(e))}</span><button class="bheart ${saved.some((x) => String(x.id) === String(e.id)) ? 'on' : ''}" data-save-browse="${esc(e.id)}" aria-label="Save">${saved.some((x) => String(x.id) === String(e.id)) ? '♥' : '♡'}</button></div>
       </div>
     </article>`).join('') : '<div class="empty" style="height:auto;padding:34px 2px"><p class="big">Nothing matches.</p><p>Try another search.</p></div>';
 
@@ -1693,8 +1743,15 @@ function renderBrowse() {
   $('blist').querySelectorAll('[data-save-browse]').forEach((button) => {
     button.addEventListener('click', async () => {
       try {
-        await U.swipe(button.dataset.saveBrowse, 'like');
-        toast('Saved!');
+        const id = button.dataset.saveBrowse;
+        const isSaved = saved.some((e) => String(e.id) === String(id));
+        if (isSaved) {
+          await U.undoSwipe(id);
+          toast('Removed from Saved.');
+        } else {
+          await U.swipe(id, 'like');
+          toast('Saved!');
+        }
         await Promise.all([loadDeck(false), loadSaved()]);
         renderBrowse();
       } catch (error) {
