@@ -1,0 +1,19 @@
+{
+  "name": "Yonder",
+  "short_name": "Yonder",
+  "description": "Discover student events across Melbourne universities.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F2F1EC",
+  "theme_color": "#F2F1EC",
+  "icons": [
+    {
+      "src": "./yonder_logo_transparent2.png",
+      "sizes": "760x644",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
