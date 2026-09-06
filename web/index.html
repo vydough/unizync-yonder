@@ -746,6 +746,7 @@ let browseEvents = [];
 let browseLoaded = false;
 let browseLoading = false;
 let browseError = null;
+let browseInterest = null;
 let saved = [];
 let cursor = 0;
 let lastSwipedId = null;
@@ -1763,9 +1764,21 @@ function renderBrowse() {
   }
   const q = ($('q')?.value || '').trim().toLowerCase();
   if ($('q-clear')) $('q-clear').hidden = !q;
-  if ($('pillrow')) $('pillrow').innerHTML = '<button class="fpill" aria-pressed="true">All</button>';
+  const chosenInterests = allInterests.filter((i) => selectedInterestIds.includes(String(i.id)));
+  if ($('pillrow')) {
+    $('pillrow').innerHTML = `
+      <button class="fpill" data-pill="" aria-pressed="${!browseInterest}">All</button>
+      ${chosenInterests.map((i) => `<button class="fpill" data-pill="${esc(i.slug)}" aria-pressed="${browseInterest === i.slug}">${esc(i.emoji || '')} ${esc(i.label)}</button>`).join('')}`;
+    $('pillrow').querySelectorAll('[data-pill]').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        browseInterest = pill.dataset.pill || null;
+        renderBrowse();
+      });
+    });
+  }
 
   const list = browseEvents.filter((e) => {
+    if (browseInterest && !e.event_interests.some((x) => x.interest.slug === browseInterest)) return false;
     if (!q) return true;
     const hay = [e.title, eventClubName(e), eventUniName(e), e.venue_name, e.suburb, e.description].join(' ').toLowerCase();
     return hay.includes(q);
