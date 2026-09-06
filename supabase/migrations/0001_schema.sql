@@ -92,6 +92,16 @@ create table friendships (
   constraint no_self_friend check (user_id <> friend_id)
 );
 
+-- You add someone by typing the student email you already have.
+-- There is no student directory and no search, so an invite to an
+-- address that hasn't signed up yet is parked here until it does.
+create table friend_invites (
+  inviter_id uuid not null references profiles on delete cascade,
+  email      text not null,
+  created_at timestamptz not null default now(),
+  primary key (inviter_id, email)
+);
+
 -- ---------- clubs and events ----------
 
 create table clubs (

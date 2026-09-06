@@ -33,19 +33,36 @@ insert into universities (name, short_name, brand_colour, campus_lat, campus_lng
   ('La Trobe University', 'La Trobe', '#8C1D40', -37.719, 145.049, 'LTSU', 'LTSU clubs', 'https://www.latrobesu.org.au/clubs'),
   ('Swinburne University', 'Swinburne', '#E05A00', -37.8221, 145.0389, 'Student Life', 'Swinburne Student Life', 'https://studentlife.swinburne.edu.au/Events');
 
+-- Who is allowed to sign up. Checked against each university's own IT
+-- pages, September 2026. Marked 'student' below is the domain a current
+-- student actually gets; the others are staff or identity realms we
+-- also accept so a tutor or a club officer isn't locked out.
+--
+--   * Monash is .edu, NOT .edu.au. Do not "correct" it.
+--   * Deakin students and staff share deakin.edu.au, so the domain
+--     alone can never tell you which is which.
+--   * La Trobe publishes students.ltu.edu.au as the sign-in identity
+--     and states nowhere public what the mailbox domain is, so all
+--     four forms are accepted until LTSU confirms which is real.
+--   * Alumni domains (alumni.unimelb.edu.au, alumni.swinburne.edu) are
+--     forwarders belonging to people who have left. Left out on purpose.
 insert into university_domains (domain, university_id) values
-  ('student.unimelb.edu.au', (select id from universities where short_name = 'Unimelb')),
-  ('unimelb.edu.au', (select id from universities where short_name = 'Unimelb')),
-  ('student.rmit.edu.au', (select id from universities where short_name = 'RMIT')),
-  ('rmit.edu.au', (select id from universities where short_name = 'RMIT')),
-  ('student.monash.edu', (select id from universities where short_name = 'Monash')),
-  ('monash.edu', (select id from universities where short_name = 'Monash')),
-  ('deakin.edu.au', (select id from universities where short_name = 'Deakin')),
-  ('student.deakin.edu.au', (select id from universities where short_name = 'Deakin')),
-  ('students.latrobe.edu.au', (select id from universities where short_name = 'La Trobe')),
-  ('latrobe.edu.au', (select id from universities where short_name = 'La Trobe')),
-  ('student.swin.edu.au', (select id from universities where short_name = 'Swinburne')),
-  ('swin.edu.au', (select id from universities where short_name = 'Swinburne'));
+  ('student.unimelb.edu.au',  (select id from universities where short_name = 'Unimelb')),   -- student
+  ('unimelb.edu.au',          (select id from universities where short_name = 'Unimelb')),   -- staff
+  ('student.rmit.edu.au',     (select id from universities where short_name = 'RMIT')),      -- student, incl. TAFE + pathways
+  ('rmit.edu.au',             (select id from universities where short_name = 'RMIT')),      -- staff
+  ('student.monash.edu',      (select id from universities where short_name = 'Monash')),    -- student
+  ('monash.edu',              (select id from universities where short_name = 'Monash')),    -- staff
+  ('monashcollege.edu.au',    (select id from universities where short_name = 'Monash')),    -- pathway college
+  ('deakin.edu.au',           (select id from universities where short_name = 'Deakin')),    -- student AND staff
+  ('deakincollege.edu.au',    (select id from universities where short_name = 'Deakin')),    -- pathway college
+  ('students.ltu.edu.au',     (select id from universities where short_name = 'La Trobe')),  -- sign-in identity, incl. LTCA
+  ('students.latrobe.edu.au', (select id from universities where short_name = 'La Trobe')),  -- unconfirmed, accepted anyway
+  ('ltu.edu.au',              (select id from universities where short_name = 'La Trobe')),  -- staff identity realm
+  ('latrobe.edu.au',          (select id from universities where short_name = 'La Trobe')),  -- staff
+  ('student.swin.edu.au',     (select id from universities where short_name = 'Swinburne')), -- student, incl. TAFE
+  ('swin.edu.au',             (select id from universities where short_name = 'Swinburne')), -- staff (legacy)
+  ('swinburne.edu.au',        (select id from universities where short_name = 'Swinburne')); -- staff (current)
 
 
 -- ---------- suburbs (for the distance filter) ----------

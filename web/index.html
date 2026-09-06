@@ -9,6 +9,57 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 
+<title>UniVerse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<title>UniVerse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+/* One line, in the student's words, for why this card is here. It
+   names whichever component actually contributed most to the score —
+   so it can never drift out of sync with the ranking. */
+function whyLine(e){
+  var now = Date.now();
+  switch(topPart(e, now)){
+    case 'interest':
+      var mine = {}; state.interests.forEach(function(s){ mine[s]=1; });
+      var hits = e.tags.filter(function(t){ return mine[t]; });
+      if(hits.length) return 'Matches <b>'+INT_BY[hits[0]].label+'</b>'+
+        (hits.length>1 ? ' + '+(hits.length-1)+' more' : '');
+      break;
+    case 'activity': return 'You’re up for <b>'+e.atype.toLowerCase()+'</b>';
+    case 'cross':    return 'From another campus — <b>'+uniOf(e).short+'</b>';
+    case 'social':
+      var s = friendsOn(e.id), all = s.going.concat(s.keen);
+      if(all.length) return '<b>'+firstName(all[0].name)+'</b>'+
+        (all.length>1 ? ' and '+(all.length-1)+' more' : '')+' from your friends';
+      break;
+    case 'distance': return '<b>'+Math.round(kmAway(e))+' km</b> from you';
+    case 'price':    return e.cents===0 ? '<b>Free</b> entry' : 'Well inside your budget';
+    case 'timing':   return 'On <b>'+dayLabel(e.start)+'</b>';
+  }
+  return 'On in the next 14 days';
+}
+
+<title>UniVerse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<title>UniVerse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<title>UniVerse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
 <style>
 /* ============================================================
    UniVerse — riso print / campus noticeboard identity.
@@ -411,6 +462,62 @@ button{cursor:pointer}
 .destlink a{color:var(--ink)}
 a.btn{text-decoration:none}
 
+/* ---------- notifications ---------- */
+.bell{position:relative;width:38px;height:38px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);
+  display:grid;place-items:center;flex:none}
+.bell svg{width:19px;height:19px}
+.bell:active{transform:translate(1px,1px)}
+.bell .dot{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;padding:0 4px;border:2px solid var(--ink);
+  background:var(--accent);color:#fff;font-family:var(--mono);font-size:10px;font-weight:500;
+  display:grid;place-items:center;border-radius:10px}
+.notif-list{display:flex;flex-direction:column;gap:0}
+.notif{display:flex;gap:11px;padding:12px 2px;border-bottom:1px solid var(--paper-3);align-items:flex-start;text-align:left;width:100%}
+.notif:last-child{border-bottom:0}
+.notif .ic{width:34px;height:34px;flex:none;border:2px solid var(--ink);display:grid;place-items:center;
+  font-size:15px;background:var(--paper-2)}
+.notif .tx{flex:1;min-width:0}
+.notif .tx b{font-family:var(--display);font-weight:700;font-size:14.5px;display:block;letter-spacing:-.01em}
+.notif .tx span{font-size:12.5px;color:var(--ink-2);display:block;margin-top:1px}
+.notif .when{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);flex:none;padding-top:3px}
+.notif.unread .ic{background:var(--accent);color:#fff;border-color:var(--ink)}
+.notif .acts{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+
+/* ---------- parse preview ---------- */
+.parsebox{border:2px solid var(--ink);background:var(--paper-2);padding:11px 12px;display:flex;flex-direction:column;gap:8px}
+.parsebox .hdr{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.parsebox .hdr b{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:-.01em}
+.conf{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;color:var(--ink-2);flex:none}
+.conf .bar{width:54px;height:8px;border:1.5px solid var(--ink);background:var(--paper);position:relative;flex:none}
+.conf .bar i{position:absolute;inset:0;right:auto;background:var(--green);display:block}
+.conf.low .bar i{background:var(--yellow)}
+.conf.vlow .bar i{background:var(--accent)}
+.fieldsrc{display:flex;flex-wrap:wrap;gap:5px}
+.fieldsrc span{font-family:var(--mono);font-size:10px;letter-spacing:.04em;border:1.5px solid var(--ink-3);
+  padding:2px 6px;color:var(--ink-2);white-space:nowrap}
+.fieldsrc span.miss{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- verified organiser ---------- */
+.verified{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;background:var(--blue);color:#fff;padding:3px 7px;border:1.5px solid var(--ink)}
+.orgbox{border:2px solid var(--ink);background:var(--paper-2);padding:13px 14px;display:flex;flex-direction:column;gap:6px}
+.orgbox b{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.01em}
+.orgbox .st{font-size:12.5px;color:var(--ink-2)}
+.evrow{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--paper-3);align-items:flex-start}
+.evrow .th{width:54px;height:44px;flex:none;border:1.5px solid var(--ink);overflow:hidden;background:var(--paper-2)}
+.evrow .th svg,.evrow .th img{width:100%;height:100%;object-fit:cover;display:block}
+.evrow .m{flex:1;min-width:0}
+.evrow .m b{font-family:var(--display);font-weight:700;font-size:14.5px;display:block;letter-spacing:-.01em}
+.evrow .m span{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.evrow .acts{display:flex;gap:6px;margin-top:6px}
+
+/* ---------- profile me / friends ---------- */
+.pf-views{margin:0 0 4px}
+.friend-events{margin-top:7px;padding-left:47px}
+.friend-events .fe{display:flex;gap:8px;align-items:baseline;padding:4px 0;font-size:12.5px}
+.friend-events .fe em{font-style:normal;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--ink-2);flex:none;width:64px}
+.friend-events .fe b{font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* ---------- tutorial ---------- */
 .tut{position:absolute;inset:0;background:rgba(21,21,26,.7);z-index:30;display:none;align-items:center;justify-content:center;padding:24px}
 .tut.on{display:flex}
@@ -430,9 +537,9 @@ a.btn{text-decoration:none}
 
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms !important;transition-duration:.08s !important} }
 </style>
-
 </head>
 <body>
+
 <div class="stage">
   <div class="marks" aria-hidden="true"><span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span></div>
   <div class="stage-note">UniVerse · prototype · seeded demo data</div>
@@ -509,6 +616,11 @@ a.btn{text-decoration:none}
         <div class="app-head">
           <div><h1 id="app-title">Discover</h1><div class="meta" id="app-sub">loading</div></div>
           <div class="progress" id="app-progress">0 / 0</div>
+          <button class="bell" id="bell" hidden aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 10-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M13.7 20a2 2 0 01-3.4 0"/></svg>
+            <span class="dot" id="bell-dot" hidden>0</span>
+          </button>
         </div>
         <div class="mode-row" id="mode-row">
           <div class="seg" id="mode-seg">
@@ -574,6 +686,30 @@ a.btn{text-decoration:none}
       </div>
     </section>
 
+    <!-- ============ NOTIFICATIONS ============ -->
+    <div class="modal" id="notif">
+      <div class="modalcard">
+        <header>
+          <p class="eyebrow">What you've missed</p>
+          <h3>Notifications</h3>
+        </header>
+        <div class="mbody" id="notif-body"></div>
+        <footer id="notif-foot"></footer>
+      </div>
+    </div>
+
+    <!-- ============ ORGANISER VERIFICATION ============ -->
+    <div class="modal" id="verify">
+      <div class="modalcard">
+        <header>
+          <p class="eyebrow">Club organiser</p>
+          <h3>Get verified</h3>
+        </header>
+        <div class="mbody" id="verify-body"></div>
+        <footer id="verify-foot"></footer>
+      </div>
+    </div>
+
     <!-- ============ POST AN EVENT ============ -->
     <div class="modal" id="post">
       <div class="modalcard">
@@ -636,24 +772,43 @@ a.btn{text-decoration:none}
    sell through — a paid registration is routed to the hosting
    university's own system, so the student lands where their details
    and their student status already mean something. */
+/* Email domains decide which university you belong to, so this list is
+   the front door. Checked against each university's own IT pages in
+   September 2026. The first domain is the confirmed student one; the
+   rest are staff / identity realms we accept so a tutor or a club
+   officer on a staff address isn't locked out.
+
+   Two traps worth remembering:
+   • Monash is .edu, NOT .edu.au — don't "fix" it.
+   • Deakin students and staff share one domain, so the domain alone
+     can never tell you which is which.
+   La Trobe publishes students.ltu.edu.au as the sign-in identity and
+   doesn't state the mailbox domain anywhere public, so all four of its
+   forms are accepted until someone at LTSU confirms which is real.
+   Alumni addresses (alumni.unimelb.edu.au, alumni.swinburne.edu) are
+   forwarders, not mailboxes, and belong to people who have left —
+   deliberately not accepted. */
 const UNIS = [
   {id:'u1', name:'University of Melbourne', short:'Unimelb',   colour:'#094183', lat:-37.7963, lng:144.9614,
    domains:['student.unimelb.edu.au','unimelb.edu.au'],
    union:'UMSU', regLabel:'UMSU events', regUrl:'https://umsu.unimelb.edu.au/events/'},
   {id:'u2', name:'RMIT University',         short:'RMIT',      colour:'#E60028', lat:-37.8080, lng:144.9633,
+   /* TAFE and pathway students share student.rmit.edu.au — nothing extra needed */
    domains:['student.rmit.edu.au','rmit.edu.au'],
    union:'RUSU', regLabel:'RUSU · Rubric', regUrl:'https://campus.hellorubric.com/?s=4202'},
   {id:'u3', name:'Monash University',       short:'Monash',    colour:'#006DAE', lat:-37.9114, lng:145.1340,
-   domains:['student.monash.edu','monash.edu'],
+   domains:['student.monash.edu','monash.edu','monashcollege.edu.au'],
    union:'MSA', regLabel:'MSA · Eventbrite', regUrl:'https://www.eventbrite.com.au/o/monash-student-association-msa-13953137008'},
   {id:'u4', name:'Deakin University',       short:'Deakin',    colour:'#C79100', lat:-37.8470, lng:145.1150,
-   domains:['deakin.edu.au','student.deakin.edu.au'],
+   /* students AND staff are both @deakin.edu.au */
+   domains:['deakin.edu.au','deakincollege.edu.au'],
    union:'DUSA', regLabel:'DUSA · Rubric', regUrl:'https://campus.hellorubric.com/?s=3659'},
   {id:'u5', name:'La Trobe University',     short:'La Trobe',  colour:'#8C1D40', lat:-37.7190, lng:145.0490,
-   domains:['students.latrobe.edu.au','latrobe.edu.au'],
+   domains:['students.ltu.edu.au','students.latrobe.edu.au','ltu.edu.au','latrobe.edu.au'],
    union:'LTSU', regLabel:'LTSU clubs', regUrl:'https://www.latrobesu.org.au/clubs'},
   {id:'u6', name:'Swinburne University',    short:'Swinburne', colour:'#E05A00', lat:-37.8221, lng:145.0389,
-   domains:['student.swin.edu.au','swin.edu.au'],
+   /* TAFE students share student.swin.edu.au; staff sit on two domains */
+   domains:['student.swin.edu.au','swin.edu.au','swinburne.edu.au'],
    union:'Student Life', regLabel:'Swinburne Student Life', regUrl:'https://studentlife.swinburne.edu.au/Events'}
 ];
 
@@ -782,14 +937,14 @@ const SEED = [
    ever sees of anyone else. Seeded for the demo.
    ---------------------------------------------------------------- */
 const FRIENDS = [
-  {id:'f1', name:'Priya Raman',   uniId:'u3', interested:['e10','e33','e16','e37','e5'],  registered:['e4','e30']},
-  {id:'f2', name:'Sam Okafor',    uniId:'u2', interested:['e4','e8','e34','e14','e23'],   registered:['e10','e33']},
-  {id:'f3', name:'Mia Zhou',      uniId:'u1', interested:['e30','e32','e5','e37','e2'],   registered:['e8']},
-  {id:'f4', name:'Jack Whitlam',  uniId:'u6', interested:['e33','e35','e34','e1'],        registered:['e14']},
-  {id:'f5', name:'Aisha Rahman',  uniId:'u5', interested:['e27','e29','e30','e31','e18'], registered:['e26']},
-  {id:'f6', name:'Tom Beckett',   uniId:'u4', interested:['e20','e21','e22','e10'],       registered:['e37']},
-  {id:'f7', name:'Léa Marchand',  uniId:'u1', interested:['e6','e9','e5','e4'],           registered:['e32']},
-  {id:'f8', name:'Danny Oyelaran',uniId:'u3', interested:['e15','e1','e24','e12'],        registered:['e23']}
+  {id:'f1', name:'Priya Raman',   uniId:'u3', email:'priya.raman@student.monash.edu', interested:['e10','e33','e16','e37','e5'],  registered:['e4','e30']},
+  {id:'f2', name:'Sam Okafor',    uniId:'u2', email:'sam.okafor@student.rmit.edu.au', interested:['e4','e8','e34','e14','e23'],   registered:['e10','e33']},
+  {id:'f3', name:'Mia Zhou',      uniId:'u1', email:'mia.zhou@student.unimelb.edu.au', interested:['e30','e32','e5','e37','e2'],   registered:['e8']},
+  {id:'f4', name:'Jack Whitlam',  uniId:'u6', email:'jack.whitlam@student.swin.edu.au', interested:['e33','e35','e34','e1'],        registered:['e14']},
+  {id:'f5', name:'Aisha Rahman',  uniId:'u5', email:'aisha.rahman@students.ltu.edu.au', interested:['e27','e29','e30','e31','e18'], registered:['e26']},
+  {id:'f6', name:'Tom Beckett',   uniId:'u4', email:'tom.beckett@deakin.edu.au', interested:['e20','e21','e22','e10'],       registered:['e37']},
+  {id:'f7', name:'Léa Marchand',  uniId:'u1', email:'lea.marchand@student.unimelb.edu.au', interested:['e6','e9','e5','e4'],           registered:['e32']},
+  {id:'f8', name:'Danny Oyelaran',uniId:'u3', email:'danny.oyelaran@student.monash.edu', interested:['e15','e1','e24','e12'],        registered:['e23']}
 ];
 const FRIEND_BY = {}; FRIENDS.forEach(function(f){ FRIEND_BY[f.id]=f; });
 
@@ -879,7 +1034,13 @@ var state = {
   profile:null,
   interests:[], atypes:[], budget:'any', distance:'any', address:'',
   discovery:'swipe', dark:false, seenTutorial:false,
-  swipes:{}, order:[], registered:{}, friends:[], posted:[], tab:'discover'
+  swipes:{}, order:[], registered:{}, posted:[], tab:'discover',
+  friends:[],        /* accepted */
+  pendingOut:[],     /* [{email, id|null}] — you asked them */
+  pendingIn:[],      /* [friendId]        — they asked you  */
+  readNotifs:[],     /* notification ids already seen */
+  organiser:null,    /* {status, clubName, uniId, role, proof, proofName, at} */
+  profileView:'me'   /* 'me' | 'friends' */
 };
 function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(err){} }
 function restore(){
@@ -895,25 +1056,153 @@ function signOut(){ try{ localStorage.removeItem(KEY); }catch(err){} location.re
 const DEMO = {name:'Alex Tran', email:'alex.tran@student.monash.edu', uniId:'u3'};
 const DEMO_INTERESTS = ['art-design','photography-content','food-cafes','melbourne-exploration','technology-innovation'];
 const DEMO_ATYPES = ['Workshops','Outdoor activities','Concerts & performances'];
-const DEMO_SWIPES = [['e10','like'],['e4','like'],['e30','like'],['e39','like'],['e13','pass'],['e26','pass']];
+/* e7 is tomorrow — it's what makes the 24-hour reminder show up in the demo */
+const DEMO_SWIPES = [['e7','like'],['e10','like'],['e4','like'],['e30','like'],['e39','like'],['e13','pass'],['e26','pass']];
 
 /* ================================================================
-   4. RANKING
-   score = 3.0×interest overlap + 1.5×cross-campus + 1.0×imminence
-         + 1.0×activity match + 0.5×free
-   Budget and distance are filters, relaxed rather than left thin.
+   4. RANKING — a weighted scale built from published formulas
+   ================================================================
+   Every part of the score is normalised to 0–1 by a named, open
+   formula, then combined as a weighted sum whose weights add to 1.
+   So the final number IS the match percentage — nothing is on an
+   arbitrary scale, and changing a weight has a predictable effect.
+
+     component      weight  formula                       source
+     ------------------------------------------------------------
+     interests       0.32   Szymkiewicz–Simpson overlap   Simpson 1943
+                            blended with Jaccard index    Jaccard 1901
+     activity type   0.14   set membership                —
+     when it is on   0.14   gravity decay 1/(1+d)^0.8     Hacker News
+     how far         0.14   Haversine + exponential       Sinnott 1984 /
+                            distance decay e^(-d/λ)       Tobler 1970
+     price fit       0.10   linear ramp against budget    —
+     other students  0.10   Wilson score lower bound      Wilson 1927
+     cross-campus    0.06   set membership                —
+
+   All seven are public, citable and about forty lines of code between
+   them. Nothing here is a black box, which matters: a student can be
+   told exactly why an event is in front of them.
    ================================================================ */
 const WINDOW_DAYS = 14, DECK_LIMIT = 15, CLUB_CAP = 3, MIN_DECK = 8;
 
-function scoreOf(e, now){
-  var mine = {}; state.interests.forEach(function(s){ mine[s]=1; });
-  var overlap = e.tags.filter(function(t){ return mine[t]; }).length;
-  var cross = state.profile && uniOf(e).id !== state.profile.uniId ? 1 : 0;
-  var imminence = 1 - ((e.start.getTime()-now)/(WINDOW_DAYS*86400000));
-  var act = state.atypes.indexOf(e.atype) > -1 ? 1 : 0;
-  var free = e.cents===0 ? 1 : 0;
-  return 3*Math.min(overlap,3) + 1.5*cross + 1*imminence + 1*act + 0.5*free;
+/* the weights. They sum to 1, so score() returns 0–1. */
+const W = {
+  interest: 0.32, activity: 0.14, timing: 0.14,
+  distance: 0.14, price: 0.10, social: 0.10, cross: 0.06
+};
+
+/* ---- Jaccard index (Jaccard, 1901) ----
+   |A ∩ B| / |A ∪ B|. Symmetric, and it penalises an event that tags
+   itself with everything to game the deck. */
+function jaccard(a, b){
+  if(!a.length || !b.length) return 0;
+  var setB = {}; b.forEach(function(x){ setB[x] = 1; });
+  var inter = 0; a.forEach(function(x){ if(setB[x]) inter++; });
+  return inter / (a.length + b.length - inter);
 }
+
+/* ---- Szymkiewicz–Simpson overlap coefficient (Simpson, 1943) ----
+   |A ∩ B| / min(|A|,|B|). Jaccard alone is unfair here: a student who
+   picks five interests would score lower on a perfectly matched event
+   than one who picked two. The overlap coefficient doesn't care how
+   many you picked, so we lead with it and keep a little Jaccard to
+   keep the anti-spam property. */
+function overlapCoeff(a, b){
+  if(!a.length || !b.length) return 0;
+  var setB = {}; b.forEach(function(x){ setB[x] = 1; });
+  var inter = 0; a.forEach(function(x){ if(setB[x]) inter++; });
+  return inter / Math.min(a.length, b.length);
+}
+function interestScore(e){
+  return 0.7 * overlapCoeff(state.interests, e.tags)
+       + 0.3 * jaccard(state.interests, e.tags);
+}
+
+/* ---- gravity decay (the Hacker News ranking formula) ----
+   HN ranks by score/(age+2)^1.8 so a story fades as it gets older.
+   We want the mirror image — an event matters more as it gets closer —
+   so the same curve runs on days-until instead of hours-since. Steep
+   at first, then flat: tomorrow beats next week, but week three and
+   week four are much of a muchness. */
+const GRAVITY = 0.8;
+function timingScore(e, now){
+  var days = Math.max(0, (e.start.getTime() - now) / 86400000);
+  return 1 / Math.pow(1 + days, GRAVITY);
+}
+
+/* ---- exponential distance decay (Tobler's first law, gravity models) ----
+   e^(-d/λ). λ is half of whatever the student said they'd travel, so
+   the curve rescales to the person: someone who'll go 2 km and someone
+   who'll go 50 km both get a full range of scores. */
+function distanceScore(e){
+  var cap = DIST_BY[state.distance].km;
+  var lambda = isFinite(cap) ? Math.max(1, cap / 2) : 8;
+  return Math.exp(-kmAway(e) / lambda);
+}
+
+/* ---- price fit ----
+   Free is 1. At the top of the budget it's 0. Beyond it the event was
+   already filtered out, so it never gets here. */
+function priceScore(e){
+  var cap = BUD_BY[state.budget].cap;
+  var ref = isFinite(cap) && cap > 0 ? cap : 5000;
+  if(e.cents === 0) return 1;
+  return Math.max(0, 1 - e.cents / ref);
+}
+
+/* ---- Wilson score lower bound (Wilson, 1927) ----
+   The honest way to rank by a ratio when the sample is small: it asks
+   "given this many responses, what's the lowest the true rate plausibly
+   is?" One friend out of one who's keen scores well below eight out of
+   eight, where a raw average would call them equal. z = 1.96 is the
+   95% confidence bound. With no friends, n = 0 and this returns 0, so
+   the component simply drops out rather than guessing. */
+const Z = 1.96;
+function wilsonLower(pos, n){
+  if(!n) return 0;
+  var p = pos / n, z2 = Z * Z;
+  return (p + z2 / (2 * n) - Z * Math.sqrt((p * (1 - p) + z2 / (4 * n)) / n)) / (1 + z2 / n);
+}
+function socialScore(e){
+  var n = state.friends.length;
+  if(!n) return 0;
+  var s = friendsOn(e.id);
+  /* registered counts double — turning up is a stronger signal than
+     being curious — but capped so it can't exceed n. */
+  return wilsonLower(Math.min(n, s.going.length * 2 + s.keen.length), n);
+}
+
+function crossScore(e){
+  return (state.profile && uniOf(e).id !== state.profile.uniId) ? 1 : 0;
+}
+
+/* Every part, so the deck can say why and a test can check the maths. */
+function parts(e, now){
+  return {
+    interest: interestScore(e),
+    activity: state.atypes.indexOf(e.atype) > -1 ? 1 : 0,
+    timing:   timingScore(e, now),
+    distance: distanceScore(e),
+    price:    priceScore(e),
+    social:   socialScore(e),
+    cross:    crossScore(e)
+  };
+}
+/* The weighted sum. Weights add to 1, so this is 0–1. */
+function scoreOf(e, now){
+  var p = parts(e, now), total = 0;
+  for(var k in W) total += W[k] * p[k];
+  return total;
+}
+function matchPct(e, now){ return Math.round(scoreOf(e, now || Date.now()) * 100); }
+
+/* which component contributed most — drives the one-line "why" */
+function topPart(e, now){
+  var p = parts(e, now), best = null, bestV = 0;
+  for(var k in W){ var v = W[k] * p[k]; if(v > bestV){ bestV = v; best = k; } }
+  return best;
+}
+
 function upcoming(){
   var now = Date.now(), horizon = now + WINDOW_DAYS*86400000;
   return EVENTS.filter(function(e){ return e.start.getTime() > now && e.start.getTime() < horizon; });
@@ -939,6 +1228,7 @@ function rankDeck(){
 
   var scored = pool.map(function(e){ return {e:e, s:scoreOf(e, now)}; })
                    .sort(function(a,b){ return b.s-a.s; });
+  /* No more than three from one club, so a busy club can't take the deck. */
   var perClub = {}, out = [];
   for(var j=0;j<scored.length && out.length<DECK_LIMIT;j++){
     var cid = scored[j].e.clubId;
@@ -1024,8 +1314,26 @@ function hash(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i
 /* a club-supplied photo wins; otherwise we print one */
 function posterFor(e){
   if(e.photo) return '<img class="photo" src="'+esc(e.photo)+'" alt="'+esc(e.title)+'">';
+  if(e.photoUrl) return '<img class="photo" src="'+esc(e.photoUrl)+'" alt="'+esc(e.title)+
+    '" data-poster="'+esc(e.id)+'" loading="lazy">';
   return posterSVG(e);
 }
+/* If a poster read off someone else's page won't load — blocked host,
+   dead link, hotlink protection — we print our own cover instead of
+   leaving a broken image. Error events don't bubble, but they do
+   capture, so one listener covers every image in the app. */
+document.addEventListener('error', function(ev){
+  var img = ev.target;
+  if(!img || img.tagName !== 'IMG' || !img.hasAttribute('data-poster')) return;
+  var e = EV_BY[img.getAttribute('data-poster')];
+  if(!e) { img.removeAttribute('data-poster'); return; }
+  e.photoUrl = '';                       /* don't try it again this session */
+  var span = document.createElement('span');
+  span.innerHTML = posterSVG(e);
+  if(img.parentNode) img.parentNode.replaceChild(span.firstElementChild, img);
+}, true);
+/* a poster URL read off someone else's page may be blocked from loading
+   here, so we keep it on the record but still print our own cover */
 function posterSVG(e){
   var pal = PAL[e.tags[0]] || ['#1F3CFF','#FFC400'], base = pal[0], mark = pal[1];
   var h = hash(e.id + e.title), comp = h % 5, id = 'ht'+(posterSeq++), shapes = '';
@@ -1112,7 +1420,9 @@ function createProfile(email){
   state.signedIn = true;
   state.interests = []; state.atypes = []; state.budget='any'; state.distance='any'; state.address='';
   state.discovery='swipe'; state.seenTutorial=false;
-  state.swipes={}; state.order=[]; state.registered={}; state.friends=[];
+  state.swipes={}; state.order=[]; state.registered={};
+  state.friends=[]; state.pendingOut=[]; state.pendingIn=[];
+  state.readNotifs=[]; state.organiser=null; state.profileView='me';
   persist();
 }
 function validateEmail(){
@@ -1154,8 +1464,10 @@ $('btn-bypass').addEventListener('click', function(){
   state.atypes = DEMO_ATYPES.slice();
   state.budget='b25'; state.distance='any'; state.address='Clayton';
   state.discovery='swipe'; state.seenTutorial=false;
-  state.swipes={}; state.order=[]; state.registered={'e10':true};
+  state.swipes={}; state.order=[]; state.registered={'e10':true, 'e7':true};
   state.friends = ['f1','f2','f3'];
+  state.pendingOut = []; state.pendingIn = ['f4'];
+  state.readNotifs = []; state.organiser = null; state.profileView = 'me';
   DEMO_SWIPES.forEach(function(s){ state.swipes[s[0]] = s[1]; });
   persist(); enterApp(true);
 });
@@ -1315,6 +1627,7 @@ $('tut-go').addEventListener('click', function(){
 
 function setTab(tab){
   state.tab = tab; persist();
+  refreshBell();
   ['discover','saved','profile'].forEach(function(t){ $('pane-'+t).classList.toggle('on', t===tab); });
   Array.prototype.forEach.call(document.querySelectorAll('.tabbar button'), function(b){
     b.setAttribute('aria-selected', b.getAttribute('data-tab')===tab ? 'true':'false');
@@ -1819,7 +2132,15 @@ function ingestDoc(docId, d){
     lat:ll[0], lng:ll[1],
     start:start, end:(end && !isNaN(end.getTime())) ? end : new Date(start.getTime()+7200000),
     photo:(typeof d.photo==='string' && /^data:image\/(png|jpeg|webp);base64,/.test(d.photo)) ? d.photo : '',
-    community:true, addedBy:String(d.addedBy||'a student').slice(0,40)
+    /* a poster URL read off the event's own page. It loads wherever the
+       app is actually hosted; inside the shared artifact the sandbox
+       blocks other hosts, so posterFor falls back to our printed cover
+       the moment it fails. */
+    photoUrl:(typeof d.photoUrl==='string' && /^https:\/\/[^\s"'<>]+$/i.test(d.photoUrl)) ? d.photoUrl : '',
+    /* the organiser's own event page — the link they pasted */
+    pageUrl:(typeof d.pageUrl==='string' && /^https:\/\/[^\s"'<>]+$/i.test(d.pageUrl)) ? d.pageUrl : '',
+    community:true, addedBy:String(d.addedBy||'a student').slice(0,40),
+    byMe:!!d.byMe, clubName:String(d.clubName||'').slice(0,80)
   };
   var idx = -1;
   for(var i=0;i<EVENTS.length;i++){ if(EVENTS[i].id===evId){ idx=i; break; } }
@@ -1839,6 +2160,7 @@ function onCatalogueChanged(added){
       else if(cursor === 0){ rebuildDeck(); renderDeck(); }
       else if(added) toast(added+' new event'+(added===1?'':'s')+' just landed.');
     } else if(state.tab==='saved') renderSaved();
+    refreshBell();
   }
 }
 /* No shared server-side store in this build, so the artifact stays
@@ -1846,67 +2168,1446 @@ function onCatalogueChanged(added){
    device; the Supabase backend in the project folder is what makes
    them live across every student. */
 
-/* ---- paste an .ics block or a link and we fill in what we can ---- */
-function icsDate(v){
-  var m = String(v).match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/);
-  if(!m) return null;
-  if(m[7]) return new Date(Date.UTC(+m[1], +m[2]-1, +m[3], +(m[4]||0), +(m[5]||0), +(m[6]||0)));
-  return melbLocal(+m[1], +m[2], +m[3], +(m[4]||0), +(m[5]||0));
+/* === BEGIN GENERATED PARSER === */
+/* ================================================================
+   UNIVERSAL EVENT PARSER  —  GENERATED, DO NOT EDIT BY HAND
+   ================================================================
+   Source of truth: lib/event-parser/
+   Regenerate:      node tools/build-inline-parser.mjs
+   Verify:          node lib/event-parser/inline.test.mjs
+
+   The app is one file with no imports so it runs by double-clicking
+   and works inside a shared artifact. This is the same code as the
+   modules, flattened into one scope. Edit the modules, not this.
+
+   Flow:  URL → validate → fetch (server-side only) → JSON-LD /
+   OpenGraph / meta / microdata → detect provider → provider parser →
+   merge by confidence → normalise → preview → save
+   ================================================================ */
+var UniVerseParser = (function(){
+"use strict";
+/* ---------- lib/event-parser/types.js ---------- */
+/**
+ * UniVerse — event parser types
+ * ---------------------------------------------------------------
+ * Plain JavaScript, because the whole project has no build step —
+ * but the shapes are documented as JSDoc so an editor still
+ * autocompletes them and a `.d.ts` would be a copy-paste away.
+ *
+ * The point of NormalisedEvent: every provider returns the SAME
+ * object, so nothing downstream — the preview screen, the database
+ * writer, the app — ever needs to know whether an event came from
+ * Humanitix, Eventbrite, Rubric or a club's own WordPress page.
+ */
+
+/**
+ * @typedef {Object} Ticket
+ * @property {string}  [name]       'Student', 'General admission'
+ * @property {number}  [price]      in dollars, not cents — cents is a DB concern
+ * @property {string}  [currency]   'AUD'
+ * @property {boolean} [available]
+ */
+
+/**
+ * @typedef {Object} Venue
+ * @property {string} [name]
+ * @property {string} [address]
+ * @property {string} [suburb]
+ */
+
+/**
+ * @typedef {Object} EventSource
+ * @property {string} provider   'humanitix' | 'eventbrite' | … | 'generic'
+ * @property {string} url        the page this was read from
+ * @property {string} [pageUrl]  the event's own canonical page, if it names one
+ */
+
+/**
+ * @typedef {Object} NormalisedEvent
+ * @property {string}   title
+ * @property {string}   [description]
+ * @property {string}   [imageUrl]
+ * @property {string}   [startDate]   ISO 8601
+ * @property {string}   [endDate]     ISO 8601
+ * @property {Venue}    [venue]
+ * @property {Ticket[]} [tickets]
+ * @property {string}   [ticketUrl]   where to actually buy
+ * @property {string}   [organiser]   the club's name, as the page gives it
+ * @property {EventSource} source
+ * @property {Object.<string, FieldProvenance>} [provenance]
+ */
+
+/**
+ * Where each field came from and how much to trust it. This is what
+ * lets the merger pick between two different answers for `title`
+ * without a pile of if-statements, and what lets the preview screen
+ * show a student which fields are worth checking by hand.
+ *
+ * @typedef {Object} FieldProvenance
+ * @property {string} source      'json-ld' | 'opengraph' | 'meta' | 'title-tag' | provider name
+ * @property {number} confidence  0–1
+ */
+
+/**
+ * How much each extraction method is worth. Straight from the
+ * architecture doc — a provider that publishes structured data about
+ * itself is more reliable than us reading its HTML, which is in turn
+ * more reliable than a generic <meta> tag.
+ */
+const CONFIDENCE = {
+  'provider-api':  0.99,
+  'json-ld':       0.95,
+  'provider-html': 0.90,
+  'opengraph':     0.85,
+  'microdata':     0.80,
+  'ics':           0.90,
+  'meta':          0.70,
+  'generic-html':  0.60,
+  'title-tag':     0.50,
+  'url-only':      0.30
+};
+
+/**
+ * The contract every provider parser follows.
+ *
+ *   canParse(url) → boolean
+ *   parse(url, html) → Partial<NormalisedEvent>
+ *
+ * Adding a provider means writing one of these and adding it to the
+ * list in providers/index.js. Nothing else changes — which is the
+ * whole reason for the interface.
+ *
+ * @typedef {Object} EventParser
+ * @property {string} name
+ * @property {(url: URL) => boolean} canParse
+ * @property {(url: URL, html: string) => Partial<NormalisedEvent>} parse
+ */
+const EMPTY = Object.freeze({
+  title: '', source: { provider: 'generic', url: '' }, provenance: {}
+});
+
+/* ---------- lib/event-parser/safeUrl.js ---------- */
+/**
+ * UniVerse — URL safety
+ * ---------------------------------------------------------------
+ * The endpoint takes a URL from a student and fetches it, which is
+ * textbook SSRF: without this, anyone with an account could point it
+ * at the server's own metadata service, or at something inside
+ * Supabase's network, and read the response back through our preview
+ * screen.
+ *
+ * Two layers, in this order:
+ *   1. an allow-list of hosts we have parsers for — the architecture
+ *      doc's MVP recommendation, and the right default. A club event
+ *      lives on one of about a dozen platforms.
+ *   2. a deny-list of everything that could be internal, which catches
+ *      the case where someone widens the allow-list later and forgets.
+ *
+ * This file is imported by BOTH the edge function and the client, so
+ * the app can grey out an unsupported link before anyone waits on a
+ * request, and the two can never disagree about what's allowed.
+ */
+
+/** Hosts we will fetch. Suffix match on the registrable domain. */
+const ALLOWED_HOSTS = [
+  // ticketing
+  'humanitix.com',
+  'events.humanitix.com',
+  'eventbrite.com',
+  'eventbrite.com.au',
+  'trybooking.com',
+  'trybooking.com.au',
+  'hellorubric.com',
+  'campus.hellorubric.com',
+  'moshtix.com.au',
+  'oztix.com.au',
+  'stickytickets.com.au',
+
+  // our six universities and their unions
+  'unimelb.edu.au',
+  'umsu.unimelb.edu.au',
+  'rmit.edu.au',
+  'rusu.rmit.edu.au',
+  'monash.edu',
+  'monashclubs.org',
+  'msa.monash.edu',
+  'deakin.edu.au',
+  'dusa.org.au',
+  'latrobe.edu.au',
+  'ltu.edu.au',
+  'latrobesu.org.au',
+  'swinburne.edu.au',
+  'swin.edu.au',
+  'studentlife.swinburne.edu.au'
+];
+
+/** Never fetch these, whatever the allow-list says. */
+const BLOCKED_HOSTNAMES = /^(localhost|127\.|0\.0\.0\.0$|\[?::1\]?$|.*\.local$|.*\.internal$|metadata\.google\.internal$)/i;
+
+/** RFC1918 and friends, plus the cloud metadata addresses. */
+function isPrivateAddress(host) {
+  // IPv4
+  const v4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])];
+    if (a === 10) return true;                       // 10.0.0.0/8
+    if (a === 127) return true;                      // loopback
+    if (a === 172 && b >= 16 && b <= 31) return true;// 172.16.0.0/12
+    if (a === 192 && b === 168) return true;         // 192.168.0.0/16
+    if (a === 169 && b === 254) return true;         // link-local + AWS/GCP metadata
+    if (a === 100 && b >= 64 && b <= 127) return true; // carrier-grade NAT
+    if (a === 0 || a >= 224) return true;            // this-network, multicast, reserved
+    return false;
+  }
+  // IPv6 — anything that isn't a plain global unicast address
+  if (host.includes(':')) {
+    const h = host.replace(/^\[|\]$/g, '').toLowerCase();
+    return /^(::1?$|fe80:|fc00:|fd|::ffff:)/.test(h);
+  }
+  return false;
 }
-function parsePaste(text){
-  var out = {};
-  var t = String(text||'').trim();
-  if(!t) return out;
-  if(/BEGIN:VEVENT/i.test(t)){
-    var lines = t.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
-    lines.forEach(function(l){
-      var m = l.match(/^([A-Z\-]+)(?:;[^:]*)?:(.*)$/);
-      if(!m) return;
-      var k = m[1], v = m[2].replace(/\\n/g,' ').replace(/\\,/g,',').replace(/\\;/g,';').trim();
-      if(k==='SUMMARY') out.title = v;
-      if(k==='DESCRIPTION') out.desc = v;
-      if(k==='LOCATION') out.venue = v;
-      if(k==='URL' && /^https:\/\//i.test(v)) out.ticketUrl = v;
-      if(k==='DTSTART') out.start = icsDate(v);
-      if(k==='DTEND') out.end = icsDate(v);
-    });
+
+/**
+ * @param {string} raw
+ * @returns {{ok: true, url: URL} | {ok: false, reason: string}}
+ */
+function checkUrl(raw) {
+  let url;
+  try { url = new URL(String(raw).trim()); }
+  catch { return { ok: false, reason: 'That isn\'t a valid link.' }; }
+
+  if (url.protocol !== 'https:') {
+    return { ok: false, reason: 'Only https links are accepted.' };
+  }
+  const host = url.hostname.toLowerCase();
+
+  if (BLOCKED_HOSTNAMES.test(host) || isPrivateAddress(host)) {
+    return { ok: false, reason: 'That address isn\'t reachable from here.' };
+  }
+  if (url.port && url.port !== '443') {
+    return { ok: false, reason: 'Only standard https ports are accepted.' };
+  }
+  if (url.username || url.password) {
+    return { ok: false, reason: 'Links with credentials in them aren\'t accepted.' };
+  }
+  const allowed = ALLOWED_HOSTS.some(h => host === h || host.endsWith('.' + h));
+  if (!allowed) {
+    return {
+      ok: false,
+      reason: 'We don\'t read links from ' + host + ' yet. Paste the page itself instead — ' +
+              'select all on the event page, copy, and paste it here.'
+    };
+  }
+  return { ok: true, url };
+}
+
+/** True if we'd fetch it — for greying out a button before anyone waits. */
+function isFetchable(raw) {
+  return checkUrl(raw).ok;
+}
+
+/* ---------- lib/event-parser/mergeDefined.js ---------- */
+/**
+ * UniVerse — merging parser results
+ * ---------------------------------------------------------------
+ * Several parsers run over the same page and each returns whatever it
+ * could read. This decides what the final answer is.
+ *
+ * The rule from the architecture doc — "provider-specific data should
+ * normally have higher priority, but empty or undefined values should
+ * not overwrite valid universal data" — is exactly right, and the
+ * clean way to express it is per-field confidence rather than a
+ * fixed order. A provider parser that confidently found a price and
+ * guessed at a venue shouldn't overwrite the JSON-LD venue just
+ * because it ran last.
+ *
+ * So: every field carries where it came from and how sure we are, and
+ * the highest confidence wins. Ties go to whoever ran later, which is
+ * the provider parser, which is what the doc asked for.
+ */
+
+/** Values that mean "I didn't find anything", not "the answer is empty". */
+function isBlank(v) {
+  if (v === undefined || v === null) return true;
+  if (typeof v === 'string') return v.trim() === '';
+  if (Array.isArray(v)) return v.length === 0;
+  if (v instanceof Date) return isNaN(v.getTime());
+  if (typeof v === 'object') return Object.values(v).every(isBlank);
+  return false;
+}
+
+/**
+ * Merge one parser's result into the accumulator.
+ *
+ * @param {Object} into      the event being built up
+ * @param {Object} patch     what this parser found
+ * @param {string} sourceName 'json-ld', 'opengraph', 'humanitix', …
+ * @param {number} [confidence] defaults to the table in types.js
+ */
+function mergeInto(into, patch, sourceName, confidence) {
+  if (!patch) return into;
+  const conf = confidence != null ? confidence : (CONFIDENCE[sourceName] ?? 0.5);
+  into.provenance = into.provenance || {};
+
+  for (const [key, value] of Object.entries(patch)) {
+    if (key === 'source' || key === 'provenance') continue;
+    if (isBlank(value)) continue;                      // never overwrite with nothing
+
+    const held = into.provenance[key];
+
+    // Venue is two fields pretending to be one — merge it key by key so
+    // a provider that knows the venue name doesn't wipe a JSON-LD address.
+    if (key === 'venue' && typeof value === 'object' && into.venue) {
+      for (const [vk, vv] of Object.entries(value)) {
+        if (isBlank(vv)) continue;
+        const vHeld = into.provenance['venue.' + vk];
+        if (!vHeld || conf >= vHeld.confidence) {
+          into.venue[vk] = vv;
+          into.provenance['venue.' + vk] = { source: sourceName, confidence: conf };
+        }
+      }
+      continue;
+    }
+
+    // Tickets: more detail beats less. A provider that found three tiers
+    // is worth more than JSON-LD's single cheapest offer.
+    if (key === 'tickets' && Array.isArray(value) && Array.isArray(into.tickets)) {
+      if (value.length > into.tickets.length || conf > (held?.confidence ?? 0)) {
+        into.tickets = value;
+        into.provenance.tickets = { source: sourceName, confidence: conf };
+      }
+      continue;
+    }
+
+    if (!held || conf >= held.confidence) {
+      into[key] = value;
+      into.provenance[key] = { source: sourceName, confidence: conf };
+    }
+  }
+  return into;
+}
+
+/**
+ * Merge a list of [patch, sourceName] pairs in order.
+ * Later entries win ties, so pass generic first and provider last.
+ */
+function mergeDefined(...pairs) {
+  const out = { provenance: {} };
+  for (const [patch, sourceName, conf] of pairs) mergeInto(out, patch, sourceName, conf);
+  return out;
+}
+
+/** The average confidence across the fields that matter, 0–1.
+ *  Shown on the preview screen so an organiser knows whether to
+ *  read every field carefully or just glance at it. */
+function overallConfidence(event) {
+  const weighted = { title: 3, startDate: 3, venue: 1, imageUrl: 1, tickets: 1, description: 1 };
+  let sum = 0, total = 0;
+  for (const [field, weight] of Object.entries(weighted)) {
+    const p = event.provenance?.[field] || event.provenance?.['venue.name'];
+    total += weight;
+    if (p) sum += weight * p.confidence;
+  }
+  return total ? sum / total : 0;
+}
+
+/** Fields we found nothing for — the ones a human has to fill in. */
+function missingFields(event) {
+  const required = ['title', 'startDate'];
+  const nice = ['venue', 'imageUrl', 'description', 'tickets'];
+  return {
+    required: required.filter(f => isBlank(event[f])),
+    optional: nice.filter(f => isBlank(event[f]))
+  };
+}
+
+/* ---------- lib/event-parser/generic/metadataParser.js ---------- */
+/**
+ * UniVerse — OpenGraph, meta tags, microdata and the title tag
+ * ---------------------------------------------------------------
+ * The fallbacks, in the order the architecture doc lists them. These
+ * run on every page, including ones that already gave us JSON-LD —
+ * because a page often has a good og:image and a poor JSON-LD image,
+ * and the merger picks per field rather than per parser.
+ *
+ * Deliberately regex-based rather than DOM-based: this file has to run
+ * in a Deno edge function, in Node, and in a browser with no DOMParser
+ * guarantees, and an event page is not adversarial input we need to
+ * fully parse — we're reading six or seven attributes out of a head.
+ */
+
+function decodeEntities(s) {
+  return String(s || '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'").replace(/&nbsp;/g, ' ')
+    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(+d))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+}
+/** Turn a scrap of HTML into plain text. The one implementation —
+ *  the JSON-LD parser uses this too, so "<b>ink</b>." can only ever
+ *  come out one way. */
+function clean(s, max = 1500) {
+  return decodeEntities(String(s == null ? '' : s))
+    .replace(/<(br|\/p|\/div|\/li|\/h[1-6])[^>]*>/gi, ' ')  // block ends become a space
+    .replace(/<[^>]+>/g, '')                                 // inline tags leave nothing,
+                                                             // so "<b>ink</b>." stays "ink."
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,;:!?])/g, '$1')                          // no space before punctuation
+    .trim().slice(0, max);
+}
+
+/** Read <meta property="x" content="y"> or <meta name="x" content="y">,
+ *  with the attributes in either order, quoted either way. */
+function meta(html, key) {
+  const k = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const patterns = [
+    new RegExp('<meta[^>]+(?:property|name|itemprop)\\s*=\\s*["\']' + k + '["\'][^>]*?content\\s*=\\s*["\']([^"\']*)["\']', 'i'),
+    new RegExp('<meta[^>]+content\\s*=\\s*["\']([^"\']*)["\'][^>]*?(?:property|name|itemprop)\\s*=\\s*["\']' + k + '["\']', 'i')
+  ];
+  for (const re of patterns) {
+    const m = html.match(re);
+    if (m && m[1]) return decodeEntities(m[1]).trim();
+  }
+  return '';
+}
+
+function isoOf(v) {
+  if (!v) return '';
+  const d = new Date(v);
+  return isNaN(d.getTime()) ? '' : d.toISOString();
+}
+
+/** OpenGraph — og:* plus the event-specific extensions some sites use. */
+function parseOpenGraph(html) {
+  const out = {};
+  const title = meta(html, 'og:title');
+  const desc  = meta(html, 'og:description');
+  const image = meta(html, 'og:image:secure_url') || meta(html, 'og:image:url') || meta(html, 'og:image');
+  const url   = meta(html, 'og:url');
+
+  if (title) out.title = clean(title, 140);
+  if (desc)  out.description = clean(desc, 1500);
+  if (/^https?:\/\//i.test(image)) out.imageUrl = image;
+  if (/^https?:\/\//i.test(url))   out.pageUrl = url;
+
+  // Facebook's event namespace, still emitted by a few ticketing sites
+  const start = isoOf(meta(html, 'event:start_time') || meta(html, 'og:event:start_time'));
+  const end   = isoOf(meta(html, 'event:end_time')   || meta(html, 'og:event:end_time'));
+  if (start) out.startDate = start;
+  if (end)   out.endDate = end;
+
+  const place = meta(html, 'event:location') || meta(html, 'og:street-address');
+  if (place) out.venue = { name: clean(place, 90) };
+
+  const price = meta(html, 'product:price:amount') || meta(html, 'og:price:amount');
+  const cur   = meta(html, 'product:price:currency') || meta(html, 'og:price:currency');
+  if (price && !isNaN(Number(price))) {
+    out.tickets = [{ price: Number(price), currency: cur || 'AUD' }];
+  }
+  return out;
+}
+
+/** Twitter cards and the plain description/keywords tags. */
+function parseMetaTags(html) {
+  const out = {};
+  const title = meta(html, 'twitter:title');
+  const desc  = meta(html, 'twitter:description') || meta(html, 'description');
+  const image = meta(html, 'twitter:image') || meta(html, 'twitter:image:src');
+
+  if (title) out.title = clean(title, 140);
+  if (desc)  out.description = clean(desc, 1500);
+  if (/^https?:\/\//i.test(image)) out.imageUrl = image;
+
+  const canonical = html.match(/<link[^>]+rel\s*=\s*["']canonical["'][^>]*href\s*=\s*["']([^"']+)["']/i);
+  if (canonical && /^https?:\/\//i.test(canonical[1])) out.pageUrl = decodeEntities(canonical[1]);
+  return out;
+}
+
+/**
+ * schema.org microdata — the older itemprop attribute form. Some
+ * university CMSs still emit this and nothing else.
+ */
+function parseMicrodata(html) {
+  const out = {};
+  const prop = name => {
+    const re = new RegExp('itemprop\\s*=\\s*["\']' + name + '["\'][^>]*?(?:content|datetime)\\s*=\\s*["\']([^"\']+)["\']', 'i');
+    const m = html.match(re);
+    if (m) return decodeEntities(m[1]).trim();
+    // or as element text: <span itemprop="name">Zine Fair</span>
+    const re2 = new RegExp('itemprop\\s*=\\s*["\']' + name + '["\'][^>]*>([^<]{1,200})<', 'i');
+    const m2 = html.match(re2);
+    return m2 ? clean(m2[1], 200) : '';
+  };
+  const name = prop('name');
+  const start = isoOf(prop('startDate'));
+  const end = isoOf(prop('endDate'));
+  if (name)  out.title = clean(name, 140);
+  if (start) out.startDate = start;
+  if (end)   out.endDate = end;
+  const loc = prop('location') || prop('addressLocality');
+  if (loc) out.venue = { name: clean(loc, 90) };
+  return out;
+}
+
+/**
+ * The last resort. A <title> is almost always the event name plus the
+ * site name, so strip the site half.
+ */
+function parseTitleTag(html) {
+  const m = html.match(/<title[^>]*>([\s\S]{1,300}?)<\/title>/i);
+  if (!m) return {};
+  let t = clean(m[1], 160);
+  t = t.replace(/\s*[|·–—-]\s*(Humanitix|Eventbrite|TryBooking|Rubric|Tickets?|Home)\s*$/i, '')
+       .replace(/^\s*Tickets?\s*(for|to)\s*/i, '')
+       .trim();
+  return t ? { title: t } : {};
+}
+
+/**
+ * An .ics calendar invite. Not HTML at all, but it's one of the three
+ * things an organiser might paste, and it's the most accurate of them.
+ */
+function parseIcs(text) {
+  if (!/BEGIN:VEVENT/i.test(text)) return {};
+  const out = {};
+  const unfolded = text.replace(/\r?\n[ \t]/g, '');
+  const dt = v => {
+    const m = String(v).match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/);
+    if (!m) { const d = new Date(v); return isNaN(d.getTime()) ? '' : d.toISOString(); }
+    const [, y, mo, d, h, mi, s, z] = m;
+    const date = z
+      ? new Date(Date.UTC(+y, +mo - 1, +d, +(h || 0), +(mi || 0), +(s || 0)))
+      : new Date(+y, +mo - 1, +d, +(h || 0), +(mi || 0), +(s || 0));
+    return isNaN(date.getTime()) ? '' : date.toISOString();
+  };
+  for (const line of unfolded.split(/\r?\n/)) {
+    const m = line.match(/^([A-Z-]+)(?:;[^:]*)?:(.*)$/);
+    if (!m) continue;
+    const key = m[1];
+    const val = m[2].replace(/\\n/g, ' ').replace(/\\,/g, ',').replace(/\\;/g, ';').trim();
+    if (key === 'SUMMARY')     out.title = clean(val, 140);
+    if (key === 'DESCRIPTION') out.description = clean(val, 1500);
+    if (key === 'LOCATION')    out.venue = { name: clean(val, 90) };
+    if (key === 'DTSTART')     out.startDate = dt(val);
+    if (key === 'DTEND')       out.endDate = dt(val);
+    if (key === 'URL' && /^https?:\/\//i.test(val)) out.pageUrl = val;
+    if (key === 'ORGANIZER') {
+      const cn = line.match(/CN=([^;:]+)/i);
+      if (cn) out.organiser = clean(cn[1], 90);
+    }
+  }
+  return out;
+}
+
+/* ---------- lib/event-parser/generic/jsonLdParser.js ---------- */
+/**
+ * UniVerse — JSON-LD parser
+ * ---------------------------------------------------------------
+ * The highest-value parser in the whole system, and the reason this
+ * approach works at all: Google requires schema.org Event markup to
+ * show event rich results, so Humanitix, Eventbrite, TryBooking and
+ * essentially every ticketing platform publish it. One parser reads
+ * all of them.
+ *
+ * It has to handle every shape they actually use in the wild:
+ *   • a bare  { "@type": "Event", … }
+ *   • an array of objects, one of which is the Event
+ *   • { "@graph": [ … ] }              (Yoast, WordPress, Rubric)
+ *   • { "@type": "ItemList", itemListElement: [ … ] }  (listing pages)
+ *   • subEvent nesting                 (festivals, multi-day)
+ *   • subtypes: MusicEvent, EducationEvent, SocialEvent, Festival…
+ *   • "@type" as an ARRAY: ["Event","MusicEvent"]
+ */
+
+const EVENT_TYPES = /^(Event|BusinessEvent|ChildrensEvent|ComedyEvent|CourseInstance|DanceEvent|DeliveryEvent|EducationEvent|ExhibitionEvent|Festival|FoodEvent|Hackathon|LiteraryEvent|MusicEvent|PublicationEvent|SaleEvent|ScreeningEvent|SocialEvent|SportsEvent|TheaterEvent|VisualArtsEvent)$/;
+
+function typesOf(node) {
+  const t = node && node['@type'];
+  if (!t) return [];
+  return Array.isArray(t) ? t.map(String) : [String(t)];
+}
+function isEvent(node) {
+  return typesOf(node).some(t => EVENT_TYPES.test(t));
+}
+
+/** Walk anything and collect every Event-shaped node inside it. */
+function collectEvents(node, out = [], depth = 0) {
+  if (!node || typeof node !== 'object' || depth > 12) return out;
+
+  if (Array.isArray(node)) {
+    for (const item of node) collectEvents(item, out, depth + 1);
     return out;
   }
-  var url = t.match(/https:\/\/[^\s"'<>]+/);
-  if(url){
-    out.ticketUrl = url[0];
-    var host = url[0].toLowerCase();
-    out.provider = host.indexOf('humanitix')>-1 ? 'humanitix'
-                 : host.indexOf('eventbrite')>-1 ? 'eventbrite'
-                 : host.indexOf('trybooking')>-1 ? 'trybooking' : 'external';
+  if (isEvent(node) && node.name) out.push(node);
+
+  for (const key of ['@graph', 'itemListElement', 'subEvent', 'item', 'mainEntity', 'about']) {
+    if (node[key]) collectEvents(node[key], out, depth + 1);
   }
-  var rest = t.replace(/https:\/\/[^\s"'<>]+/g,'').trim();
-  if(rest && !out.title) out.title = rest.split(/\n/)[0].slice(0,120);
+  return out;
+}
+
+/** Pull every <script type="application/ld+json"> block out of raw HTML. */
+function extractLdBlocks(html) {
+  const blocks = [];
+  const re = /<script[^>]+type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    let text = m[1].trim()
+      .replace(/^<!\[CDATA\[/, '').replace(/\]\]>$/, '')
+      .replace(/^\s*\/\*[\s\S]*?\*\/\s*/, '');   // some CMSs wrap it in a comment
+    try { blocks.push(JSON.parse(text)); }
+    catch {
+      // A trailing comma or an unescaped newline shouldn't lose the whole page.
+      try { blocks.push(JSON.parse(text.replace(/,\s*([}\]])/g, '$1'))); } catch { /* skip */ }
+    }
+  }
+  return blocks;
+}
+
+function str(v) {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number') return String(v);
+  if (Array.isArray(v)) return str(v[0]);
+  if (typeof v === 'object') return str(v.name ?? v['@value'] ?? v.url ?? '');
+  return '';
+}
+/** Same text cleaner as the metadata parser, but tolerant of the
+ *  shapes JSON-LD puts values in (arrays, {@value}, {name}). */
+function ldClean(v, max = 2000) { return clean(str(v), max); }
+
+function imageOf(img) {
+  if (!img) return '';
+  if (typeof img === 'string') return img;
+  if (Array.isArray(img)) return imageOf(img[0]);
+  return str(img.url || img.contentUrl || '');
+}
+function ldIso(v) {
+  const s = str(v);
+  if (!s) return '';
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? '' : d.toISOString();
+}
+
+/** schema.org Offers → our ticket list. */
+function ticketsOf(offers) {
+  const list = [].concat(offers || []).filter(o => o && typeof o === 'object');
+  const out = [];
+  for (const o of list) {
+    // an AggregateOffer wraps the real ones
+    if (/AggregateOffer/i.test(str(o['@type'])) && o.offers) {
+      out.push(...ticketsOf(o.offers));
+      if (o.lowPrice != null) out.push({
+        name: 'From', price: Number(o.lowPrice),
+        currency: str(o.priceCurrency) || 'AUD', available: true
+      });
+      continue;
+    }
+    if (o.price == null && o.lowPrice == null) continue;
+    const price = Number(o.price ?? o.lowPrice);
+    if (isNaN(price)) continue;
+    out.push({
+      name: ldClean(o.name || o.category || '', 60) || undefined,
+      price,
+      currency: str(o.priceCurrency) || 'AUD',
+      available: o.availability ? !/SoldOut|OutOfStock/i.test(str(o.availability)) : undefined
+    });
+  }
+  // de-duplicate identical tiers
+  const seen = new Set();
+  return out.filter(t => {
+    const k = (t.name || '') + '|' + t.price;
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+}
+
+function venueOf(loc) {
+  if (!loc) return undefined;
+  const l = Array.isArray(loc) ? loc[0] : loc;
+  if (typeof l === 'string') return { name: ldClean(l, 90) };
+  const addr = l.address;
+  let address = '';
+  if (typeof addr === 'string') address = ldClean(addr, 160);
+  else if (addr && typeof addr === 'object') {
+    address = [addr.streetAddress, addr.addressLocality, addr.addressRegion, addr.postalCode]
+      .map(x => ldClean(x, 60)).filter(Boolean).join(', ');
+  }
+  const name = ldClean(l.name, 90);
+  const suburb = ldClean(addr && addr.addressLocality, 60);
+  if (!name && !address) return undefined;
+  // Humanitix and others use the location name as a hosting note
+  return {
+    name: /hosted on|online event|to be announced/i.test(name) ? '' : name,
+    address,
+    suburb
+  };
+}
+
+/**
+ * @param {string} html
+ * @returns {Partial<import('../types.js').NormalisedEvent> & {found?: number}}
+ */
+function parseJsonLd(html) {
+  const events = [];
+  for (const block of extractLdBlocks(html)) collectEvents(block, events);
+  if (!events.length) return {};
+
+  // A listing page gives many; take the soonest one that hasn't happened.
+  const now = Date.now();
+  const dated = events
+    .map(e => ({ e, t: new Date(str(e.startDate)).getTime() }))
+    .filter(x => !isNaN(x.t));
+  const upcoming = dated.filter(x => x.t > now).sort((a, b) => a.t - b.t);
+  const chosen = (upcoming[0] || dated[0] || { e: events[0] }).e;
+
+  const tickets = ticketsOf(chosen.offers);
+  const offerUrl = [].concat(chosen.offers || [])
+    .map(o => o && typeof o === 'object' ? str(o.url) : '')
+    .find(u => /^https?:\/\//i.test(u)) || '';
+
+  const out = {
+    title: ldClean(chosen.name, 140),
+    description: ldClean(chosen.description, 1500),
+    imageUrl: imageOf(chosen.image),
+    startDate: ldIso(chosen.startDate),
+    endDate: ldIso(chosen.endDate),
+    venue: venueOf(chosen.location),
+    organiser: ldClean((chosen.organizer && chosen.organizer.name) || chosen.organizer, 90),
+    ticketUrl: offerUrl,
+    found: events.length
+  };
+  const canonical = str(chosen.url);
+  if (/^https?:\/\//i.test(canonical)) out.pageUrl = canonical;
+  if (tickets.length) out.tickets = tickets;
+  return out;
+}
+
+/* ---------- lib/event-parser/providers/humanitix.js ---------- */
+/**
+ * Humanitix — RUSU's ticketing platform, and the one most Melbourne
+ * clubs land on.
+ *
+ * Humanitix publishes excellent JSON-LD, so this parser exists to add
+ * the two things JSON-LD leaves out: the full ticket-tier list (JSON-LD
+ * carries the cheapest offer only, which is how you end up advertising
+ * "$5" for an event whose student ticket is $15), and the sold-out
+ * state.
+ *
+ * It reads Humanitix's own Next.js hydration payload — the same data
+ * the page renders itself from — rather than scraping rendered markup,
+ * so it doesn't break when they restyle.
+ */
+
+/** Pull __NEXT_DATA__ or a window.__PRELOADED_STATE__ blob. */
+function hydrationBlob(html) {
+  const next = html.match(/<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (next) { try { return JSON.parse(next[1]); } catch { /* fall through */ } }
+  const pre = html.match(/window\.__(?:PRELOADED_STATE|INITIAL_STATE)__\s*=\s*(\{[\s\S]*?\})\s*[;<]/i);
+  if (pre) { try { return JSON.parse(pre[1]); } catch { /* fall through */ } }
+  return null;
+}
+
+/** Find the first object that looks like a Humanitix event, anywhere. */
+function findEvent(node, depth = 0) {
+  if (!node || typeof node !== 'object' || depth > 10) return null;
+  if (Array.isArray(node)) {
+    for (const x of node) { const f = findEvent(x, depth + 1); if (f) return f; }
+    return null;
+  }
+  if (node.name && (node.startDate || node.dates) && (node.ticketTypes || node.slug)) return node;
+  for (const v of Object.values(node)) {
+    const f = findEvent(v, depth + 1);
+    if (f) return f;
+  }
+  return null;
+}
+const humanitix = {
+  name: 'humanitix',
+
+  canParse(url) {
+    return /(^|\.)humanitix\.(com|com\.au)$/i.test(url.hostname);
+  },
+
+  parse(url, html) {
+    const out = {};
+    const blob = hydrationBlob(html);
+    const ev = blob ? findEvent(blob) : null;
+
+    if (ev) {
+      if (ev.name) out.title = clean(ev.name, 140);
+      if (ev.description) out.description = clean(ev.description, 1500);
+      const img = ev.bannerImage?.url || ev.featureImage?.url || ev.image;
+      if (typeof img === 'string' && /^https?:/i.test(img)) out.imageUrl = img;
+
+      const start = ev.startDate || ev.dates?.[0]?.startDate;
+      const end   = ev.endDate   || ev.dates?.[0]?.endDate;
+      if (start && !isNaN(new Date(start))) out.startDate = new Date(start).toISOString();
+      if (end   && !isNaN(new Date(end)))   out.endDate   = new Date(end).toISOString();
+
+      const v = ev.eventLocation || ev.venue;
+      if (v) {
+        out.venue = {
+          name: clean(v.venueName || v.name || '', 90),
+          address: clean(v.address || v.formattedAddress || '', 160),
+          suburb: clean(v.city || v.locality || '', 60)
+        };
+      }
+      if (ev.organiser?.name || ev.organizer?.name) {
+        out.organiser = clean(ev.organiser?.name || ev.organizer?.name, 90);
+      }
+
+      // the bit JSON-LD doesn't give you: every tier, with availability
+      const tiers = ev.ticketTypes || ev.tickets;
+      if (Array.isArray(tiers) && tiers.length) {
+        out.tickets = tiers
+          .filter(t => t && !t.deleted && !t.isDonation)
+          .map(t => ({
+            name: clean(t.name, 60) || undefined,
+            price: Number(t.price ?? 0),
+            currency: clean(ev.currency || 'AUD', 3),
+            available: t.quantity == null ? undefined : (t.quantity > (t.qtySold || 0))
+          }))
+          .filter(t => !isNaN(t.price));
+      }
+    }
+
+    // The checkout URL is the event page plus /tickets — always true on
+    // Humanitix, and it saves a student one tap.
+    const base = url.href.split('?')[0].replace(/\/+$/, '');
+    if (!/\/tickets$/.test(base)) out.ticketUrl = base + '/tickets';
+    out.pageUrl = base;
+    return out;
+  }
+};
+
+/* ---------- lib/event-parser/providers/eventbrite.js ---------- */
+/**
+ * Eventbrite — MSA (Monash) sells through this.
+ *
+ * Eventbrite's public search API was withdrawn in 2020, but an
+ * individual event page is public HTML with good JSON-LD, so the
+ * paste-a-link route works where an integration wouldn't.
+ *
+ * This parser adds the server-rendered state Eventbrite embeds, which
+ * carries the ticket tiers and the organiser name more reliably than
+ * its JSON-LD does.
+ */
+
+function serverData(html) {
+  const m = html.match(/window\.__SERVER_DATA__\s*=\s*(\{[\s\S]*?\});?\s*<\/script>/i)
+        || html.match(/window\.__SERVER_DATA__\s*=\s*(\{[\s\S]*?\})\s*[;\n]/i);
+  if (!m) return null;
+  try { return JSON.parse(m[1]); } catch { return null; }
+}
+const eventbrite = {
+  name: 'eventbrite',
+
+  canParse(url) {
+    return /(^|\.)eventbrite\.(com|com\.au|co\.uk|ca|ie|nz)$/i.test(url.hostname);
+  },
+
+  parse(url, html) {
+    const out = {};
+    const d = serverData(html);
+    const ev = d?.event || d?.model?.event || null;
+
+    if (ev) {
+      if (ev.name) out.title = clean(ev.name.text || ev.name, 140);
+      if (ev.description) out.description = clean(ev.description.text || ev.description, 1500);
+      if (ev.start?.utc) out.startDate = new Date(ev.start.utc).toISOString();
+      if (ev.end?.utc)   out.endDate   = new Date(ev.end.utc).toISOString();
+      const img = ev.logo?.original?.url || ev.logo?.url || ev.image;
+      if (typeof img === 'string') out.imageUrl = img;
+      if (ev.venue) {
+        out.venue = {
+          name: clean(ev.venue.name, 90),
+          address: clean(ev.venue.address?.localized_address_display || '', 160),
+          suburb: clean(ev.venue.address?.city || '', 60)
+        };
+      }
+      if (ev.organizer?.name) out.organiser = clean(ev.organizer.name, 90);
+    }
+
+    const tiers = d?.ticket_classes || d?.components?.ticketClasses || ev?.ticket_classes;
+    if (Array.isArray(tiers) && tiers.length) {
+      out.tickets = tiers
+        .filter(t => t && !t.hidden && !t.donation)
+        .map(t => {
+          const major = t.cost?.major_value ?? t.actual_cost?.major_value ?? (t.free ? 0 : null);
+          return {
+            name: clean(t.name, 60) || undefined,
+            price: major == null ? null : Number(major),
+            currency: clean(t.cost?.currency || 'AUD', 3),
+            available: t.on_sale_status ? t.on_sale_status === 'AVAILABLE' : undefined
+          };
+        })
+        .filter(t => t.price != null && !isNaN(t.price));
+    }
+
+    // Eventbrite's canonical event URL, stripped of the tracking tail
+    const canonical = meta(html, 'og:url') || url.href;
+    const base = canonical.split('?')[0].replace(/\/+$/, '');
+    out.pageUrl = base;
+    out.ticketUrl = base + '#tickets';
+    return out;
+  }
+};
+
+/* ---------- lib/event-parser/providers/rubric.js ---------- */
+/**
+ * Rubric (campus.hellorubric.com) — RUSU at RMIT and DUSA at Deakin
+ * both run their club portals on it, so one parser covers two unions.
+ *
+ * Rubric is a club-management portal rather than a ticketing platform,
+ * so its event pages carry less structured data than Humanitix. This
+ * parser reads what it does emit and falls back to the page's own
+ * markup for the date line, which Rubric renders in a stable format.
+ */
+
+/** Rubric renders dates as e.g. "Thu 9 Oct 2026, 6:00pm - 9:00pm". */
+function parseRubricDate(text, year) {
+  const m = text.match(
+    /(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*(\d{4})?[,\s]*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i
+  );
+  if (!m) return {};
+  const MONTHS = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
+  let hour = Number(m[4]);
+  if (/pm/i.test(m[6]) && hour !== 12) hour += 12;
+  if (/am/i.test(m[6]) && hour === 12) hour = 0;
+  const d = new Date(Number(m[3] || year || new Date().getFullYear()),
+                     MONTHS[m[2].toLowerCase()], Number(m[1]), hour, Number(m[5] || 0));
+  if (isNaN(d.getTime())) return {};
+  const out = { startDate: d.toISOString() };
+
+  // an end time on the same line
+  const tail = text.slice(m.index + m[0].length);
+  const e = tail.match(/^\s*[-–to]+\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)/i);
+  if (e) {
+    let eh = Number(e[1]);
+    if (/pm/i.test(e[3]) && eh !== 12) eh += 12;
+    if (/am/i.test(e[3]) && eh === 12) eh = 0;
+    const end = new Date(d); end.setHours(eh, Number(e[2] || 0), 0, 0);
+    if (end > d) out.endDate = end.toISOString();
+  }
+  return out;
+}
+
+function textOf(html, re) {
+  const m = html.match(re);
+  return m ? clean(decodeEntities(m[1]), 300) : '';
+}
+const rubric = {
+  name: 'rubric',
+
+  canParse(url) {
+    return /(^|\.)hellorubric\.com$/i.test(url.hostname);
+  },
+
+  parse(url, html) {
+    const out = {};
+
+    const h1 = textOf(html, /<h1[^>]*>([\s\S]{1,200}?)<\/h1>/i);
+    if (h1) out.title = h1.slice(0, 140);
+
+    // Rubric marks these up with predictable class names
+    const when = textOf(html, /class="[^"]*(?:event-date|date-time|when)[^"]*"[^>]*>([\s\S]{1,160}?)</i);
+    if (when) Object.assign(out, parseRubricDate(when));
+
+    const where = textOf(html, /class="[^"]*(?:event-location|venue|where)[^"]*"[^>]*>([\s\S]{1,160}?)</i);
+    if (where) out.venue = { name: where.slice(0, 90) };
+
+    const club = textOf(html, /class="[^"]*(?:club-name|organiser|host)[^"]*"[^>]*>([\s\S]{1,120}?)</i);
+    if (club) out.organiser = club.slice(0, 90);
+
+    const price = html.match(/\$\s?(\d+(?:\.\d{2})?)/);
+    if (price) out.tickets = [{ price: Number(price[1]), currency: 'AUD' }];
+    else if (/\bfree\b/i.test(html.slice(0, 8000))) out.tickets = [{ price: 0, currency: 'AUD' }];
+
+    // Which union's portal this is — Rubric identifies societies by ?s=
+    const society = url.searchParams.get('s');
+    if (society === '4202') out.organiserUnion = 'RUSU';
+    if (society === '3659') out.organiserUnion = 'DUSA';
+
+    out.pageUrl = url.href.split('#')[0];
+    out.ticketUrl = out.pageUrl;
+    return out;
+  }
+};
+
+/* ---------- lib/event-parser/providers/trybooking.js ---------- */
+/**
+ * TryBooking — the cheap Australian option, common for one-off club
+ * nights and anything a treasurer is paying for out of a small grant.
+ *
+ * TryBooking event pages carry OpenGraph and usually JSON-LD, so the
+ * generic parsers do most of the work. This adds its session/date
+ * table, which is where the actual start time lives on multi-session
+ * events, and normalises its two URL shapes.
+ */
+const trybooking = {
+  name: 'trybooking',
+
+  canParse(url) {
+    return /(^|\.)trybooking\.com(\.au)?$/i.test(url.hostname);
+  },
+
+  parse(url, html) {
+    const out = {};
+
+    // TryBooking renders the session list as a table of ISO datetimes
+    const iso = html.match(/data-session-date\s*=\s*["']([^"']+)["']/i)
+             || html.match(/"sessionStartDate"\s*:\s*"([^"]+)"/i);
+    if (iso) {
+      const d = new Date(iso[1]);
+      if (!isNaN(d.getTime())) out.startDate = d.toISOString();
+    }
+
+    const venue = html.match(/"venueName"\s*:\s*"([^"]+)"/i)
+               || html.match(/class="[^"]*venue-name[^"]*"[^>]*>([^<]{1,120})</i);
+    if (venue) out.venue = { name: clean(venue[1], 90) };
+
+    // prices appear as data-price on each ticket row
+    const prices = [...html.matchAll(/data-ticket-name\s*=\s*["']([^"']{1,60})["'][^>]*data-price\s*=\s*["']([\d.]+)["']/gi)];
+    if (prices.length) {
+      out.tickets = prices.map(m => ({
+        name: clean(m[1], 60), price: Number(m[2]), currency: 'AUD'
+      })).filter(t => !isNaN(t.price));
+    }
+
+    // /events/<id> and /b/<id> both resolve; keep whichever they pasted
+    const base = url.href.split('?')[0].replace(/\/+$/, '');
+    out.pageUrl = base;
+    out.ticketUrl = base;
+    return out;
+  }
+};
+
+/* ---------- lib/event-parser/providers/university.js ---------- */
+/**
+ * University and union sites — UMSU, MSL portals, LiveWhale calendars,
+ * and a club's own page on its university's domain.
+ *
+ * This is the "one university/provider-specific parser" the
+ * architecture doc asks for in the MVP list, and it's the one that
+ * matters most for us: a lot of Melbourne club events never touch a
+ * ticketing platform at all. They're free, and they live on a union
+ * page with a date and a room number.
+ *
+ * Two specific formats are handled because they're what our six unions
+ * actually run:
+ *   • LiveWhale  — Unimelb's events system, which publishes a public
+ *                  JSON feed per event page (/live/json/events)
+ *   • MSL        — the portal behind UMSU, LTSU and Swinburne clubs
+ * Everything else falls through to the generic parsers, which is fine.
+ */
+
+const UNI_HOSTS = /(^|\.)(unimelb|rmit|monash|deakin|latrobe|ltu|swin|swinburne)\.edu(\.au)?$/i;
+const UNION_HOSTS = /(^|\.)(umsu\.unimelb\.edu\.au|rusu\.rmit\.edu\.au|monashclubs\.org|msa\.monash\.edu|dusa\.org\.au|latrobesu\.org\.au|studentlife\.swinburne\.edu\.au)$/i;
+
+/** Which of our six universities a URL belongs to, if any. */
+function universityFromHost(hostname) {
+  const h = hostname.toLowerCase();
+  if (/unimelb\.edu\.au$/.test(h) || /umsu\./.test(h)) return 'Unimelb';
+  if (/rmit\.edu\.au$/.test(h)    || /rusu\./.test(h)) return 'RMIT';
+  if (/monash\.(edu|edu\.au)$/.test(h) || /monashclubs\.org$/.test(h)) return 'Monash';
+  if (/deakin\.edu\.au$/.test(h)  || /dusa\.org\.au$/.test(h)) return 'Deakin';
+  if (/(latrobe|ltu)\.edu\.au$/.test(h) || /latrobesu\.org\.au$/.test(h)) return 'La Trobe';
+  if (/swin(burne)?\.edu\.au$/.test(h) || /studentlife\.swinburne/.test(h)) return 'Swinburne';
+  return '';
+}
+
+/** LiveWhale embeds a JSON payload for the event on its own page. */
+function liveWhale(html) {
+  const m = html.match(/<script[^>]+class=["']lw_json["'][^>]*>([\s\S]*?)<\/script>/i)
+         || html.match(/lw_event_json\s*=\s*(\{[\s\S]*?\});/i);
+  if (!m) return null;
+  try {
+    const j = JSON.parse(m[1]);
+    const e = Array.isArray(j) ? j[0] : (j.events ? j.events[0] : j);
+    if (!e || !e.title) return null;
+    const out = { title: clean(e.title, 140) };
+    if (e.description || e.summary) out.description = clean(e.description || e.summary, 1500);
+    if (e.date_utc || e.date_iso || e.date) {
+      const d = new Date(e.date_utc || e.date_iso || e.date);
+      if (!isNaN(d.getTime())) out.startDate = d.toISOString();
+    }
+    if (e.date2_utc || e.enddate) {
+      const d = new Date(e.date2_utc || e.enddate);
+      if (!isNaN(d.getTime())) out.endDate = d.toISOString();
+    }
+    if (e.location) out.venue = { name: clean(e.location, 90) };
+    if (e.thumbnail_url || e.image) out.imageUrl = e.thumbnail_url || e.image;
+    if (e.group || e.group_name) out.organiser = clean(e.group || e.group_name, 90);
+    return out;
+  } catch { return null; }
+}
+
+/** MSL portals mark the details up with predictable ids. */
+function msl(html) {
+  const grab = re => { const m = html.match(re); return m ? clean(decodeEntities(m[1]), 200) : ''; };
+  const title = grab(/id="[^"]*ctl00_Main_(?:EventName|lblEventName)"[^>]*>([\s\S]{1,200}?)</i);
+  if (!title) return null;
+  const out = { title: title.slice(0, 140) };
+  const when = grab(/id="[^"]*(?:EventDate|lblDate)"[^>]*>([\s\S]{1,160}?)</i);
+  if (when) {
+    const d = new Date(when);
+    if (!isNaN(d.getTime())) out.startDate = d.toISOString();
+  }
+  const where = grab(/id="[^"]*(?:EventLocation|lblLocation)"[^>]*>([\s\S]{1,160}?)</i);
+  if (where) out.venue = { name: where.slice(0, 90) };
+  const price = html.match(/\$\s?(\d+(?:\.\d{2})?)/);
+  if (price) out.tickets = [{ price: Number(price[1]), currency: 'AUD' }];
+  return out;
+}
+const university = {
+  name: 'university',
+
+  canParse(url) {
+    return UNI_HOSTS.test(url.hostname) || UNION_HOSTS.test(url.hostname);
+  },
+
+  parse(url, html) {
+    const out = liveWhale(html) || msl(html) || {};
+
+    // Free until proven otherwise: a union page with no price on it is
+    // almost always a free club event, and that's the safer default —
+    // the organiser sees it in the preview and can correct it.
+    if (!out.tickets && !/\$\s?\d/.test(html) && /\b(free|no cost|no charge)\b/i.test(html)) {
+      out.tickets = [{ price: 0, currency: 'AUD' }];
+    }
+
+    const uni = universityFromHost(url.hostname);
+    if (uni) out.university = uni;
+
+    out.pageUrl = url.href.split('#')[0];
+    out.ticketUrl = out.pageUrl;
+    return out;
+  }
+};
+
+/* ---------- lib/event-parser/providers/index.js ---------- */
+/**
+ * The provider registry.
+ *
+ * Adding a provider is: write a file next to this one that exports
+ * { name, canParse(url), parse(url, html) }, import it, add it to the
+ * array. Nothing else in the system changes — which is the entire
+ * point of the interface, and why this isn't a chain of if-statements.
+ *
+ * Order matters only for overlapping hosts, and none of these overlap.
+ */
+
+
+
+
+
+/** @type {import('../types.js').EventParser[]} */
+const parsers = [
+  humanitix,
+  eventbrite,
+  rubric,
+  trybooking,
+  university
+];
+
+/** The parser for this URL, or null — in which case the generic
+ *  parsers carry the whole page on their own, which they usually can. */
+function parserFor(url) {
+  return parsers.find(p => {
+    try { return p.canParse(url); } catch { return false; }
+  }) || null;
+}
+
+/** Every host we have a parser for. Used to build the fetch
+ *  allow-list, so the two can never drift apart. */
+function knownHostPatterns() {
+  return parsers.map(p => p.name);
+}
+
+/* ---------- lib/event-parser/index.js ---------- */
+/**
+ * UniVerse — the universal event parser
+ * ===============================================================
+ *
+ *   import { parseEventFromHtml, parseEventFromUrl } from './event-parser/index.js';
+ *
+ *   parseEventFromHtml(pastedText, sourceUrl?)  // works anywhere, no network
+ *   await parseEventFromUrl(url, { fetchImpl }) // needs a fetch that can
+ *                                               // reach the open internet
+ *
+ * Both return the same NormalisedEvent, so nothing downstream cares
+ * which one was used.
+ *
+ * WHY THERE ARE TWO
+ * A browser cannot fetch humanitix.com from your page — CORS forbids
+ * it, and no amount of client code gets around that. The fetch has to
+ * happen server-side, which is what supabase/functions/parse-event is
+ * for. Everything else — all the actual parsing — is pure and runs
+ * anywhere, which is why the app still works with no backend at all:
+ * the organiser pastes the page instead of the link.
+ *
+ * THE FLOW, as in the architecture doc:
+ *
+ *   URL → validate → fetch → generic parsers (JSON-LD, OpenGraph,
+ *   meta, microdata, title) → detect provider → provider parser →
+ *   merge by confidence → normalise → validate → preview → save
+ */
+
+
+
+
+
+
+/**
+ * Parse whatever an organiser pasted. Accepts a full HTML page, an
+ * .ics invite, or a bare URL with nothing else.
+ *
+ * @param {string} text
+ * @param {string} [sourceUrl] the link it came from, if known
+ * @returns {import('./types.js').NormalisedEvent}
+ */
+function parseEventFromHtml(text, sourceUrl) {
+  const raw = String(text || '');
+  const event = { provenance: {} };
+
+  // The link they pasted is the event's page unless the page itself
+  // names a canonical one — which the parsers below may well do, and
+  // which outranks this because its confidence is higher.
+  const firstUrl = sourceUrl || (raw.match(/https:\/\/[^\s"'<>]+/) || [])[0] || '';
+  const cleanFirst = firstUrl.replace(/[).,;'"]+$/, '');
+  if (cleanFirst) {
+    mergeInto(event, { pageUrl: cleanFirst, ticketUrl: cleanFirst }, 'url-only');
+  }
+
+  // A calendar invite is not HTML and is more accurate than either.
+  if (/BEGIN:VEVENT/i.test(raw)) {
+    mergeInto(event, parseIcs(raw), 'ics');
+  }
+
+  const looksLikeHtml = /<[a-z!][\s\S]*>/i.test(raw);
+  if (looksLikeHtml) {
+    // Order here is only about ties — the confidence table decides.
+    mergeInto(event, parseTitleTag(raw),  'title-tag');
+    mergeInto(event, parseMetaTags(raw),  'meta');
+    mergeInto(event, parseMicrodata(raw), 'microdata');
+    mergeInto(event, parseOpenGraph(raw), 'opengraph');
+
+    const ld = parseJsonLd(raw);
+    if (ld && Object.keys(ld).length) {
+      event.foundCount = ld.found;
+      delete ld.found;
+      mergeInto(event, ld, 'json-ld');
+    }
+
+    // Provider-specific last, so it wins ties, as the doc asks.
+    let url = null;
+    try { url = new URL(cleanFirst || event.pageUrl || ''); } catch { /* none */ }
+    if (url) {
+      const provider = parserFor(url);
+      if (provider) {
+        try {
+          mergeInto(event, provider.parse(url, raw), provider.name, CONFIDENCE['provider-html']);
+          event.providerName = provider.name;
+        } catch (err) {
+          // A provider parser must never take the whole parse down with
+          // it — the generic ones have almost certainly done the job.
+          event.providerError = String(err && err.message || err);
+        }
+      }
+    }
+  }
+
+  return normalise(event, cleanFirst);
+}
+
+/**
+ * The full pipeline, including the fetch. Only usable where fetch can
+ * reach the open internet: the edge function, or Node.
+ *
+ * @param {string} rawUrl
+ * @param {{fetchImpl?: Function, timeoutMs?: number, maxBytes?: number}} [opts]
+ */
+async function parseEventFromUrl(rawUrl, opts = {}) {
+  const check = checkUrl(rawUrl);
+  if (!check.ok) throw new Error(check.reason);
+  const url = check.url;
+
+  const doFetch = opts.fetchImpl || globalThis.fetch;
+  if (!doFetch) throw new Error('No fetch available in this environment.');
+
+  const timeoutMs = opts.timeoutMs || 10000;
+  const maxBytes  = opts.maxBytes  || 3_000_000;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let html = '';
+  try {
+    const res = await doFetch(url.href, {
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: {
+        // Identify ourselves honestly. A club's own site should be able
+        // to see who is reading it, and some hosts block blank agents.
+        'User-Agent': 'UniVerseBot/1.0 (+https://universe.app/about-the-parser)',
+        'Accept': 'text/html,application/xhtml+xml,application/ld+json;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-AU,en;q=0.9'
+      }
+    });
+    if (!res.ok) throw new Error('That page returned ' + res.status + '.');
+
+    // A redirect can leave the allow-list — re-check where we landed.
+    if (res.url) {
+      const after = checkUrl(res.url);
+      if (!after.ok) throw new Error('That link redirected somewhere we don\'t read.');
+    }
+    const type = res.headers.get('content-type') || '';
+    if (!/text\/html|application\/xhtml|text\/calendar|application\/json/i.test(type)) {
+      throw new Error('That link isn\'t a web page.');
+    }
+    html = (await res.text()).slice(0, maxBytes);
+  } finally {
+    clearTimeout(timer);
+  }
+
+  return parseEventFromHtml(html, url.href);
+}
+
+/**
+ * Everything downstream reads this shape and nothing else.
+ * Also attaches the things a preview screen needs: how confident we
+ * are overall, and which fields a human still has to fill in.
+ */
+function normalise(event, sourceUrl) {
+  const tickets = (event.tickets || []).filter(t => t && !isNaN(Number(t.price)));
+  const cheapest = tickets.length ? Math.min(...tickets.map(t => Number(t.price))) : null;
+
+  const out = {
+    title:       (event.title || '').trim(),
+    description: event.description || '',
+    imageUrl:    event.imageUrl || '',
+    startDate:   event.startDate || '',
+    endDate:     event.endDate || '',
+    venue:       event.venue && !isBlank(event.venue) ? event.venue : undefined,
+    tickets:     tickets.length ? tickets : undefined,
+    priceCents:  cheapest == null ? null : Math.round(cheapest * 100),
+    isFree:      cheapest === 0,
+    organiser:   event.organiser || '',
+    university:  event.university || '',
+    ticketUrl:   event.ticketUrl || '',
+    source: {
+      provider: event.providerName || 'generic',
+      url: sourceUrl || event.pageUrl || '',
+      pageUrl: event.pageUrl || sourceUrl || ''
+    },
+    provenance: event.provenance || {}
+  };
+
+  out.confidence = overallConfidence(event);
+  out.missing = missingFields(out);
+  if (event.foundCount > 1) out.otherEventsOnPage = event.foundCount - 1;
+  if (event.providerError) out.providerError = event.providerError;
+  return out;
+}
+return {
+  parseEventFromHtml: parseEventFromHtml,
+  checkUrl: checkUrl,
+  isFetchable: isFetchable,
+  parserFor: parserFor,
+  ALLOWED_HOSTS: ALLOWED_HOSTS,
+  CONFIDENCE: CONFIDENCE
+};
+})();
+/* === END GENERATED PARSER === */
+
+/* The app's own view of a parse result. The parser returns a
+   NormalisedEvent; the post form wants flat draft fields. This is the
+   only place the two shapes meet. */
+function parsePaste(text){
+  var n = UniVerseParser.parseEventFromHtml(text);
+  var out = {};
+  if(n.title)       out.title = n.title;
+  if(n.description) out.desc = n.description;
+  if(n.organiser)   out.club = n.organiser;
+  if(n.imageUrl)    out.photoUrl = n.imageUrl;
+  if(n.venue){
+    out.venue = n.venue.name || n.venue.address || '';
+    if(n.venue.suburb) out.suburb = n.venue.suburb;
+  }
+  if(n.priceCents != null) out.priceCents = n.priceCents;
+  if(n.source && n.source.pageUrl) out.pageUrl = n.source.pageUrl;
+  if(n.ticketUrl)   out.ticketUrl = n.ticketUrl;
+  if(n.startDate)   out.start = new Date(n.startDate);
+  if(n.endDate)     out.end = new Date(n.endDate);
+  if(n.otherEventsOnPage) out.found = n.otherEventsOnPage + 1;
+
+  var host = (out.ticketUrl || out.pageUrl || '').toLowerCase();
+  out.provider = host.indexOf('humanitix')>-1 ? 'humanitix'
+               : host.indexOf('eventbrite')>-1 ? 'eventbrite'
+               : host.indexOf('trybooking')>-1 ? 'trybooking'
+               : host ? 'external' : 'none';
+
+  /* what the preview screen shows the organiser */
+  out.confidence = n.confidence;
+  out.missing = n.missing;
+  out.sourceName = n.source ? n.source.provider : 'generic';
+  out.provenance = n.provenance;
   return out;
 }
 
 /* ---- the submission form ---- */
 var postDraft = null;
+/* What the parser said about the last paste: how confident, which
+   fields it couldn't find, and where each answer came from. Shown to
+   the organiser, because the architecture's preview step only earns
+   its keep if it tells them WHICH fields to check. */
+var parseReport = null;
 function pad(n){ return (n<10?'0':'')+n; }
 function defaultDateStr(){
   var d = new Date(Date.now()+3*86400000);
   return ISO.format(d);
 }
-function openPost(){
-  postDraft = {title:'', clubName:'', uniId:(state.profile?state.profile.uniId:'u2'), date:defaultDateStr(),
-               time:'18:00', dur:'120', venue:'', suburb:'Melbourne', price:'0', ticketUrl:'', provider:'none',
-               atype:'Club meetings', tags:[], desc:'', photo:''};
+var editingId = null;
+function openPost(eventId){
+  editingId = eventId || null;
+  parseReport = null;
+  var org = state.organiser;
+  if(editingId && EV_BY[editingId]){
+    var e = EV_BY[editingId];
+    var hm = F({hour:'2-digit',minute:'2-digit',hour12:false}).format(e.start).replace(/[^\d:]/g,'');
+    postDraft = {
+      title:e.title, clubName:e.clubName || clubOf(e).name, uniId:uniOf(e).id,
+      date:ISO.format(e.start), time:hm,
+      dur:String(Math.max(15, Math.round((e.end - e.start)/60000))),
+      venue:e.venue, suburb:e.suburb, price:String(e.cents/100),
+      ticketUrl:e.ticketUrl || '', provider:e.provider, atype:e.atype,
+      tags:e.tags.slice(), desc:e.desc, photo:e.photo || '', photoUrl:e.photoUrl || '',
+      pageUrl:e.pageUrl || ''
+    };
+  } else {
+    postDraft = {title:'', clubName:(org && org.status==='verified') ? org.clubName : '',
+                 uniId:(org && org.status==='verified') ? org.uniId : (state.profile?state.profile.uniId:'u2'),
+                 date:defaultDateStr(), time:'18:00', dur:'120', venue:'', suburb:'Melbourne',
+                 price:'0', ticketUrl:'', provider:'none', atype:'Club meetings', tags:[], desc:'', photo:'', photoUrl:'',
+                 pageUrl:''};
+  }
   renderPost(); $('post').classList.add('on');
 }
 function renderPost(){
   var d = postDraft;
   $('post-body').innerHTML =
-    '<div class="field tight"><label for="pp-paste">Paste a calendar invite or ticket link</label>'+
-      '<textarea id="pp-paste" placeholder="Paste an .ics block from Google Calendar, or a Humanitix / Eventbrite link"></textarea></div>'+
-    '<button class="btn ghost small" id="pp-fill" style="width:100%">Fill from paste</button>'+
+    '<div class="field tight"><label for="pp-paste">Paste your event link or page</label>'+
+      '<textarea id="pp-paste" placeholder="A Humanitix / Eventbrite / TryBooking link, a calendar invite, or the event page itself"></textarea></div>'+
+    '<button class="btn ghost small" id="pp-fill" style="width:100%">Read the details</button>'+
+    parsePreview()+
+    '<p class="note" style="margin:0">A bare link fills in the ticket page. Paste the page itself (or its calendar invite) and we read the name, date, venue, price, photo and tags straight off it.</p>'+
 
-    '<div class="photopick"><span class="prev">'+(d.photo?'<img src="'+esc(d.photo)+'" alt="">':'')+'</span>'+
-      '<span class="lbl">'+(d.photo?'Photo ready':'Add a poster or photo')+'</span>'+
+    '<div class="photopick"><span class="prev">'+
+      (d.photo    ? '<img src="'+esc(d.photo)+'" alt="">' :
+       d.photoUrl ? '<img src="'+esc(d.photoUrl)+'" alt="">' : '')+'</span>'+
+      '<span class="lbl">'+(d.photo ? 'Photo ready'
+        : d.photoUrl ? 'Using the poster from that page'
+        : 'Add a poster or photo')+'</span>'+
       '<label class="mini solid" for="pp-photo" style="cursor:pointer">'+(d.photo?'Change':'Choose')+'</label>'+
       '<input id="pp-photo" type="file" accept="image/*" hidden></div>'+
 
@@ -1932,8 +3633,10 @@ function renderPost(){
         var label = s.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
         return '<option value="'+esc(label)+'"'+(d.suburb.toLowerCase()===s?' selected':'')+'>'+esc(label)+'</option>';
       }).join('')+'</select></div>'+
-    '<div class="field tight"><label for="pp-url">Ticket link (https)</label>'+
-      '<input id="pp-url" type="url" value="'+esc(d.ticketUrl)+'" placeholder="https://events.humanitix.com/…"></div>'+
+    '<div class="field tight"><label for="pp-page">Event page — where Register sends people</label>'+
+      '<input id="pp-page" type="url" value="'+esc(d.pageUrl)+'" placeholder="https://events.humanitix.com/your-event"></div>'+
+    '<div class="field tight"><label for="pp-url">Checkout link, if different</label>'+
+      '<input id="pp-url" type="url" value="'+esc(d.ticketUrl)+'" placeholder="leave blank to use the event page"></div>'+
     '<div class="field tight"><label for="pp-atype">Activity type</label><select id="pp-atype">'+
       ATYPES.map(function(a){ return '<option'+(d.atype===a?' selected':'')+'>'+esc(a)+'</option>'; }).join('')+
       '</select></div>'+
@@ -1952,6 +3655,7 @@ function renderPost(){
   function bind(id, key){ var el = $(id); if(el) el.addEventListener('input', function(){ postDraft[key] = el.value; }); }
   bind('pp-title','title'); bind('pp-club','clubName'); bind('pp-date','date'); bind('pp-time','time');
   bind('pp-dur','dur'); bind('pp-price','price'); bind('pp-venue','venue'); bind('pp-url','ticketUrl');
+  bind('pp-page','pageUrl');
   bind('pp-desc','desc');
   $('pp-uni').addEventListener('change', function(){ postDraft.uniId = $('pp-uni').value; });
   $('pp-suburb').addEventListener('change', function(){ postDraft.suburb = $('pp-suburb').value; });
@@ -1964,20 +3668,49 @@ function renderPost(){
     b.setAttribute('aria-pressed', postDraft.tags.indexOf(t)>-1 ? 'true':'false');
   });
   $('pp-fill').addEventListener('click', function(){
-    var got = parsePaste($('pp-paste').value);
-    if(!Object.keys(got).length){ toast('Couldn’t read that — try an .ics block or a link.'); return; }
+    var raw = $('pp-paste').value;
+    var got = parsePaste(raw);
+    parseReport = got;                     /* drives the preview panel */
+    if(!got.title && !got.start && !got.pageUrl){
+      /* If it was a link we can't read here, say what to do instead
+         rather than leaving them staring at an empty form. */
+      var link = (raw.match(/https:\/\/[^\s"'<>]+/) || [])[0];
+      var check = link ? UniVerseParser.checkUrl(link) : null;
+      toast(check && !check.ok ? check.reason
+        : 'Couldn’t read that. Paste the event page itself — select all on it, copy, paste here.');
+      return;
+    }
     if(got.title) postDraft.title = got.title;
     if(got.desc) postDraft.desc = got.desc;
     if(got.venue) postDraft.venue = got.venue;
+    if(got.club) postDraft.clubName = got.club;
+    if(got.pageUrl) postDraft.pageUrl = got.pageUrl;
     if(got.ticketUrl) postDraft.ticketUrl = got.ticketUrl;
     if(got.provider) postDraft.provider = got.provider;
+    if(got.priceCents != null) postDraft.price = String(got.priceCents/100);
+    if(got.photoUrl) postDraft.photoUrl = got.photoUrl;
+    if(got.suburb && SUBURBS[String(got.suburb).toLowerCase()]) postDraft.suburb = got.suburb;
+    if(got.venue || got.title){
+      var hay = ((got.title||'')+' '+(got.desc||'')+' '+(got.venue||'')).toLowerCase();
+      var sub = Object.keys(SUBURBS).sort(function(a,b){ return b.length-a.length; })
+        .find(function(x){ return hay.indexOf(x) > -1; });
+      if(sub) postDraft.suburb = sub.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+      var guess = INTERESTS.filter(function(i){
+        return i.label.toLowerCase().split(/[^a-z]+/).filter(function(w){ return w.length>3; })
+          .some(function(w){ return hay.indexOf(w) > -1; });
+      }).slice(0,3).map(function(i){ return i.slug; });
+      if(guess.length && !postDraft.tags.length) postDraft.tags = guess;
+    }
     if(got.start){
       postDraft.date = ISO.format(got.start);
       var hm = F({hour:'2-digit',minute:'2-digit',hour12:false}).format(got.start);
       postDraft.time = hm.replace(/[^\d:]/g,'');
       if(got.end) postDraft.dur = String(Math.max(15, Math.round((got.end-got.start)/60000)));
     }
-    renderPost(); toast('Filled in what we could read.');
+    renderPost();
+    toast(got.found > 1
+      ? 'Read the soonest of '+got.found+' events on that page.'
+      : 'Read it off ' + (got.sourceName === 'generic' ? 'the page' : got.sourceName) + '.');
   });
   $('pp-photo').addEventListener('change', function(ev){
     var file = ev.target.files && ev.target.files[0]; if(!file) return;
@@ -1989,6 +3722,52 @@ function renderPost(){
   $('pp-cancel').addEventListener('click', function(){ $('post').classList.remove('on'); });
   $('pp-go').addEventListener('click', submitPost);
 }
+/* What the parser found, where each answer came from, and what it
+   couldn't find. The architecture's preview step is only worth having
+   if it tells the organiser WHICH fields to check rather than asking
+   them to re-read all twelve. */
+const SRC_LABEL = {
+  'json-ld':'schema.org', 'opengraph':'OpenGraph', 'meta':'meta tag',
+  'microdata':'microdata', 'title-tag':'page title', 'ics':'calendar invite',
+  'url-only':'the link', 'humanitix':'Humanitix', 'eventbrite':'Eventbrite',
+  'rubric':'Rubric', 'trybooking':'TryBooking', 'university':'the uni site'
+};
+const FIELD_LABEL = {
+  title:'name', startDate:'date', endDate:'end', venue:'venue', imageUrl:'poster',
+  description:'details', tickets:'price', pageUrl:'event page', ticketUrl:'checkout',
+  organiser:'club'
+};
+function parsePreview(){
+  var r = parseReport;
+  if(!r || r.confidence == null) return '';
+  var pct = Math.round(r.confidence * 100);
+  var cls = pct >= 80 ? '' : pct >= 50 ? ' low' : ' vlow';
+
+  var chips = Object.keys(r.provenance || {})
+    .filter(function(k){ return k.indexOf('venue.') !== 0; })
+    .map(function(k){
+      var lbl = FIELD_LABEL[k] || k;
+      var src = SRC_LABEL[r.provenance[k].source] || r.provenance[k].source;
+      return '<span>'+esc(lbl)+' · '+esc(src)+'</span>';
+    });
+
+  var missing = (r.missing && r.missing.required || []).concat(r.missing && r.missing.optional || []);
+  chips = chips.concat(missing.map(function(k){
+    return '<span class="miss">'+esc(FIELD_LABEL[k] || k)+' · not on the page</span>';
+  }));
+
+  return '<div class="parsebox">'+
+    '<div class="hdr"><b>Read off '+esc(SRC_LABEL[r.sourceName] || 'the page')+'</b>'+
+      '<span class="conf'+cls+'"><span class="bar"><i style="width:'+pct+'%"></i></span>'+pct+'%</span></div>'+
+    '<div class="fieldsrc">'+ chips.join('') +'</div>'+
+    (missing.length
+      ? '<p class="note" style="margin:0">Check the '+
+        missing.map(function(k){ return FIELD_LABEL[k] || k; }).join(', ')+
+        ' — we couldn’t find '+(missing.length===1?'it':'them')+' on that page.</p>'
+      : '<p class="note" style="margin:0">Everything below came off the page. Still worth a glance before you post.</p>')+
+  '</div>';
+}
+
 /* keep photos well inside the 256 KiB document limit */
 function shrinkImage(file, cb){
   var reader = new FileReader();
@@ -2023,16 +3802,49 @@ function submitPost(){
     cents:Math.round((parseFloat(d.price)||0)*100),
     ticketUrl:/^https:\/\//i.test(d.ticketUrl) ? d.ticketUrl.trim() : '',
     provider:d.provider, atype:d.atype, tags:d.tags.slice(), desc:d.desc.trim(),
-    photo:d.photo, addedBy:state.profile ? firstName(state.profile.name) : 'a student',
+    photo:d.photo, photoUrl:d.photoUrl || '',
+    pageUrl:/^https:\/\//i.test(d.pageUrl||'') ? d.pageUrl.trim() : '',
+    addedBy:state.profile ? firstName(state.profile.name) : 'a student',
+    byMe:isVerified(),
     createdAt:new Date().toISOString()
   };
-  ingestDoc('local' + Date.now(), payload);
+
+  if(editingId){
+    var key = editingId.replace(/^x_/, '');
+    ingestDoc(key, payload);
+    var i = (state.posted||[]).findIndex(function(p){ return p.__id === key; });
+    payload.__id = key;
+    if(i > -1) state.posted[i] = payload; else state.posted.push(payload);
+    persist(); $('post').classList.remove('on');
+    onCatalogueChanged(0); if(state.tab==='profile') renderProfile();
+    toast('Updated.');
+    editingId = null;
+    return;
+  }
+
+  var id = 'local' + Date.now();
+  payload.__id = id;
+  ingestDoc(id, payload);
   liveCount++;
   state.posted = (state.posted || []).concat([payload]);
   persist();
   $('post').classList.remove('on');
   onCatalogueChanged(0);
-  toast('Posted — it’s in the deck now.');
+  if(state.tab==='profile') renderProfile();
+  toast(isVerified() ? 'Posted as '+state.organiser.clubName+'.' : 'Posted — it’s in the deck now.');
+}
+
+/* an organiser removing one of their own */
+function removeMyEvent(id){
+  var key = id.replace(/^x_/, '');
+  state.posted = (state.posted||[]).filter(function(p){ return p.__id !== key; });
+  delete state.swipes[id]; delete state.registered[id];
+  for(var i=EVENTS.length-1;i>=0;i--){ if(EVENTS[i].id === id) EVENTS.splice(i,1); }
+  delete EV_BY[id];
+  liveCount = Math.max(0, liveCount-1);
+  persist(); rebuildDeck();
+  if(state.tab==='profile') renderProfile(); else onCatalogueChanged(0);
+  toast('Removed from every campus.');
 }
 $('post').addEventListener('click', function(ev){ if(ev.target === $('post')) $('post').classList.remove('on'); });
 
@@ -2051,10 +3863,15 @@ function studentNumber(){ return 's' + (3000000 + (hash(state.profile.email) % 9
    Paid  → the club's own ticket page if it has one, otherwise the
            hosting university's union platform. Payment never happens
            in UniVerse. */
+/* Where "Register" actually sends someone, in order of how specific it is.
+   The organiser's own event page beats the union's generic listing every
+   time — a student who tapped one event should never land on a homepage
+   and have to find it again. */
 function destinationFor(e){
   var u = uniOf(e);
-  if(e.cents === 0) return {kind:'free', label:'UniVerse', url:null, uni:u};
-  if(e.ticketUrl)   return {kind:'club', label:PROVIDER[e.provider] || 'the club’s page', url:e.ticketUrl, uni:u};
+  if(e.cents === 0)  return {kind:'free',  label:'UniVerse', url:null, uni:u};
+  if(e.ticketUrl)    return {kind:'club',  label:PROVIDER[e.provider] || 'the club’s page', url:e.ticketUrl, uni:u};
+  if(e.pageUrl)      return {kind:'club',  label:hostOf(e.pageUrl), url:e.pageUrl, uni:u};
   return {kind:'union', label:u.regLabel, url:u.regUrl, uni:u};
 }
 function regDetails(e){
@@ -2175,9 +3992,283 @@ function refreshAfterRegister(){
   } else if(state.tab==='discover'){
     if(state.discovery==='browse') renderBrowse(); else renderDeck();
   }
+  refreshBell();
   if(sheetId) openSheet(sheetId);
 }
 $('reg').addEventListener('click', function(ev){ if(ev.target === $('reg')) closeRegister(); });
+
+/* ================================================================
+   12c. NOTIFICATIONS
+   Three things are worth interrupting a student for: an event they
+   saved starting tomorrow, a friend registering for something, and
+   someone asking to add them. Nothing else.
+   ================================================================ */
+function relTime(d){
+  var mins = Math.round((d - Date.now())/60000);
+  if(mins < 0) return 'now';
+  if(mins < 60) return 'in '+mins+'m';
+  var hrs = Math.round(mins/60);
+  if(hrs < 24) return 'in '+hrs+'h';
+  return 'in '+Math.round(hrs/24)+'d';
+}
+function buildNotifications(){
+  var out = [], now = Date.now(), soon = now + 24*3600000;
+
+  /* 1. anything you saved or registered for, starting in the next 24 hours */
+  savedList().forEach(function(e){
+    var t = e.start.getTime();
+    if(t > now && t < soon){
+      out.push({
+        id:'rem:'+e.id, kind:'reminder', eventId:e.id, sort:t, icon:'⏰',
+        title: isRegistered(e.id) ? 'You’re registered — '+dayTime(e.start) : 'Starts '+dayTime(e.start),
+        body: e.title + ' · ' + e.venue + ', ' + e.suburb,
+        when: relTime(t)
+      });
+    }
+  });
+
+  /* 2. friends registering for things */
+  state.friends.forEach(function(fid){
+    var f = FRIEND_BY[fid]; if(!f) return;
+    f.registered.forEach(function(evId){
+      var e = EV_BY[evId]; if(!e) return;
+      if(e.start.getTime() < now) return;
+      var mine = state.swipes[evId] === 'like';
+      out.push({
+        id:'fr:'+fid+':'+evId, kind:'friend', eventId:evId, friendId:fid,
+        sort: e.start.getTime() - (mine ? 1e9 : 0), icon:'🎟',
+        title: firstName(f.name)+' registered for '+(mine ? 'an event you saved' : 'an event'),
+        body: e.title + ' · ' + dayTime(e.start),
+        when: UNI_BY[f.uniId].short
+      });
+    });
+  });
+
+  /* 3. friend requests */
+  (state.pendingIn||[]).forEach(function(fid){
+    var f = FRIEND_BY[fid]; if(!f) return;
+    out.push({
+      id:'req:'+fid, kind:'request', friendId:fid, sort:-1e12, icon:'👋',
+      title: firstName(f.name)+' wants to add you',
+      body: UNI_BY[f.uniId].short + ' · they’ll see your first name and university',
+      when:''
+    });
+  });
+
+  return out.sort(function(a,b){ return a.sort-b.sort; }).slice(0, 25);
+}
+function unreadCount(){
+  var read = state.readNotifs || [];
+  return buildNotifications().filter(function(n){ return read.indexOf(n.id) === -1; }).length;
+}
+function refreshBell(){
+  var onSaved = state.tab === 'saved';
+  $('bell').hidden = !onSaved;
+  if(!onSaved) return;
+  var n = unreadCount();
+  $('bell-dot').hidden = n === 0;
+  $('bell-dot').textContent = n > 9 ? '9+' : String(n);
+}
+function openNotifications(){
+  var list = buildNotifications(), read = state.readNotifs || [];
+  $('notif-body').innerHTML = list.length
+    ? '<div class="notif-list">'+ list.map(function(n){
+        var isUnread = read.indexOf(n.id) === -1;
+        var acts = n.kind === 'request'
+          ? '<div class="acts"><button class="mini solid" data-nacc="'+n.friendId+'">Accept</button>'+
+            '<button class="mini" data-nign="'+n.friendId+'">Ignore</button></div>'
+          : '<div class="acts"><button class="mini" data-nev="'+n.eventId+'">See event</button></div>';
+        return '<div class="notif'+(isUnread?' unread':'')+'">'+
+          '<span class="ic">'+n.icon+'</span>'+
+          '<span class="tx"><b>'+esc(n.title)+'</b><span>'+esc(n.body)+'</span>'+acts+'</span>'+
+          (n.when ? '<span class="when">'+esc(n.when)+'</span>' : '')+
+        '</div>';
+      }).join('') +'</div>'
+    : '<p class="note" style="margin:0">Nothing right now. We’ll tell you when something you saved is about to start, when a friend registers for something, and when someone asks to add you — and nothing else.</p>';
+
+  $('notif-foot').innerHTML =
+    (list.length ? '<button class="btn ghost small" id="nt-read">Mark all as read</button>' : '')+
+    '<button class="btn ghost small" id="nt-close">Close</button>';
+
+  $('notif-body').querySelectorAll('[data-nev]').forEach(function(b){
+    b.addEventListener('click', function(){
+      markRead(); $('notif').classList.remove('on'); openSheet(b.getAttribute('data-nev'));
+    });
+  });
+  $('notif-body').querySelectorAll('[data-nacc]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var id = b.getAttribute('data-nacc');
+      state.pendingIn = state.pendingIn.filter(function(x){ return x !== id; });
+      if(state.friends.indexOf(id) === -1) state.friends.push(id);
+      persist(); openNotifications(); refreshBell(); refreshSocial();
+      toast(firstName(FRIEND_BY[id].name)+' is now a friend.');
+    });
+  });
+  $('notif-body').querySelectorAll('[data-nign]').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.pendingIn = state.pendingIn.filter(function(x){ return x !== b.getAttribute('data-nign'); });
+      persist(); openNotifications(); refreshBell();
+    });
+  });
+  var mr = $('nt-read'); if(mr) mr.addEventListener('click', function(){ markRead(); openNotifications(); });
+  $('nt-close').addEventListener('click', function(){ markRead(); $('notif').classList.remove('on'); });
+
+  $('notif').classList.add('on');
+}
+function markRead(){
+  var ids = buildNotifications().map(function(n){ return n.id; });
+  state.readNotifs = Array.from(new Set((state.readNotifs||[]).concat(ids))).slice(-200);
+  persist(); refreshBell();
+}
+$('bell').addEventListener('click', openNotifications);
+$('notif').addEventListener('click', function(ev){
+  if(ev.target === $('notif')){ markRead(); $('notif').classList.remove('on'); }
+});
+
+/* ================================================================
+   12d. CLUB ORGANISER VERIFICATION
+   A student shows us they run a club — their union's own club page,
+   a committee listing, or a confirmation email — and we check it by
+   hand before they can post anything. Reviewed by the UniVerse team,
+   not by the unions: we don't need their permission to read a page
+   they already publish, and it means the whole thing works on day
+   one without six partnership conversations first.
+   ================================================================ */
+/* Executive positions only. An ordinary committee member or a general
+   member can't be verified — the exec is who the union actually lists,
+   and who the club holds accountable for what gets posted in its name. */
+const ORG_ROLES = ['President','Vice-President','Secretary','Treasurer','Events officer'];
+
+function orgStatus(){ return (state.organiser && state.organiser.status) || 'none'; }
+function isVerified(){ return orgStatus() === 'verified'; }
+
+var verifyDraft = null;
+function openVerify(){
+  verifyDraft = Object.assign(
+    {clubName:'', uniId:(state.profile?state.profile.uniId:'u2'), role:'Events officer', proof:'', proofName:''},
+    state.organiser || {});
+  renderVerify();
+  $('verify').classList.add('on');
+}
+function renderVerify(){
+  var d = verifyDraft;
+  $('verify-body').innerHTML =
+    '<p class="note" style="margin:0">Your union already publishes who runs each club. Point us at the page that says so — or attach your committee confirmation — and one of us checks it by hand. Usually within a day.</p>'+
+    '<div class="field tight"><label for="vf-club">Club</label>'+
+      '<input id="vf-club" type="text" value="'+esc(d.clubName)+'" placeholder="Melbourne Uni Film Society"></div>'+
+    '<div class="field tight"><label for="vf-uni">University</label><select id="vf-uni">'+
+      UNIS.map(function(u){ return '<option value="'+u.id+'"'+(d.uniId===u.id?' selected':'')+'>'+esc(u.name)+'</option>'; }).join('')+
+      '</select></div>'+
+    '<div class="field tight"><label for="vf-role">Your role on the executive</label><select id="vf-role">'+
+      ORG_ROLES.map(function(r){ return '<option'+(d.role===r?' selected':'')+'>'+esc(r)+'</option>'; }).join('')+
+      '</select></div>'+
+    '<div class="field tight"><label for="vf-proof">Link to your club’s page on the union site</label>'+
+      '<input id="vf-proof" type="url" value="'+esc(d.proof)+'" placeholder="https://umsu.unimelb.edu.au/clubs/…"></div>'+
+    '<div class="photopick"><span class="prev">'+(d.proofName?'<span style="font-size:19px;display:grid;place-items:center;height:100%">📄</span>':'')+'</span>'+
+      '<span class="lbl">'+(d.proofName ? esc(d.proofName) : 'or a screenshot of your committee confirmation')+'</span>'+
+      '<label class="mini solid" for="vf-file" style="cursor:pointer">'+(d.proofName?'Change':'Choose')+'</label>'+
+      '<input id="vf-file" type="file" accept="image/*,.pdf" hidden></div>'+
+    '<p class="note" style="margin:0">Executive positions only. Committee and general members can’t post on a club’s behalf.</p>'+
+    '<p class="err" id="vf-err" style="min-height:0;margin:0"></p>';
+
+  $('verify-foot').innerHTML =
+    '<button class="btn" id="vf-go">Send for review</button>'+
+    '<button class="btn ghost small" id="vf-cancel">Cancel</button>';
+
+  $('vf-club').addEventListener('input', function(){ verifyDraft.clubName = $('vf-club').value; });
+  $('vf-uni').addEventListener('change', function(){ verifyDraft.uniId = $('vf-uni').value; });
+  $('vf-role').addEventListener('change', function(){ verifyDraft.role = $('vf-role').value; });
+  $('vf-proof').addEventListener('input', function(){ verifyDraft.proof = $('vf-proof').value; });
+  $('vf-file').addEventListener('change', function(ev){
+    var f = ev.target.files && ev.target.files[0]; if(!f) return;
+    verifyDraft.proofName = f.name.slice(0,60);
+    renderVerify(); toast('Attached.');
+  });
+  $('vf-cancel').addEventListener('click', function(){ $('verify').classList.remove('on'); });
+  $('vf-go').addEventListener('click', submitVerify);
+}
+function submitVerify(){
+  var d = verifyDraft, err = $('vf-err');
+  if(!d.clubName.trim()){ err.textContent = 'Which club do you run?'; return; }
+  if(ORG_ROLES.indexOf(d.role) === -1){
+    err.textContent = 'Only a club’s executive can be verified.'; return;
+  }
+  if(!/^https:\/\//i.test(d.proof) && !d.proofName){
+    err.textContent = 'Add a link to your club’s union page, or attach a screenshot.'; return;
+  }
+
+  /* This is the submission. In the real build it is one call —
+     requestOrganiser() in lib/universe.js — which writes a row to
+     club_organisers with status 'pending' and puts any screenshot in
+     the private organiser-proof bucket. Nothing the browser can do
+     moves it past 'pending'. */
+  state.organiser = {
+    status:'pending',
+    clubName:d.clubName.trim(), uniId:d.uniId, role:d.role,
+    proof:d.proof.trim(), proofName:d.proofName,
+    studentName:state.profile ? state.profile.name : '',
+    studentEmail:state.profile ? state.profile.email : '',
+    at:Date.now()
+  };
+  persist();
+  $('verify').classList.remove('on');
+  renderProfile();
+  toast('Submitted. We check these by hand.');
+}
+
+/* ---------- the reviewer's side ----------
+   In production this is you, in the Supabase SQL editor:
+       select * from pending_claims;
+       select approve_organiser('<id>', 'Vy');
+   The prototype has no server, so the same decision is made here.
+   It is deliberately labelled as your view, not the student's — a
+   student's own build of this app has no such control, and the
+   database would refuse it anyway. */
+function reviewBox(org){
+  return '<div class="reviewbox">'+
+    '<p class="eyebrow" style="margin:0 0 8px">Reviewer · you</p>'+
+    '<div class="dl">'+
+      '<div class="r"><span class="k">Student</span><span class="v">'+esc(org.studentName||'—')+'</span></div>'+
+      '<div class="r"><span class="k">Email</span><span class="v">'+esc(org.studentEmail||'—')+'</span></div>'+
+      '<div class="r"><span class="k">University</span><span class="v">'+esc(UNI_BY[org.uniId].name)+'</span></div>'+
+      '<div class="r"><span class="k">Club</span><span class="v">'+esc(org.clubName)+'</span></div>'+
+      '<div class="r"><span class="k">Role</span><span class="v">'+esc(org.role)+'</span></div>'+
+      '<div class="r"><span class="k">Proof</span><span class="v">'+
+        (org.proof ? '<a href="'+esc(org.proof)+'" target="_blank" rel="noopener noreferrer">'+esc(hostOf(org.proof))+'</a>'
+                   : esc(org.proofName || '—'))+'</span></div>'+
+      (org.proofName && org.proof ? '<div class="r"><span class="k">File</span><span class="v">'+esc(org.proofName)+'</span></div>' : '')+
+    '</div>'+
+    '<p class="note" style="margin:8px 0 0">Open the proof, check this name against the committee listed there, then decide. In the real build this is a row in <b>pending_claims</b>.</p>'+
+    '<div style="display:flex;gap:8px;margin-top:10px">'+
+      '<button class="mini solid" id="rv-yes">Approve</button>'+
+      '<button class="mini" id="rv-no">Reject</button>'+
+    '</div></div>';
+}
+function bindReview(){
+  var yes = $('rv-yes'); if(!yes) return;
+  yes.addEventListener('click', function(){
+    state.organiser.status = 'verified';
+    state.organiser.reviewedBy = 'you';
+    state.organiser.reviewedAt = Date.now();
+    persist(); renderProfile(); refreshBell();
+    toast('Approved — '+state.organiser.clubName+' can post now.');
+  });
+  $('rv-no').addEventListener('click', function(){
+    var name = state.organiser.clubName;
+    state.organiser = {status:'rejected', clubName:name, uniId:state.organiser.uniId,
+                       role:state.organiser.role, reviewedBy:'you', reviewedAt:Date.now()};
+    persist(); renderProfile();
+    toast('Rejected. They can send a new claim.');
+  });
+}
+$('verify').addEventListener('click', function(ev){ if(ev.target === $('verify')) $('verify').classList.remove('on'); });
+
+/* the events this organiser has posted */
+function myClubEvents(){
+  if(!isVerified()) return [];
+  return EVENTS.filter(function(e){ return e.community && e.byMe; })
+               .sort(function(a,b){ return a.start-b.start; });
+}
 
 /* ================================================================
    13. PROFILE
@@ -2186,15 +4277,63 @@ function initials(n){
   return n.trim().split(/\s+/).slice(0,2).map(function(p){ return p.charAt(0).toUpperCase(); }).join('') || 'U';
 }
 function renderProfile(){
+  var view = state.profileView || 'me';
+  $('prof-body').innerHTML =
+    '<div class="seg pf-views" id="pf-views">'+
+      '<button data-pv="me" aria-selected="'+(view==='me')+'">Me</button>'+
+      '<button data-pv="friends" aria-selected="'+(view==='friends')+'">Friends</button>'+
+    '</div><div id="pf-pane"></div>';
+  Array.prototype.forEach.call($('pf-views').querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){
+      state.profileView = b.getAttribute('data-pv'); persist(); renderProfile();
+    });
+  });
+  if(view === 'friends') renderFriendsView(); else renderMeView();
+}
+
+/* ---------- Me ---------- */
+function renderMeView(){
   var u = UNI_BY[state.profile.uniId];
   var saved = savedList(), cross = saved.filter(function(e){ return uniOf(e).id !== state.profile.uniId; });
   var pct = saved.length ? Math.round(cross.length/saved.length*100) : 0;
-  $('prof-body').innerHTML =
-    '<div class="prof-card">'+
+  var org = state.organiser, st = orgStatus();
+
+  var orgBlock;
+  if(st === 'verified'){
+    var mine = myClubEvents();
+    orgBlock =
+      '<div class="orgbox"><b>'+esc(org.clubName)+' <span class="verified">✓ Verified</span></b>'+
+        '<span class="st">'+esc(org.role)+' · '+esc(UNI_BY[org.uniId].short)+' · checked by hand</span></div>'+
+      '<button class="btn ghost small" id="pf-addev" style="width:100%;margin-top:10px">Add an event by link</button>'+
+      (mine.length
+        ? '<p class="eyebrow" style="margin:16px 0 4px">Your events</p>'+ mine.map(function(e){
+            return '<div class="evrow"><span class="th">'+posterFor(e)+'</span>'+
+              '<span class="m"><b>'+esc(e.title)+'</b><span>'+dayTime(e.start)+' · '+esc(e.suburb)+' · '+priceStr(e)+'</span>'+
+              '<span class="acts"><button class="mini" data-edev="'+e.id+'">Edit</button>'+
+              '<button class="mini" data-rmev="'+e.id+'">Remove</button></span></span></div>';
+          }).join('')
+        : '<p class="note">Nothing posted yet. Paste a link to your event page and we read the details off it.</p>');
+  } else if(st === 'pending'){
+    orgBlock = '<div class="orgbox"><b>'+esc(org.clubName)+' <span class="pendingtag">Submitted</span></b>'+
+      '<span class="st">We’re checking your '+esc(UNI_BY[org.uniId].union)+' listing to confirm you as '+esc(org.role)+'. Usually within a day.</span></div>'+
+      reviewBox(org);
+  } else if(st === 'rejected'){
+    orgBlock = '<div class="orgbox"><b>'+esc(org.clubName)+'</b>'+
+      '<span class="st">We couldn’t match you to '+esc(org.clubName)+'’s executive. If that’s wrong, send it again with a different link.</span></div>'+
+      '<button class="btn ghost small" id="pf-verify" style="width:100%;margin-top:10px">Try again</button>';
+  } else {
+    orgBlock = '<p class="note" style="margin:0 0 10px">Run a club? Send us proof from your union’s site, and once we’ve checked it you can post that club’s events to every campus.</p>'+
+      '<button class="btn ghost small" id="pf-verify" style="width:100%">Get verified as an organiser</button>';
+  }
+
+  $('pf-pane').innerHTML =
+    '<div class="prof-card" style="margin-top:12px">'+
       '<div class="avatar">'+esc(initials(state.profile.name))+'</div>'+
       '<div class="who"><input class="nm" id="pf-name" value="'+esc(state.profile.name)+'" aria-label="Display name">'+
         '<span class="em">'+esc(state.profile.email)+'</span>'+
-        '<span class="uni-badge" style="margin-top:3px"><i style="background:'+u.colour+'"></i>'+esc(u.short)+'</span></div>'+
+        '<span class="uni-badge" style="margin-top:3px"><i style="background:'+u.colour+'"></i>'+esc(u.short)+
+          (st==='verified' ? ' <span class="verified" style="margin-left:5px">✓ '+esc(state.organiser.clubName)+'</span>' : '')+
+        '</span></div>'+
     '</div>'+
     '<div class="stats">'+
       '<div class="stat"><b>'+saved.length+'</b><span>Saved</span></div>'+
@@ -2202,6 +4341,8 @@ function renderProfile(){
       '<div class="stat"><b>'+pct+'%</b><span>Cross-uni rate</span></div>'+
     '</div>'+
     '<p class="note">Cross-university rate is the share of your saved events hosted by a club at another university — the number no single-campus platform can measure.</p>'+
+
+    '<p class="sect">Club organiser</p>'+ orgBlock +
 
     '<p class="sect">Appearance</p>'+
     '<div class="rowline"><span class="lb">Dark mode</span>'+
@@ -2215,9 +4356,9 @@ function renderProfile(){
     '<div class="selline"><span class="lb">Home suburb</span>'+
       '<select id="pf-suburb" aria-label="Home suburb">'+
         '<option value=""'+(state.address?'':' selected')+'>'+esc(u.short)+' campus</option>'+
-        Object.keys(SUBURBS).sort().map(function(s){
-          var label = s.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
-          return '<option value="'+esc(label)+'"'+((state.address||'').toLowerCase()===s?' selected':'')+'>'+esc(label)+'</option>';
+        Object.keys(SUBURBS).sort().map(function(x){
+          var label = x.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+          return '<option value="'+esc(label)+'"'+((state.address||'').toLowerCase()===x?' selected':'')+'>'+esc(label)+'</option>';
         }).join('')+
       '</select></div>'+
     '<div class="selline"><span class="lb">Max distance</span>'+
@@ -2229,12 +4370,9 @@ function renderProfile(){
         return '<option value="'+b.id+'"'+(state.budget===b.id?' selected':'')+'>'+esc(b.label)+'</option>'; }).join('')+
       '</select></div>'+
 
-    '<p class="sect">Friends <span style="text-transform:none;letter-spacing:0">— first name and university only</span></p>'+
-    '<div id="pf-friends"></div>'+
-
     '<p class="sect">Your picks</p>'+
     '<div class="chiprow">'+ (state.interests.length
-      ? state.interests.map(function(s){ return '<span class="pill">'+INT_BY[s].emoji+' '+esc(INT_BY[s].label)+'</span>'; }).join('')
+      ? state.interests.map(function(x){ return '<span class="pill">'+INT_BY[x].emoji+' '+esc(INT_BY[x].label)+'</span>'; }).join('')
       : '<span class="muted">None picked yet.</span>') +'</div>'+
     '<div class="chiprow" style="margin-top:7px">'+ (state.atypes.length
       ? state.atypes.map(function(a){ return '<span class="pill">'+esc(a)+'</span>'; }).join('')
@@ -2246,16 +4384,12 @@ function renderProfile(){
       '<button class="btn ghost small" data-edit="3">Distance</button>'+
     '</div>'+
 
-    '<p class="sect">Run a club?</p>'+
-    '<button class="btn ghost small" id="pf-post" style="width:100%">Post an event</button>'+
-    '<p class="note">Events you post appear on every campus’s deck straight away — paste a calendar invite or a ticket link and we fill in the rest.</p>'+
-
     '<p class="sect">Account</p>'+
     '<button class="btn ghost small" id="pf-signout" style="width:100%">Sign out &amp; reset the demo</button>';
 
   $('pf-name').addEventListener('input', function(){
     state.profile.name = $('pf-name').value || 'Student'; persist();
-    $('prof-body').querySelector('.avatar').textContent = initials(state.profile.name);
+    $('pf-pane').querySelector('.avatar').textContent = initials(state.profile.name);
   });
   $('pf-dark').addEventListener('click', function(){
     state.dark = !state.dark; persist(); applyMode();
@@ -2267,7 +4401,7 @@ function renderProfile(){
       toast('Discovery set to '+state.discovery+'.');
     });
   });
-  Array.prototype.forEach.call($('prof-body').querySelectorAll('[data-edit]'), function(b){
+  Array.prototype.forEach.call($('pf-pane').querySelectorAll('[data-edit]'), function(b){
     b.addEventListener('click', function(){ editStep(parseInt(b.getAttribute('data-edit'),10)); });
   });
   $('pf-suburb').addEventListener('change', function(){
@@ -2282,54 +4416,180 @@ function renderProfile(){
     state.budget = $('pf-budget').value; persist(); rebuildDeck(); renderProfile();
     toast('Budget: '+BUD_BY[state.budget].label+'.');
   });
-  $('pf-post').addEventListener('click', openPost);
+  var v = $('pf-verify'); if(v) v.addEventListener('click', openVerify);
+  bindReview();
+  var ae = $('pf-addev'); if(ae) ae.addEventListener('click', function(){ openPost(); });
+  $('pf-pane').querySelectorAll('[data-edev]').forEach(function(b){
+    b.addEventListener('click', function(){ openPost(b.getAttribute('data-edev')); });
+  });
+  $('pf-pane').querySelectorAll('[data-rmev]').forEach(function(b){
+    b.addEventListener('click', function(){ removeMyEvent(b.getAttribute('data-rmev')); });
+  });
   $('pf-signout').addEventListener('click', signOut);
-  renderFriends();
 }
 
-var showSuggestions = false;
-function renderFriends(){
-  var host = $('pf-friends'); if(!host) return;
+/* ---------- Friends ---------- */
+function friendActivity(f){
+  var reg = f.registered.map(function(id){ return EV_BY[id]; }).filter(Boolean)
+              .filter(function(e){ return e.start.getTime() > Date.now(); });
+  var keen = f.interested.map(function(id){ return EV_BY[id]; }).filter(Boolean)
+              .filter(function(e){ return e.start.getTime() > Date.now(); });
+  return {reg:reg, keen:keen};
+}
+function renderFriendsView(){
   var mine = state.friends.map(function(id){ return FRIEND_BY[id]; }).filter(Boolean);
-  var others = FRIENDS.filter(function(f){ return state.friends.indexOf(f.id) === -1; });
-  var html = mine.length ? mine.map(function(f){
-      return '<div class="friendrow"><span class="avatar sm" style="background:'+UNI_BY[f.uniId].colour+'">'+
-        esc(firstName(f.name).charAt(0))+'</span>'+
-        '<span class="who"><b>'+esc(firstName(f.name))+'</b><span>'+esc(UNI_BY[f.uniId].short)+' · '+
-          sharedCount(f)+' of your saved events</span></span>'+
-        '<button class="mini" data-unfriend="'+f.id+'">Remove</button></div>';
-    }).join('')
-    : '<p class="note" style="margin:0 0 4px">No friends yet. Add one and their interest shows up on the cards.</p>';
+  var incoming = (state.pendingIn||[]).map(function(id){ return FRIEND_BY[id]; }).filter(Boolean);
+  var html = '<div style="height:12px"></div>';
 
-  html += '<button class="btn ghost small" id="pf-addfriends" style="width:100%;margin-top:10px">'+
-    (showSuggestions ? 'Done' : 'Add friends') +'</button>';
-
-  if(showSuggestions){
-    html += '<p class="eyebrow" style="margin:14px 0 6px">Students you might know</p>'+
-      (others.length ? others.map(function(f){
-        return '<div class="friendrow"><span class="avatar sm" style="background:'+UNI_BY[f.uniId].colour+'">'+
-          esc(firstName(f.name).charAt(0))+'</span>'+
+  if(incoming.length){
+    html += '<p class="sect" style="margin-top:0">Friend requests</p>'+
+      incoming.map(function(f){
+        return '<div class="friendrow">'+avatarFor(f)+
           '<span class="who"><b>'+esc(firstName(f.name))+'</b><span>'+esc(UNI_BY[f.uniId].short)+'</span></span>'+
-          '<button class="mini solid" data-friend="'+f.id+'">Add</button></div>';
-      }).join('') : '<p class="note" style="margin:0">You’ve added everyone in the demo.</p>');
+          '<button class="mini solid" data-accept="'+f.id+'">Accept</button>'+
+          '<button class="mini" data-ignore="'+f.id+'">Ignore</button></div>';
+      }).join('');
   }
-  host.innerHTML = html;
 
-  host.querySelectorAll('[data-friend]').forEach(function(b){
-    b.addEventListener('click', function(){
-      state.friends.push(b.getAttribute('data-friend')); persist();
-      toast(firstName(FRIEND_BY[b.getAttribute('data-friend')].name)+' added.');
-      renderFriends();
-    });
-  });
+  html += '<p class="sect"'+(incoming.length?'':' style="margin-top:0"')+'>Your friends</p>';
+  html += mine.length
+    ? mine.map(function(f){
+        var a = friendActivity(f);
+        var rows = a.reg.slice(0,3).map(function(e){
+            return '<div class="fe"><em>Registered</em><b>'+esc(e.title)+'</b></div>'; }).join('')
+          + a.keen.slice(0,3).map(function(e){
+            return '<div class="fe"><em>Interested</em><b>'+esc(e.title)+'</b></div>'; }).join('');
+        return '<div class="friendrow">'+avatarFor(f)+
+            '<span class="who"><b>'+esc(firstName(f.name))+'</b><span>'+esc(UNI_BY[f.uniId].short)+' · '+
+              a.reg.length+' registered · '+a.keen.length+' interested</span></span>'+
+            '<button class="mini" data-unfriend="'+f.id+'">Remove</button></div>'+
+          (rows ? '<div class="friend-events">'+rows+'</div>' : '');
+      }).join('')
+    : '<p class="note" style="margin:0">No friends yet. Add someone and you’ll see what they’re going to.</p>';
+
+  if((state.pendingOut||[]).length){
+    html += '<p class="sect">Waiting on them</p>'+
+      state.pendingOut.map(function(p){
+        var f = p.id ? FRIEND_BY[p.id] : null;
+        return '<div class="friendrow">'+
+          (f ? avatarFor(f) : '<span class="avatar sm" style="background:var(--ink-3)">?</span>')+
+          '<span class="who"><b>'+esc(f ? firstName(f.name) : p.email)+'</b>'+
+            '<span>'+(f ? 'Request sent' : 'Invited — they’ll see it when they join')+'</span></span>'+
+          '<button class="mini" data-cancel="'+esc(p.email)+'">Cancel</button></div>';
+      }).join('');
+  }
+
+  html += '<p class="sect">Add someone</p>'+
+    '<div class="field tight">'+
+      '<label for="pf-femail">Their student email</label>'+
+      '<input id="pf-femail" type="email" inputmode="email" autocomplete="off" spellcheck="false" '+
+        'placeholder="them@student.rmit.edu.au"></div>'+
+    '<p class="err" id="pf-ferr" style="min-height:0;margin:6px 0 0"></p>'+
+    '<button class="btn ghost small" id="pf-fadd" style="width:100%;margin-top:8px">Send request</button>'+
+    '<p class="note">You need their email to add them — there is no list of students to browse, and nobody can find you by searching. They see your first name and university, and have to accept.</p>';
+
+  $('pf-pane').innerHTML = html;
+  bindFriendActions($('pf-pane'));
+}
+
+function bindFriendActions(host){
   host.querySelectorAll('[data-unfriend]').forEach(function(b){
     b.addEventListener('click', function(){
       state.friends = state.friends.filter(function(x){ return x !== b.getAttribute('data-unfriend'); });
-      persist(); renderFriends();
+      persist(); renderProfile(); refreshSocial(); refreshBell();
     });
   });
-  var add = $('pf-addfriends');
-  if(add) add.addEventListener('click', function(){ showSuggestions = !showSuggestions; renderFriends(); });
+  host.querySelectorAll('[data-accept]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var id = b.getAttribute('data-accept');
+      state.pendingIn = state.pendingIn.filter(function(x){ return x !== id; });
+      if(state.friends.indexOf(id) === -1) state.friends.push(id);
+      persist(); renderProfile(); refreshSocial(); refreshBell();
+      toast(firstName(FRIEND_BY[id].name)+' is now a friend.');
+    });
+  });
+  host.querySelectorAll('[data-ignore]').forEach(function(b){
+    b.addEventListener('click', function(){
+      state.pendingIn = state.pendingIn.filter(function(x){ return x !== b.getAttribute('data-ignore'); });
+      persist(); renderProfile(); refreshBell();
+    });
+  });
+  host.querySelectorAll('[data-cancel]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var em = b.getAttribute('data-cancel');
+      state.pendingOut = state.pendingOut.filter(function(p){ return p.email !== em; });
+      persist(); renderProfile();
+    });
+  });
+  var em = $('pf-femail');
+  if(em){
+    em.addEventListener('keydown', function(ev){ if(ev.key==='Enter') $('pf-fadd').click(); });
+    $('pf-fadd').addEventListener('click', sendFriendRequest);
+  }
+}
+
+/* You add someone by typing the student email you already have.
+   There is no directory and no suggestions — UniVerse never shows
+   you a list of other students. */
+function friendByEmail(email){
+  var e = String(email||'').trim().toLowerCase();
+  for(var i=0;i<FRIENDS.length;i++){ if(FRIENDS[i].email === e) return FRIENDS[i]; }
+  return null;
+}
+function avatarFor(f){
+  return '<span class="avatar sm" style="background:'+UNI_BY[f.uniId].colour+'">'+
+    esc(firstName(f.name).charAt(0))+'</span>';
+}
+function sendFriendRequest(){
+  var input = $('pf-femail'), err = $('pf-ferr');
+  var email = (input.value||'').trim().toLowerCase();
+  err.textContent = '';
+
+  if(!email){ err.textContent = 'Type their student email first.'; return; }
+  if(!uniFromEmail(email)){
+    err.textContent = 'That’s not a university email we recognise yet.'; return;
+  }
+  if(state.profile && email === state.profile.email.toLowerCase()){
+    err.textContent = 'That’s you.'; return;
+  }
+  var f = friendByEmail(email);
+  if(f && state.friends.indexOf(f.id) > -1){
+    err.textContent = 'You’re already friends with '+firstName(f.name)+'.'; return;
+  }
+  if((state.pendingOut||[]).some(function(p){ return p.email === email; })){
+    err.textContent = 'Already asked — waiting on them.'; return;
+  }
+  /* they asked you first, so this closes the loop straight away */
+  if(f && (state.pendingIn||[]).indexOf(f.id) > -1){
+    state.pendingIn = state.pendingIn.filter(function(x){ return x !== f.id; });
+    state.friends.push(f.id); persist(); input.value = '';
+    renderProfile(); refreshSocial();
+    toast(firstName(f.name)+' had asked you too — you’re friends.');
+    return;
+  }
+
+  state.pendingOut.push({email:email, id:f ? f.id : null});
+  persist(); input.value = '';
+  renderProfile();
+  toast('Request sent.');
+
+  /* seeded students accept, so the whole loop is demoable */
+  if(f){
+    setTimeout(function(){
+      if(!(state.pendingOut||[]).some(function(p){ return p.email === email; })) return;
+      state.pendingOut = state.pendingOut.filter(function(p){ return p.email !== email; });
+      if(state.friends.indexOf(f.id) === -1) state.friends.push(f.id);
+      persist();
+      if(state.tab === 'profile') renderProfile();
+      refreshSocial();
+      toast(firstName(f.name)+' accepted your request.');
+    }, 2600);
+  }
+}
+/* friends change what the cards say, so redraw whatever is on screen */
+function refreshSocial(){
+  if(state.tab === 'discover'){ if(state.discovery==='browse') renderBrowse(); else renderDeck(); }
+  else if(state.tab === 'saved') renderSaved();
 }
 
 /* ================================================================
@@ -2340,7 +4600,7 @@ document.addEventListener('keydown', function(ev){
 });
 if(restore() && state.profile){
   applyMode();
-  (state.posted || []).forEach(function(p, i){ if(ingestDoc('saved'+i, p)) liveCount++; });
+  (state.posted || []).forEach(function(p, i){ if(!p.__id) p.__id = 'saved'+i; if(ingestDoc(p.__id, p)) liveCount++; });
   if(!state.interests.length) startOnboarding(0);
   else { rebuildDeck(); showScreen('s-app'); setTab(state.tab || 'discover'); }
 } else {

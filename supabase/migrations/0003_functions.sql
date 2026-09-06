@@ -63,6 +63,16 @@ begin
   )
   on conflict (id) do nothing;
 
+  -- anyone who invited this address before it had an account now has a
+  -- pending friend request waiting for the new student to accept
+  insert into friendships (user_id, friend_id, status)
+  select fi.inviter_id, new.id, 'pending'
+  from friend_invites fi
+  where lower(fi.email) = lower(new.email)
+  on conflict (user_id, friend_id) do nothing;
+
+  delete from friend_invites where lower(email) = lower(new.email);
+
   return new;
 end $$;
 
@@ -269,6 +279,97 @@ language sql stable security invoker as $$
 $$;
 
 grant execute on function friends_on_events(uuid[]) to authenticated;
+
+-- ---------- adding a friend by their student email ----------
+-- The only way to add anyone. There is no student directory, no search
+-- and no suggestions, so a student is never listed to someone who
+-- doesn't already have their address.
+--
+-- SECURITY DEFINER because it has to look in auth.users, which no
+-- student can read. It deliberately returns the SAME answer whether or
+-- not an account exists, so this cannot be used to test which
+-- addresses are registered.
+
+create or replace function request_friend_by_email(p_email text)
+returns text
+language plpgsql
+security definer
+set search_path = public as $$
+declare
+  v_email  text := lower(trim(p_email));
+  v_target uuid;
+  v_me     uuid := auth.uid();
+begin
+  if v_me is null then
+    raise exception 'Not signed in';
+  end if;
+
+  -- must be a university we know, checked before anything else
+  if not exists (
+    select 1 from university_domains where domain = split_part(v_email, '@', 2)
+  ) then
+    return 'unknown_university';
+  end if;
+
+  select id into v_target from auth.users where lower(email) = v_email;
+
+  if v_target = v_me then
+    return 'self';
+  end if;
+
+  if v_target is null then
+    insert into friend_invites (inviter_id, email)
+    values (v_me, v_email)
+    on conflict (inviter_id, email) do nothing;
+    return 'sent';
+  end if;
+
+  if exists (
+    select 1 from friendships
+    where user_id = v_me and friend_id = v_target and status = 'accepted'
+  ) then
+    return 'already_friends';
+  end if;
+
+  -- they asked first, so this closes the loop both ways
+  if exists (select 1 from friendships where user_id = v_target and friend_id = v_me) then
+    update friendships set status = 'accepted'
+     where user_id = v_target and friend_id = v_me;
+    insert into friendships (user_id, friend_id, status)
+    values (v_me, v_target, 'accepted')
+    on conflict (user_id, friend_id) do update set status = 'accepted';
+    return 'accepted';
+  end if;
+
+  insert into friendships (user_id, friend_id, status)
+  values (v_me, v_target, 'pending')
+  on conflict (user_id, friend_id) do nothing;
+  return 'sent';
+end $$;
+
+revoke all on function request_friend_by_email(text) from public, anon;
+grant execute on function request_friend_by_email(text) to authenticated;
+
+-- ---------- requests waiting for you ----------
+
+create or replace function pending_friend_requests()
+returns table (
+  requester_id uuid,
+  first_name   text,
+  university   text,
+  brand_colour text,
+  asked_at     timestamptz
+)
+language sql stable security definer
+set search_path = public as $$
+  select p.id, split_part(p.display_name, ' ', 1), u.short_name, u.brand_colour, f.created_at
+  from friendships f
+  join profiles p     on p.id = f.user_id
+  join universities u on u.id = p.university_id
+  where f.friend_id = auth.uid() and f.status = 'pending';
+$$;
+
+grant execute on function pending_friend_requests() to authenticated;
 
 -- ---------- accepting a friend request creates the mirror row ----------
 

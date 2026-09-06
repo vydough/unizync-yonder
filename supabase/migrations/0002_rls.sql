@@ -30,6 +30,7 @@ alter table profiles            enable row level security;
 alter table user_interests      enable row level security;
 alter table user_activity_types enable row level security;
 alter table friendships         enable row level security;
+alter table friend_invites      enable row level security;
 alter table swipes              enable row level security;
 alter table registrations       enable row level security;
 
@@ -46,7 +47,8 @@ grant select on suburbs, interests, activity_types, clubs, events, event_interes
 grant insert, update on events to authenticated;
 grant insert on event_interests to authenticated;
 grant select, insert, update, delete
-  on profiles, user_interests, user_activity_types, friendships, swipes, registrations
+  on profiles, user_interests, user_activity_types, friendships, friend_invites,
+     swipes, registrations
   to authenticated;
 
 -- ---------- reference data: readable by any signed-in student ----------
@@ -133,6 +135,12 @@ create policy "respond to friend request" on friendships
 create policy "remove friendship" on friendships
   for delete to authenticated
   using (user_id = auth.uid() or friend_id = auth.uid());
+
+-- Invites you sent, and only those. Nobody can read the invite list to
+-- work out which email addresses have accounts.
+create policy "own invites" on friend_invites
+  for all to authenticated
+  using (inviter_id = auth.uid()) with check (inviter_id = auth.uid());
 
 -- ---------- swipes: yours, plus your accepted friends' likes ----------
 -- This is what powers "Priya is interested". A friend never sees your

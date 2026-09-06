@@ -83,6 +83,18 @@
     <h2>5. Registration routing</h2>
     <div class="box" id="routing"></div>
 
+    <h2>6. Notifications</h2>
+    <div class="box" id="notifs"></div>
+
+    <h2>7. Friends</h2>
+    <div class="box" id="friends"></div>
+
+    <h2>8. Club organiser</h2>
+    <div class="box" id="organiser"></div>
+
+    <h2>9. Post an event by pasting its link</h2>
+    <div class="box" id="poster"></div>
+
     <div class="row" style="margin-top:26px">
       <button class="ghost" id="btn-signout">Sign out</button>
     </div>
@@ -93,6 +105,7 @@
 <script src="./config.js" onerror="document.getElementById('cfg-warn').style.display='block'"></script>
 <script type="module">
 import * as U from '../lib/universe.js';
+import { parseEventFromHtml, isFetchable } from '../lib/event-parser/index.js';
 
 const cfg = window.UNIVERSE_CONFIG;
 const $ = id => document.getElementById(id);
@@ -148,6 +161,15 @@ async function showApp() {
   renderInterests();
   await renderDeck();
   await renderSaved();
+  await renderNotifs();
+  await renderFriends();
+  await renderOrganiser();
+
+  /* Realtime: anything that feeds the deck or the bell pushes straight
+     in. If nothing moves when you post an event in another tab, the
+     tables aren't in the supabase_realtime publication yet. */
+  U.watchEvents(() => { renderDeck(); });
+  U.watchNotifications(() => { renderNotifs(); });
 }
 
 function renderInterests() {
@@ -171,7 +193,11 @@ async function renderDeck() {
   $('deck-meta').innerHTML = deck.length
     ? `<b>${deck.length} events</b> returned by <code>get_deck()</code>, next 14 days.
        ${deck[0].relaxed ? '<span class="bad">Budget and distance were relaxed to avoid a thin deck.</span>' : 'Budget and distance filters applied.'}
-       <div class="meta" style="margin-top:6px">score = 3.0 × interest overlap + 1.5 × cross-campus + 1.0 × how soon + 1.0 × activity match + 0.5 × free</div>`
+       <div class="meta" style="margin-top:6px">
+         score = 0.32·interests (Szymkiewicz–Simpson + Jaccard) + 0.14·activity + 0.14·timing (HN gravity)
+         + 0.14·distance (Haversine + e<sup>−d/λ</sup>) + 0.10·price + 0.10·friends (Wilson lower bound)
+         + 0.06·cross-campus &nbsp;— weights sum to 1, so the score is the match fraction.
+       </div>`
     : '<b>Empty.</b> If this is unexpected, check RLS first — a closed policy shows as an empty list with no error.';
 
   const friends = await U.friendsOnEvents(deck.map(e => e.id));
@@ -189,6 +215,7 @@ async function renderDeck() {
           <span class="pill ${e.is_free ? 'free' : ''}">${U.priceStr(e)}</span>
           ${e.cross_campus ? '<span class="pill">cross-campus</span>' : ''}
           ${e.interest_overlap ? `<span class="pill">${e.interest_overlap} interest match</span>` : ''}
+          ${e.page_url ? `<span class="pill">has its own page</span>` : ''}
           ${f.length ? `<span class="pill">${f.map(x => x.firstName).join(', ')} interested</span>` : ''}
         </div>
         <div class="row" style="margin-top:9px">
@@ -196,7 +223,7 @@ async function renderDeck() {
           <button class="mini" data-pass="${e.id}">✕ pass</button>
         </div>
       </div>
-      <span class="score">${e.score.toFixed(2)}</span>
+      <span class="score">${e.matchPct}%<div class="meta" style="font-size:11px;font-weight:400">${esc(e.topReason || '')}</div></span>
     </div>`;
   }).join('');
 
@@ -240,8 +267,204 @@ function renderRouting(deck) {
         ${d.url ? `<div class="meta">${esc(d.url.replace(/^https:\/\//, '').split('/')[0])}</div>` : ''}</td>
     </tr>`;
   }).join('');
-  $('routing').innerHTML = `<p style="margin:0 0 10px">Free events are taken in-app. Paid events go to the club's own ticket page if it has one, otherwise to the hosting university's union platform.</p>
+  $('routing').innerHTML = `<p style="margin:0 0 10px">Free events are taken in-app. Paid events go to the club's checkout link, then to the <b>exact event page the organiser pasted</b>, and only fall back to the union's listing if an event has neither.</p>
     <table style="border-collapse:collapse;font-size:14px">${rows}</table>`;
+}
+
+/* ---------------- 6. notifications ---------------- */
+async function renderNotifs() {
+  const [list, unread] = await Promise.all([U.getNotifications(25), U.unreadCount()]);
+  $('notifs').innerHTML = `
+    <p style="margin:0 0 10px"><b>${unread} unread</b> of ${list.length}.
+      Derived on read by <code>get_notifications()</code> — there is no table of messages,
+      so only these three kinds can ever appear.</p>` +
+    (list.length
+      ? `<table style="border-collapse:collapse;font-size:14px">${list.map(nt => `<tr>
+           <td style="padding:5px 10px 5px 0"><span class="pill">${esc(nt.kind)}</span></td>
+           <td style="padding:5px 10px 5px 0">${nt.unread ? '<b>' + esc(nt.title) + '</b>' : esc(nt.title)}
+             <div class="meta">${esc(nt.body)}</div></td>
+           <td style="padding:5px 0" class="meta">${esc(nt.meta || '')}</td>
+         </tr>`).join('')}</table>
+         <div class="row" style="margin-top:10px"><button class="mini" id="nt-read">Mark all read</button></div>`
+      : '<p class="meta" style="margin:0">Nothing right now. Save something starting in the next 24 hours, or add a friend, and it appears here.</p>');
+
+  const b = $('nt-read');
+  if (b) b.addEventListener('click', async () => { await U.markNotificationsRead(); renderNotifs(); });
+}
+
+/* ---------------- 7. friends ---------------- */
+async function renderFriends() {
+  const [mine, incoming, sent] = await Promise.all([U.getFriends(), U.pendingRequests(), U.sentRequests()]);
+  $('friends').innerHTML = `
+    <p style="margin:0 0 10px">You add someone by typing the student email you already have.
+      There is no directory, and <code>request_friend_by_email()</code> answers the same way whether
+      or not that address has an account — so it can't be used to find out who has signed up.</p>
+    ${incoming.length ? `<p><b>Wants to add you:</b> ${incoming.map(f => `${esc(f.first_name)} (${esc(f.university)})
+        <button class="mini" data-accept="${f.id}">accept</button>`).join(' · ')}</p>` : ''}
+    ${mine.length ? `<p><b>Friends:</b> ${mine.map(f => esc(f.first_name) + ' · ' + esc(f.university)).join(', ')}</p>`
+                  : '<p class="meta">No friends yet.</p>'}
+    ${sent.length ? `<p class="meta">Waiting on: ${sent.map(x => esc(x.email || x.first_name)).join(', ')}</p>` : ''}
+    <div class="row" style="margin-top:10px">
+      <input id="fr-email" type="email" placeholder="them@student.rmit.edu.au" style="flex:1;min-width:240px">
+      <button class="mini" id="fr-add">Send request</button>
+    </div>
+    <p class="meta" id="fr-msg" style="margin:8px 0 0"></p>`;
+
+  $('friends').querySelectorAll('[data-accept]').forEach(b =>
+    b.addEventListener('click', async () => { await U.acceptFriend(b.dataset.accept); renderFriends(); renderNotifs(); }));
+  $('fr-add').addEventListener('click', async () => {
+    try { await U.requestFriendByEmail($('fr-email').value.trim()); $('fr-msg').textContent = 'Request sent.'; renderFriends(); }
+    catch (err) { $('fr-msg').innerHTML = '<span class="bad">' + esc(err.message) + '</span>'; }
+  });
+}
+
+/* ---------------- 8. organiser verification ---------------- */
+async function renderOrganiser() {
+  const org = await U.myOrganiser();
+  if (org && org.status === 'verified') {
+    $('organiser').innerHTML = `<p style="margin:0"><b>${esc(org.clubName)}</b>
+      <span class="pill" style="background:var(--green);color:#fff">✓ verified</span></p>
+      <div class="meta" style="margin-top:6px">${esc(org.role)} · approved by ${esc(org.reviewedBy || 'a reviewer')}</div>`;
+    return renderPoster(true);
+  }
+  if (org && org.status === 'pending') {
+    $('organiser').innerHTML = `<p style="margin:0"><b>${esc(org.clubName)}</b> — <span class="pill">pending</span></p>
+      <p class="meta" style="margin:8px 0 0">Nothing the browser can do moves this past <code>pending</code>.
+      Approve it yourself in the Supabase SQL editor:</p>
+      <pre style="background:var(--paper-2);padding:10px;overflow-x:auto;font-size:13px">select * from pending_claims;
+select approve_organiser('${esc(org.id)}', 'Vy');</pre>
+      <div class="row"><button class="mini" id="org-refresh">I've approved it — refresh</button></div>`;
+    $('org-refresh').addEventListener('click', () => { renderOrganiser(); });
+    return renderPoster(false);
+  }
+  $('organiser').innerHTML = `
+    <p style="margin:0 0 10px">Only a club's <b>executive</b> can be verified. The claim always lands as
+      <code>pending</code> — the insert policy forces it and there is no update policy at all.</p>
+    <div class="row">
+      <input id="org-club" placeholder="RMIT Link Arts & Culture" style="flex:1;min-width:220px">
+      <select id="org-role">${U.EXEC_ROLES.map(r => `<option>${esc(r)}</option>`).join('')}</select>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input id="org-proof" type="url" placeholder="https://your-union.org/clubs/your-club" style="flex:1;min-width:260px">
+      <button class="mini" id="org-go">Submit claim</button>
+    </div>
+    <p class="meta" id="org-msg" style="margin:8px 0 0"></p>`;
+  $('org-go').addEventListener('click', async () => {
+    try {
+      await U.requestOrganiser({ clubName: $('org-club').value.trim(), role: $('org-role').value, proofUrl: $('org-proof').value.trim() });
+      renderOrganiser();
+    } catch (err) { $('org-msg').innerHTML = '<span class="bad">' + esc(err.message) + '</span>'; }
+  });
+  renderPoster(false);
+}
+
+/* ---------------- 9. post an event by link ---------------- */
+async function renderPoster(verified) {
+  if (!verified) {
+    $('poster').innerHTML = `<p class="meta" style="margin:0">Get verified above first.
+      An unverified account posting an event gets an RLS rejection, not a polite error it could skip past —
+      try it in the SQL editor if you want to see it fail.</p>`;
+    return;
+  }
+  const mine = await U.myClubEvents();
+  $('poster').innerHTML = `
+    <p style="margin:0 0 8px">Paste an event <b>link</b> (fetched by the <code>parse-event</code> edge
+      function), or the whole event <b>page</b>, or a calendar <b>invite</b> — all three end up as the
+      same NormalisedEvent. <code>post_club_event()</code> stores it.</p>
+    <div class="row">
+      <textarea id="pe-url" rows="2" placeholder="https://events.humanitix.com/your-event  —  or paste the whole page" style="flex:1;min-width:280px"></textarea>
+      <button class="mini" id="pe-read">Read it</button>
+    </div>
+    <div id="pe-preview" style="margin-top:10px"></div>
+    ${mine.length ? `<p style="margin:16px 0 6px"><b>Your events</b></p>` + mine.map(e => `
+      <div class="row" style="justify-content:space-between;border-top:1px solid var(--paper-3);padding:7px 0">
+        <span>${esc(e.title)} <span class="meta">· ${U.dayTime(e.starts_at)} · ${esc(e.status)}</span>
+          ${e.page_url ? `<div class="meta">→ ${esc(e.page_url)}</div>` : ''}</span>
+        <button class="mini" data-rm="${e.id}">remove</button>
+      </div>`).join('') : ''}`;
+
+  $('pe-read').addEventListener('click', async () => {
+    const raw = $('pe-url').value.trim();
+    const link = (raw.match(/https:\/\/[^\s"'<>]+/) || [])[0];
+    const bareLink = link && raw.length - link.length < 4;
+    $('pe-preview').innerHTML = '<span class="meta">Reading…</span>';
+
+    let got;
+    try {
+      // A bare link has to be fetched server-side; anything longer is
+      // the page itself and parses right here.
+      got = bareLink && isFetchable(link)
+        ? await U.parseEventLink(link)
+        : parseEventFromHtml(raw, link);
+    } catch (err) {
+      $('pe-preview').innerHTML = `<span class="bad">${esc(err.message)}</span>
+        <p class="meta" style="margin:6px 0 0">You can still paste the page itself: open the event,
+        select all, copy, paste here. No backend needed for that path.</p>`;
+      return;
+    }
+
+    if (!got.title && !got.startDate) {
+      $('pe-preview').innerHTML = '<span class="bad">Nothing readable on that page.</span>';
+      return;
+    }
+
+    const pct = Math.round((got.confidence || 0) * 100);
+    const prov = got.provenance || {};
+    const rows = [
+      ['Title', got.title, prov.title], ['When', got.startDate, prov.startDate],
+      ['Ends', got.endDate, prov.endDate],
+      ['Venue', got.venue && (got.venue.name || got.venue.address), prov['venue.name'] || prov.venue],
+      ['Club', got.organiser, prov.organiser],
+      ['Price', got.priceCents != null ? '$' + (got.priceCents / 100).toFixed(2) : '', prov.tickets],
+      ['Event page', got.source?.pageUrl, prov.pageUrl],
+      ['Checkout', got.ticketUrl, prov.ticketUrl],
+      ['Poster', got.imageUrl, prov.imageUrl]
+    ];
+
+    $('pe-preview').innerHTML = `
+      <p style="margin:0 0 8px"><b>Read off ${esc(got.source?.provider || 'the page')}</b>
+        <span class="pill">${pct}% confident</span>
+        ${got.otherEventsOnPage ? `<span class="pill">${got.otherEventsOnPage} other events on that page</span>` : ''}</p>
+      <table style="border-collapse:collapse;font-size:14px">
+        ${rows.filter(r => r[1]).map(r => `<tr>
+          <td class="meta" style="padding:3px 12px 3px 0">${r[0]}</td>
+          <td style="padding:3px 12px 3px 0">${esc(String(r[1]).slice(0, 80))}</td>
+          <td class="meta" style="padding:3px 0;font-size:11px">${r[2] ? esc(r[2].source) : ''}</td>
+        </tr>`).join('')}
+      </table>
+      ${got.missing?.required?.length
+        ? `<p class="bad" style="margin:8px 0 0">Missing: ${got.missing.required.join(', ')} — fill in by hand.</p>` : ''}
+      ${got.tickets?.length > 1
+        ? `<p class="meta" style="margin:6px 0 0">Tiers: ${got.tickets.map(t => `${esc(t.name || '')} $${t.price}`).join(' · ')}</p>` : ''}
+      <div class="row" style="margin-top:10px"><button class="mini" id="pe-post">Post it</button></div>
+      <p class="meta" id="pe-msg" style="margin:8px 0 0"></p>`;
+    $('pe-post').addEventListener('click', async () => {
+      try {
+        await U.postClubEvent({
+          title: got.title || 'Untitled event',
+          description: got.description,
+          venueName: got.venue?.name || got.venue?.address,
+          suburb: got.venue?.suburb || 'Melbourne',
+          startsAt: got.startDate || new Date(Date.now() + 6048e5).toISOString(),
+          endsAt: got.endDate || null,
+          priceCents: got.priceCents || 0,
+          pageUrl: got.source?.pageUrl,
+          ticketUrl: got.ticketUrl,
+          ticketProvider: ['humanitix','eventbrite','trybooking'].includes(got.source?.provider)
+            ? got.source.provider : 'external',
+          imageUrl: got.imageUrl,
+          interestSlugs: []
+        });
+        renderPoster(true); renderDeck();
+      } catch (err) { $('pe-msg').innerHTML = '<span class="bad">' + esc(err.message) + '</span>'; }
+    });
+  });
+
+  $('poster').querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', async () => {
+    const what = await U.removeClubEvent(b.dataset.rm);
+    alert('Event ' + what + (what === 'cancelled' ? ' — someone had already registered, so their record is kept.' : '.'));
+    renderPoster(true); renderDeck();
+  }));
 }
 
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
