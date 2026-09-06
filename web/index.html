@@ -108,33 +108,34 @@ button{cursor:pointer}
 .pill.free{background:var(--yellow);color:#15151A}
 
 /* ---------- auth ---------- */
-.auth{padding:26px 24px 22px;display:flex;flex-direction:column;height:100%;overflow-y:auto}
+.auth{padding:20px 28px 8px;display:flex;flex-direction:column;height:100%;overflow-y:auto}
 .wordmark{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.02em;flex:none}
-.unistrip{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;flex:none}
-.unistrip .u{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
-  border:1.5px solid var(--ink);padding:3px 7px;display:inline-flex;align-items:center;gap:5px}
+.unistrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:12px 0 0;flex:none}
+.unistrip .u{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;
+  border:1.5px solid var(--ink);padding:3px 4px;display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
 .unistrip .u i{width:8px;height:8px;border-radius:50%;display:block}
-.auth-hero{margin:auto 0 20px;flex:none}
-.auth-hero .big{font-family:var(--display);font-weight:800;font-size:42px;line-height:.95;letter-spacing:-.035em;margin:0 0 12px}
+.auth-hero{margin:14px 0 12px;flex:none}
+.auth-hero .big{font-family:var(--display);font-weight:800;font-size:35px;line-height:.98;letter-spacing:-.035em;margin:0 0 8px}
 .auth-hero .big em{font-style:normal;color:var(--accent)}
-.auth-hero p{margin:0;max-width:30ch;color:var(--ink-2);font-size:15px}
-.sso{display:flex;flex-direction:column;gap:8px;margin:14px 0 0;flex:none}
-.sso button{height:46px;border:2px solid var(--ink);display:flex;align-items:center;gap:10px;padding:0 14px;
-  font-weight:600;font-size:14.5px;background:var(--paper);color:var(--ink)}
-.sso button:active{transform:translate(1px,1px)}
-.sso button.ms{background:var(--ink);color:var(--paper)}
-.sso button.canvas{background:var(--blue);color:#fff;border-color:var(--ink)}
-.sso .mark{width:20px;height:20px;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13px}
-.divider{display:flex;align-items:center;gap:10px;margin:14px 0 12px;flex:none}
+.auth-hero p{margin:0;max-width:34ch;color:var(--ink-2);font-size:14px}
+.sso-group{display:flex;flex-direction:column;gap:5px;margin:10px 0 0;flex:none}
+.sso-group button{position:relative;height:48px;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;padding:0 12px;
+  font-weight:600;font-size:14px;background:var(--paper);color:var(--ink);flex-shrink:0}
+.sso-group button:active{transform:translate(1px,1px)}
+.sso-group button.ms{background:var(--ink);color:var(--paper)}
+.sso-group button.canvas{background:var(--blue);color:#fff;border-color:var(--ink)}
+.sso-group .mark{position:absolute;left:12px;width:20px;height:20px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13px}
+.divider{display:flex;align-items:center;gap:10px;margin:12px 0 10px;flex:none}
 .divider span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .divider i{flex:1;height:1px;background:var(--paper-3)}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;flex:none}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:8px;flex:none}
 .field label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
-.field input{font-family:var(--body);font-size:16px;padding:12px;background:var(--paper);
+.field input{height:48px;font-family:var(--body);font-size:16px;padding:0 10px;background:var(--paper);
   border:2px solid var(--ink);color:var(--ink);width:100%}
 .field input::placeholder{color:var(--ink-3)}
-.err{color:var(--accent);font-size:13.5px;margin:2px 0 10px;min-height:19px;flex:none}
-.auth-foot{margin-top:12px;font-size:13px;text-align:center;color:var(--ink-2);flex:none}
+.err{color:var(--accent);font-size:13.5px;margin:2px 0 8px;min-height:0;flex:none}
+.auth .btn{height:48px;flex-shrink:0}
+.auth-foot{margin-top:8px;font-size:13px;text-align:center;color:var(--ink-2);flex:none}
 .auth-foot button{text-decoration:underline;font-weight:600;color:var(--ink)}
 .centre-screen{padding:26px;display:flex;flex-direction:column;justify-content:center;height:100%;gap:16px}
 .stamp-box{border:2px solid var(--ink);padding:18px;background:var(--yellow);color:#15151A;transform:rotate(-1.5deg);align-self:flex-start}
@@ -505,10 +506,8 @@ a.btn{text-decoration:none}
           <button data-mode="signup" aria-selected="false">Sign up</button>
         </div>
 
-        <div class="sso">
-          <button data-sso="Google"><span class="mark">G</span>Continue with Google</button>
-          <button class="ms" data-sso="Microsoft"><span class="mark">⊞</span>Continue with Microsoft</button>
-          <button class="canvas" data-sso="Canvas"><span class="mark">◐</span>Continue with Canvas</button>
+        <div class="sso-group">
+          <button class="canvas" data-sso="SSO"><span class="mark">↗</span>Continue with SSO</button>
         </div>
 
         <div class="divider"><i></i><span>or with email</span><i></i></div>
