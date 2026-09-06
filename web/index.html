@@ -265,6 +265,7 @@ button{cursor:pointer}
 .field.tight{margin-bottom:0}
 .field textarea{font-family:var(--body);font-size:15px;padding:10px;background:var(--paper);border:2px solid var(--ink);
   color:var(--ink);width:100%;min-height:74px;resize:vertical}
+#post-description{min-height:180px}
 .field select{font-family:var(--body);font-size:15px;padding:11px 10px;background:var(--paper);
   border:2px solid var(--ink);color:var(--ink);width:100%}
 .photopick{display:flex;align-items:center;gap:11px;border:2px solid var(--ink);padding:9px;background:var(--paper)}
@@ -1398,7 +1399,7 @@ function renderPostPreview() {
     <div class="formgrid"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
     <div class="field"><label for="post-venue">Venue</label><input id="post-venue" value="${esc(venue.name || '')}" placeholder="Venue name"></div>
     <div class="formgrid"><div class="field tight"><label for="post-suburb">Suburb</label><input id="post-suburb" value="${esc(venue.suburb || defaultSuburb)}"><span class="muted" style="font-size:12px">Defaulted to ${esc(defaultSuburb)} from the host university. Change it if needed.</span></div><div class="field tight"><label for="post-price">Price (AUD)</label><input id="post-price" type="number" min="0" step="0.01" value="${event.priceCents == null ? '0' : (event.priceCents / 100).toFixed(2)}"></div></div>
-    <div class="field"><label for="post-description">Description</label><textarea id="post-description">${esc(event.description || '')}</textarea></div>
+    <div class="field"><label for="post-description">Description</label><textarea id="post-description" rows="8">${esc(event.description || '')}</textarea></div>
     <p class="err" id="post-err"></p>`;
   $('post-foot').innerHTML = '<button class="btn" id="post-submit">Publish event</button><button class="btn ghost" id="post-back">Back</button>';
   $('post-submit').onclick = submitPostedEvent;
