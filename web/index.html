@@ -760,9 +760,7 @@ const BUDGET_TIERS = [
   { id: 'any',  cents: null,  label: 'No limit' },
   { id: 'free', cents: 0,     label: 'Free only' },
   { id: '10',   cents: 1000,  label: 'Up to $10' },
-  { id: '20',   cents: 2000,  label: 'Up to $20' },
-  { id: '50',   cents: 5000,  label: 'Up to $50' },
-  { id: '100',  cents: 10000, label: 'Up to $100' }
+  { id: '25',   cents: 2000,  label: 'Up to $25' }
 ];
 const DISTANCE_TIERS = [
   { id: 'any', km: null, label: 'Any distance' },
@@ -2169,9 +2167,25 @@ async function renderProfileMe() {
       </div>
 
       <p class="sect">Account</p>
-      <div class="rowline"><span class="lb">Home</span><span class="vl">${esc(profile.home_suburb || 'Campus')}</span></div>
-      <div class="rowline"><span class="lb">Budget</span><span class="vl">${profile.budget_cents == null ? 'No limit' : '$' + (profile.budget_cents / 100).toFixed(0)}</span></div>
-      <div class="rowline"><span class="lb">Distance</span><span class="vl">${profile.max_distance_km == null ? 'Any' : profile.max_distance_km + ' km'}</span></div>
+      <div class="selline">
+        <span class="lb">Home</span>
+        <select id="profile-suburb">
+          <option value=""${profile.home_suburb ? '' : ' selected'}>Campus</option>
+          ${allSuburbs.map((s) => `<option value="${esc(s.name)}"${profile.home_suburb === s.name ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="selline">
+        <span class="lb">Budget</span>
+        <select id="profile-budget">
+          ${BUDGET_TIERS.map((t) => `<option value="${t.id}"${budgetIdForCents(profile.budget_cents) === t.id ? ' selected' : ''}>${esc(t.label)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="selline">
+        <span class="lb">Distance</span>
+        <select id="profile-distance">
+          ${DISTANCE_TIERS.map((t) => `<option value="${t.id}"${distanceIdForKm(profile.max_distance_km) === t.id ? ' selected' : ''}>${esc(t.label)}</option>`).join('')}
+        </select>
+      </div>
       <button class="btn ghost" id="profile-signout" style="width:100%;margin-top:22px">Sign out</button>`;
 
     $('profile-interests').querySelectorAll('[data-profile-interest]').forEach((button) => {
