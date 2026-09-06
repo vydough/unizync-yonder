@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Yonder</title>
+<meta name="theme-color" content="#F2F1EC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Yonder">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./yonder_logo_transparent2.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 
 <style>
-/* ============================================================
-   UniVerse — riso print / campus noticeboard identity.
-   Paper + ink + fluoro inks; the app is a printed object.
-   Light is the default press; dark mode is the same press run
-   on black stock, driven by the toggle in Profile.
-   ============================================================ */
 .device{
   --paper:#F2F1EC;  --paper-2:#E7E5DC;  --paper-3:#DAD7CC;
   --ink:#15151A;    --ink-2:#55555F;    --ink-3:#8B8B95;
@@ -258,7 +258,10 @@ button{cursor:pointer}
 .postbar .live{margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
 .postbar .live i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px}
 .card .photo,.bthumb .photo,.sheet-poster .photo{width:100%;height:100%;object-fit:cover;display:block}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.formgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}
+.formgrid .field{min-width:0}
+.formgrid input{min-width:0}
+@media (max-width:360px){.modalcard .formgrid{grid-template-columns:minmax(0,1fr)}}
 .field.tight{margin-bottom:0}
 .field textarea{font-family:var(--body);font-size:15px;padding:10px;background:var(--paper);border:2px solid var(--ink);
   color:var(--ink);width:100%;min-height:74px;resize:vertical}
@@ -503,7 +506,7 @@ a.btn{text-decoration:none}
         </div>
         <div class="unistrip" id="unistrip"></div>
         <div class="auth-hero">
-          <p class="big">Every campus.<br>One deck.<br><em>Swipe.</em></p>
+          <p class="big">Every university.<br>One deck.<br><em>Swipe.</em></p>
           <p>Club events across Melbourne universities, ranked by what you want to do this week.</p>
         </div>
 
@@ -1126,9 +1129,7 @@ async function enterAuthenticatedApp(user) {
   }
 }
 
-/* ------------------------------------------------------------
-   Weekly interest onboarding
------------------------------------------------------------- */
+/* Weekly interests onboarding (1 step) */
 function startOnboarding() {
   showScreen('s-onboard');
   $('ob-steps').innerHTML = '<i class="on"></i><span class="n">1 / 1</span>';
@@ -1262,6 +1263,17 @@ function providerLabel(provider) {
   return ({ humanitix: 'Humanitix', eventbrite: 'Eventbrite', rubric: 'Rubric' }[provider] || 'event page');
 }
 
+function defaultSuburbForUniversity(university) {
+  return ({
+    Unimelb: 'Parkville',
+    RMIT: 'Melbourne',
+    Monash: 'Clayton',
+    Deakin: 'Burwood',
+    'La Trobe': 'Bundoora',
+    Swinburne: 'Hawthorn'
+  }[university] || 'Melbourne');
+}
+
 function parserTicketProvider(provider) {
   return ['humanitix', 'eventbrite', 'rubric', 'trybooking'].includes(provider) ? provider : 'external';
 }
@@ -1327,8 +1339,8 @@ function openPostModal() {
   }
 
   $('post-body').innerHTML = `
-    <p class="muted" style="margin:0">Paste the exact public event page from Humanitix, Rubric or Eventbrite. We will read it and show you a preview before publishing.</p>
-    <div class="field"><label for="post-url">Event link</label><input id="post-url" type="url" inputmode="url" placeholder="https://events.humanitix.com/your-event" autocomplete="url" spellcheck="false"></div>
+    <p class="muted" style="margin:0">Paste the exact public event page from Humanitix or Eventbrite. See a preview before publishing.</p>
+    <div class="field"><label for="post-url">Event link</label><input id="post-url" type="url" inputmode="url" placeholder="Insert your club's event link here!" autocomplete="url" spellcheck="false"></div>
     <p class="err" id="post-err"></p>`;
   $('post-foot').innerHTML = '<button class="btn" id="post-preview">Preview event</button><button class="btn ghost" id="post-cancel">Cancel</button>';
   $('post').classList.add('on');
@@ -1375,13 +1387,17 @@ async function previewPostedEvent() {
 function renderPostPreview() {
   const event = postDraft;
   const venue = event.venue || {};
+  const organiser = String(event.organiser || '').trim();
+  const defaultSuburb = defaultSuburbForUniversity(event.university);
   const interests = allInterests.filter((i) => selectedInterestIds.includes(String(i.id))).map((i) => i.slug);
   $('post-body').innerHTML = `
-    <div class="parsebox"><div class="hdr"><b>${esc(providerLabel(event.source?.provider))} page read</b><span class="n">${esc(event.source?.url || event.pageUrl)}</span></div><div class="fieldsrc"><span>title</span><span>date</span><span class="${event.imageUrl ? '' : 'miss'}">${event.imageUrl ? 'image' : 'image missing'}</span></div></div>
+    <div class="parsebox"><div class="hdr"><b>${esc(providerLabel(event.source?.provider))} page read</b><span class="n">${esc(event.source?.url || event.pageUrl)}</span></div><div class="fieldsrc"><span>title</span><span>date</span><span class="${organiser ? '' : 'miss'}">${organiser ? `host: ${esc(organiser)}` : 'host missing'}</span><span class="${event.imageUrl ? '' : 'miss'}">${event.imageUrl ? 'image' : 'image missing'}</span></div></div>
     <div class="field"><label for="post-title">Title</label><input id="post-title" value="${esc(event.title)}"></div>
+    ${organiser ? '' : '<div class="field"><label for="post-organiser">Club or host</label><input id="post-organiser" placeholder="Enter your club name here" autocomplete="organization"><span class="muted" style="font-size:12px">This page did not identify the host. Enter the club name before publishing.</span></div>'}
+    ${event.imageUrl ? '' : '<div class="field"><label for="post-image">Event photo</label><input id="post-image" type="file" accept="image/jpeg,image/png,image/webp"><span class="muted" style="font-size:12px">Optional. JPG, PNG, or WebP up to 5 MB.</span></div>'}
     <div class="formgrid"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
     <div class="field"><label for="post-venue">Venue</label><input id="post-venue" value="${esc(venue.name || '')}" placeholder="Venue name"></div>
-    <div class="formgrid"><div class="field tight"><label for="post-suburb">Suburb</label><input id="post-suburb" value="${esc(venue.suburb || '')}"></div><div class="field tight"><label for="post-price">Price (AUD)</label><input id="post-price" type="number" min="0" step="0.01" value="${event.priceCents == null ? '0' : (event.priceCents / 100).toFixed(2)}"></div></div>
+    <div class="formgrid"><div class="field tight"><label for="post-suburb">Suburb</label><input id="post-suburb" value="${esc(venue.suburb || defaultSuburb)}"><span class="muted" style="font-size:12px">Defaulted to ${esc(defaultSuburb)} from the host university. Change it if needed.</span></div><div class="field tight"><label for="post-price">Price (AUD)</label><input id="post-price" type="number" min="0" step="0.01" value="${event.priceCents == null ? '0' : (event.priceCents / 100).toFixed(2)}"></div></div>
     <div class="field"><label for="post-description">Description</label><textarea id="post-description">${esc(event.description || '')}</textarea></div>
     <p class="err" id="post-err"></p>`;
   $('post-foot').innerHTML = '<button class="btn" id="post-submit">Publish event</button><button class="btn ghost" id="post-back">Back</button>';
@@ -1393,16 +1409,23 @@ async function submitPostedEvent() {
   const title = $('post-title')?.value.trim();
   const startsAt = $('post-start')?.value;
   const errorBox = $('post-err');
-  if (!title || !startsAt) {
-    if (errorBox) errorBox.textContent = 'Add a title and start time before publishing.';
+  const organiser = String(postDraft?.organiser || $('post-organiser')?.value || '').trim();
+  if (!title || !startsAt || !organiser) {
+    if (errorBox) errorBox.textContent = !organiser
+      ? 'This page does not identify the club host, so it cannot be published yet.'
+      : 'Add a title and start time before publishing.';
     return;
   }
   const button = $('post-submit');
   button.disabled = true;
   button.textContent = 'Publishing…';
   try {
+    const imageFile = $('post-image')?.files?.[0];
+    const imageUrl = imageFile ? await U.uploadEventImage(imageFile) : (postDraft.imageUrl || null);
     await U.postClubEvent({
       title,
+      organiser,
+      university: postDraft.university || null,
       description: $('post-description')?.value.trim(),
       startsAt: new Date(startsAt).toISOString(),
       endsAt: $('post-end')?.value ? new Date($('post-end').value).toISOString() : null,
@@ -1412,14 +1435,14 @@ async function submitPostedEvent() {
       priceCents: Math.round(Math.max(0, Number($('post-price')?.value || 0)) * 100),
       ticketUrl: postDraft.ticketUrl || postDraft.pageUrl,
       ticketProvider: parserTicketProvider(postDraft.source?.provider),
-      imageUrl: postDraft.imageUrl || null,
+      imageUrl,
       pageUrl: postDraft.pageUrl,
       sourceUrl: postDraft.pageUrl,
       interestSlugs: allInterests.filter((i) => selectedInterestIds.includes(String(i.id))).map((i) => i.slug)
     });
     postModalClose();
     await loadDeck();
-    toast('Event published to UniVerse.');
+    toast('Event published to Yonder!');
   } catch (error) {
     if (errorBox) errorBox.textContent = error?.message || 'Could not publish this event.';
     button.disabled = false;
@@ -1694,9 +1717,7 @@ async function undoLastSwipe() {
   }
 }
 
-/* ------------------------------------------------------------
-   Browse
------------------------------------------------------------- */
+/* Browse */
 function renderBrowse() {
   if (browseLoading) {
     $('app-sub').textContent = 'loading events';
@@ -1761,9 +1782,7 @@ function renderBrowse() {
   });
 }
 
-/* ------------------------------------------------------------
-   Saved
------------------------------------------------------------- */
+/* Saved */
 async function loadSaved() {
   try {
     saved = await U.getSaved();
@@ -1837,12 +1856,15 @@ async function openSheet(e) {
     </div>`;
 
   const isAlreadySaved = saved.some((x) => String(x.id) === String(e.id));
+  const canRemove = currentOrganiser?.status === 'verified'
+    && String(e.submitted_by || '') === String(currentUser?.id || '');
   const primary = destination?.url
     ? `<a class="btn" href="${esc(destination.url)}" target="_blank" rel="noopener noreferrer">${esc(destination.label || 'Get ticket')}</a>`
     : `<button class="btn" id="detail-save-primary">${isAlreadySaved ? 'Saved' : (e.is_free ? 'Save free event' : 'Save event')}</button>`;
 
   $('sheet-foot').innerHTML = `
     ${primary}
+    ${canRemove ? '<button class="icon-btn" id="detail-remove" aria-label="Remove event" title="Remove event"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7l1-3h4l1 3"/></svg></button>' : ''}
     <button class="icon-btn ${isAlreadySaved ? 'on' : ''}" id="detail-save" aria-label="Save">♥</button>
     <button class="icon-btn" id="detail-share" aria-label="Share">↗</button>`;
 
@@ -1864,6 +1886,17 @@ async function openSheet(e) {
 
   $('detail-save')?.addEventListener('click', saveAction);
   $('detail-save-primary')?.addEventListener('click', saveAction);
+  $('detail-remove')?.addEventListener('click', async () => {
+    if (!confirm('Remove this event from Yonder?')) return;
+    try {
+      const result = await U.removeClubEvent(e.id);
+      await Promise.all([loadDeck(), loadSaved()]);
+      closeSheet();
+      toast(result === 'cancelled' ? 'Event cancelled for registered students.' : 'Event removed.');
+    } catch (error) {
+      toast(error?.message || 'Could not remove event.');
+    }
+  });
   $('detail-share')?.addEventListener('click', async () => {
     const text = `${e.title} · ${eventWhen(e)}`;
     const url = e.page_url || destination?.url || location.href;
@@ -1886,9 +1919,7 @@ function closeSheet() {
   activeSheetEvent = null;
 }
 
-/* ------------------------------------------------------------
-   Profile
------------------------------------------------------------- */
+/* Profile */
 async function renderProfile() {
   try {
     profile = await U.getProfile();
@@ -1982,9 +2013,7 @@ async function renderProfile() {
   }
 }
 
-/* ------------------------------------------------------------
-   Notifications
------------------------------------------------------------- */
+/* Notifications */
 async function refreshBell() {
   try {
     const count = await U.unreadCount();
