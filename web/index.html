@@ -2027,11 +2027,13 @@ async function renderFriends() {
 
   } catch (error) {
     host.innerHTML = `<p class="err">${esc(error?.message || 'Could not load friends.')}</p>`;
+  }
+}
 
 /* ------------------------------------------------------------
    Profile
 ------------------------------------------------------------ */
-let provileView = 'me';
+let profileView = 'me';
 async function renderProfile() {
   $('prof-body').innerHTML = `
     <div class="seg pf-views" id="pf-views">
