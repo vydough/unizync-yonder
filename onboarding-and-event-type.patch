@@ -1,0 +1,202 @@
+--- a/web/index.html	2026-09-06 13:26:19.039633960 +0000
++++ b/web/index.html	2026-09-06 13:26:19.041286922 +0000
+@@ -756,6 +756,7 @@
+ let watchersBound = false;
+ let toastTimer = null;
+ let postDraft = null;
++let postInterestIds = [];
+ let allSuburbs = [];
+ 
+ const BUDGET_TIERS = [
+@@ -1160,28 +1161,118 @@
+   }
+ }
+ 
+-/* Weekly interests onboarding (1 step) */
++/* Onboarding (5 steps): interests, home suburb, budget, distance, discovery mode */
++const ONBOARD_STEPS = [
++  { key: 'interests', h: 'What do you want to do this week?', p: 'Pick up to 5. You can change these any time.' },
++  { key: 'suburb',    h: 'Where do you call home?',            p: 'We use this to measure distance to events. Change it any time from your profile.' },
++  { key: 'budget',    h: 'What\u2019s your budget?',            p: 'We\u2019ll prioritise events that fit. Change it any time from your profile.' },
++  { key: 'distance',  h: 'How far will you travel?',           p: 'Set a comfortable radius from home.' },
++  { key: 'discovery', h: 'How do you want to browse events?',  p: 'Swipe through a stack, or scroll a list. Switch anytime from Discover.' }
++];
++let obStep = 0;
++let obDraft = {};
++
+ function startOnboarding() {
+   showScreen('s-onboard');
+-  $('ob-steps').innerHTML = '<i class="on"></i><span class="n">1 / 1</span>';
+-  $('ob-h').textContent = 'What do you want to do this week?';
+-  $('ob-p').textContent = 'Pick up to 5. You can change these any time.';
+-  $('ob-back').hidden = true;
++  obStep = 0;
++  obDraft = {
++    home_suburb: profile?.home_suburb ?? null,
++    budget_cents: profile?.budget_cents ?? null,
++    max_distance_km: profile?.max_distance_km ?? null,
++    discovery: profile?.discovery || 'swipe'
++  };
++  renderOnboardStep();
++}
++
++function renderOnboardStep() {
++  const step = ONBOARD_STEPS[obStep];
++  $('ob-steps').innerHTML =
++    ONBOARD_STEPS.map((_, i) => `<i class="${i <= obStep ? 'on' : ''}"></i>`).join('') +
++    `<span class="n">${obStep + 1} / ${ONBOARD_STEPS.length}</span>`;
++  $('ob-h').textContent = step.h;
++  $('ob-p').textContent = step.p;
++  $('ob-back').hidden = obStep === 0;
++  $('ob-next').textContent = obStep === ONBOARD_STEPS.length - 1 ? 'Finish' : 'Continue';
+   $('ob-skip').textContent = 'Skip';
+-  renderInterestPicker();
+ 
++  if (step.key === 'interests') renderInterestPicker();
++  else if (step.key === 'suburb') renderSuburbStep();
++  else if (step.key === 'budget') renderBudgetStep();
++  else if (step.key === 'distance') renderDistanceStep();
++  else if (step.key === 'discovery') renderDiscoveryStep();
++
++  $('ob-back').onclick = () => { obStep--; renderOnboardStep(); };
+   $('ob-next').onclick = async () => {
+-    try {
+-      await U.setMyInterests(selectedInterestIds);
+-      await enterApp();
+-    } catch (error) {
+-      toast(error?.message || 'Could not save interests.');
+-    }
++    if (obStep < ONBOARD_STEPS.length - 1) { obStep++; renderOnboardStep(); return; }
++    await finishOnboarding();
+   };
+-
+   $('ob-skip').onclick = enterApp;
+ }
+ 
++async function finishOnboarding() {
++  try {
++    await U.setMyInterests(selectedInterestIds);
++    await U.updateProfile({
++      home_suburb: obDraft.home_suburb,
++      budget_cents: obDraft.budget_cents,
++      max_distance_km: obDraft.max_distance_km,
++      discovery: obDraft.discovery
++    });
++    discoveryMode = obDraft.discovery;
++    await enterApp();
++  } catch (error) {
++    toast(error?.message || 'Could not save your preferences.');
++  }
++}
++
++function renderSuburbStep() {
++  $('ob-body').innerHTML = `
++    <div class="selline">
++      <span class="lb">Home</span>
++      <select id="ob-suburb">
++        <option value=""${obDraft.home_suburb ? '' : ' selected'}>Campus</option>
++        ${allSuburbs.map((s) => `<option value="${esc(s.name)}"${obDraft.home_suburb === s.name ? ' selected' : ''}>${esc(s.name)}</option>`).join('')}
++      </select>
++    </div>`;
++  $('ob-suburb').onchange = (event) => { obDraft.home_suburb = event.target.value || null; };
++}
++
++function renderBudgetStep() {
++  $('ob-body').innerHTML = `
++    <div class="selline">
++      <span class="lb">Budget</span>
++      <select id="ob-budget">
++        ${BUDGET_TIERS.map((t) => `<option value="${t.id}"${budgetIdForCents(obDraft.budget_cents) === t.id ? ' selected' : ''}>${esc(t.label)}</option>`).join('')}
++      </select>
++    </div>`;
++  $('ob-budget').onchange = (event) => { obDraft.budget_cents = budgetCentsForId(event.target.value); };
++}
++
++function renderDistanceStep() {
++  $('ob-body').innerHTML = `
++    <div class="selline">
++      <span class="lb">Distance</span>
++      <select id="ob-distance">
++        ${DISTANCE_TIERS.map((t) => `<option value="${t.id}"${distanceIdForKm(obDraft.max_distance_km) === t.id ? ' selected' : ''}>${esc(t.label)}</option>`).join('')}
++      </select>
++    </div>`;
++  $('ob-distance').onchange = (event) => { obDraft.max_distance_km = distanceKmForId(event.target.value); };
++}
++
++function renderDiscoveryStep() {
++  $('ob-body').innerHTML = `
++    <div class="seg" id="ob-disc-seg">
++      <button data-disc="swipe" aria-selected="${obDraft.discovery === 'swipe'}">👆 Swipe</button>
++      <button data-disc="browse" aria-selected="${obDraft.discovery === 'browse'}">🗂 Browse</button>
++    </div>`;
++  $('ob-disc-seg').querySelectorAll('[data-disc]').forEach((button) => {
++    button.addEventListener('click', () => {
++      obDraft.discovery = button.dataset.disc;
++      renderDiscoveryStep();
++    });
++  });
++}
++
+ function renderInterestPicker() {
+   $('ob-body').innerHTML = `
+     <div class="chips" id="weekly-interest-chips">
+@@ -1369,6 +1460,7 @@
+     return;
+   }
+ 
++  postInterestIds = [];
+   $('post-body').innerHTML = `
+     <p class="muted" style="margin:0">Paste the exact public event page from Humanitix or Eventbrite. See a preview before publishing.</p>
+     <div class="field"><label for="post-url">Event link</label><input id="post-url" type="url" inputmode="url" placeholder="Insert your club's event link here!" autocomplete="url" spellcheck="false"></div>
+@@ -1420,7 +1512,6 @@
+   const venue = event.venue || {};
+   const organiser = String(event.organiser || '').trim();
+   const defaultSuburb = defaultSuburbForUniversity(event.university);
+-  const interests = allInterests.filter((i) => selectedInterestIds.includes(String(i.id))).map((i) => i.slug);
+   $('post-body').innerHTML = `
+     <div class="parsebox"><div class="hdr"><b>${esc(providerLabel(event.source?.provider))} page read</b><span class="n">${esc(event.source?.url || event.pageUrl)}</span></div><div class="fieldsrc"><span>title</span><span>date</span><span class="${organiser ? '' : 'miss'}">${organiser ? `host: ${esc(organiser)}` : 'host missing'}</span><span class="${event.imageUrl ? '' : 'miss'}">${event.imageUrl ? 'image' : 'image missing'}</span></div></div>
+     <div class="field"><label for="post-title">Title</label><input id="post-title" value="${esc(event.title)}"></div>
+@@ -1429,13 +1520,32 @@
+     <div class="formgrid" style="grid-template-columns:1fr"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
+     <div class="field"><label for="post-venue">Venue</label><input id="post-venue" value="${esc(venue.name || '')}" placeholder="Venue name"></div>
+     <div class="formgrid"><div class="field tight"><label for="post-suburb">Suburb</label><input id="post-suburb" value="${esc(venue.suburb || defaultSuburb)}"><span class="muted" style="font-size:12px">Defaulted to ${esc(defaultSuburb)} from the host university. Change it if needed.</span></div><div class="field tight"><label for="post-price">Price (AUD)</label><input id="post-price" type="number" min="0" step="0.01" value="${event.priceCents == null ? '0' : (event.priceCents / 100).toFixed(2)}"></div></div>
++    <div class="field"><label>Event type</label><div class="chips mini-chips" id="post-interest-chips"></div><span class="muted" style="font-size:12px">Pick at least one. This is how students filter and match to this event.</span></div>
+     <div class="field"><label for="post-description">Description</label><textarea id="post-description" rows="8">${esc(event.description || '')}</textarea></div>
+     <p class="err" id="post-err"></p>`;
++  renderPostInterestChips();
+   $('post-foot').innerHTML = '<button class="btn" id="post-submit">Publish event</button><button class="btn ghost" id="post-back">Back</button>';
+   $('post-submit').onclick = submitPostedEvent;
+   $('post-back').onclick = openPostModal;
+ }
+ 
++function renderPostInterestChips() {
++  const el = $('post-interest-chips');
++  if (!el) return;
++  el.innerHTML = allInterests.map((i) => {
++    const id = String(i.id);
++    return `<button type="button" class="chip" data-post-interest="${esc(id)}" aria-pressed="${postInterestIds.includes(id)}">${esc(i.emoji || '')} ${esc(i.label)}</button>`;
++  }).join('');
++  el.querySelectorAll('[data-post-interest]').forEach((button) => {
++    button.addEventListener('click', () => {
++      const id = String(button.dataset.postInterest);
++      if (postInterestIds.includes(id)) postInterestIds = postInterestIds.filter((x) => x !== id);
++      else postInterestIds.push(id);
++      renderPostInterestChips();
++    });
++  });
++}
++
+ async function submitPostedEvent() {
+   const title = $('post-title')?.value.trim();
+   const startsAt = $('post-start')?.value;
+@@ -1447,6 +1557,10 @@
+       : 'Add a title and start time before publishing.';
+     return;
+   }
++  if (!postInterestIds.length) {
++    if (errorBox) errorBox.textContent = 'Pick at least one event type before publishing.';
++    return;
++  }
+   const button = $('post-submit');
+   button.disabled = true;
+   button.textContent = 'Publishing…';
