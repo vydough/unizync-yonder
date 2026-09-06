@@ -436,9 +436,9 @@ a.btn{text-decoration:none}
 
 /* ---------- parse preview ---------- */
 .parsebox{border:2px solid var(--ink);background:var(--paper-2);padding:11px 12px;display:flex;flex-direction:column;gap:8px}
-.parsebox .hdr{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.parsebox .hdr{display:flex;flex-direction: column;gap:3px}
 .parsebox .hdr b{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:-.01em}
-.parsebox .hdr .n{font-family:var(--mono);font-size:11px;color:var(--ink-2);flex:none}
+.parsebox .hdr .n{font-family:var(--mono);font-size:11px;color:var(--ink-2);word-break: break-all}
 .fieldsrc{display:flex;flex-wrap:wrap;gap:5px}
 .fieldsrc span{font-family:var(--mono);font-size:10px;letter-spacing:.04em;border:1.5px solid var(--ink-3);
   padding:2px 6px;color:var(--ink-2);white-space:nowrap}
@@ -1379,7 +1379,7 @@ function renderPostPreview() {
   $('post-body').innerHTML = `
     <div class="parsebox"><div class="hdr"><b>${esc(providerLabel(event.source?.provider))} page read</b><span class="n">${esc(event.source?.url || event.pageUrl)}</span></div><div class="fieldsrc"><span>title</span><span>date</span><span class="${event.imageUrl ? '' : 'miss'}">${event.imageUrl ? 'image' : 'image missing'}</span></div></div>
     <div class="field"><label for="post-title">Title</label><input id="post-title" value="${esc(event.title)}"></div>
-    <div class="formgrid"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
+    <div class="formgrid" style="grid-template-columns:1fr"><div class="field tight"><label for="post-start">Starts</label><input id="post-start" type="datetime-local" value="${esc(localDateTimeValue(event.startDate))}"></div><div class="field tight"><label for="post-end">Ends</label><input id="post-end" type="datetime-local" value="${esc(localDateTimeValue(event.endDate))}"></div></div>
     <div class="field"><label for="post-venue">Venue</label><input id="post-venue" value="${esc(venue.name || '')}" placeholder="Venue name"></div>
     <div class="formgrid"><div class="field tight"><label for="post-suburb">Suburb</label><input id="post-suburb" value="${esc(venue.suburb || '')}"></div><div class="field tight"><label for="post-price">Price (AUD)</label><input id="post-price" type="number" min="0" step="0.01" value="${event.priceCents == null ? '0' : (event.priceCents / 100).toFixed(2)}"></div></div>
     <div class="field"><label for="post-description">Description</label><textarea id="post-description">${esc(event.description || '')}</textarea></div>
