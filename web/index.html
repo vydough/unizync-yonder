@@ -1220,6 +1220,9 @@ function bindAppChrome() {
   });
 
   $('postbar')?.addEventListener('click', openPostModal);
+  $('verify')?.addEventListener('click', (event) => {
+    if (event.target === $('verify')) closeVerifyModal();
+  });
 
   $('scrim')?.addEventListener('click', closeSheet);
   $('sheet-close')?.addEventListener('click', closeSheet);
@@ -1249,6 +1252,55 @@ function parserTicketProvider(provider) {
 function postModalClose() {
   $('post')?.classList.remove('on');
   postDraft = null;
+}
+
+function closeVerifyModal() {
+  $('verify')?.classList.remove('on');
+}
+
+function openVerifyModal() {
+  const organiser = currentOrganiser;
+  if (organiser?.status === 'verified') {
+    toast(`${organiser.clubName} is already verified.`);
+    return;
+  }
+
+  $('verify-body').innerHTML = `
+    <p class="muted" style="margin:0">Tell us which club you run. Only club executives can publish events, and a reviewer will check the official club page before approval.</p>
+    <div class="field"><label for="verify-club">Club name</label><input id="verify-club" value="${esc(organiser?.clubName || '')}" placeholder="RMIT Link Arts & Culture"></div>
+    <div class="field"><label for="verify-role">Executive role</label><select id="verify-role">${U.EXEC_ROLES.map((role) => `<option>${esc(role)}</option>`).join('')}</select></div>
+    <div class="field"><label for="verify-proof">Official club or union page</label><input id="verify-proof" type="url" placeholder="https://your-union.org/clubs/your-club"></div>
+    <p class="err" id="verify-err"></p>`;
+  $('verify-foot').innerHTML = '<button class="btn" id="verify-submit">Submit for review</button><button class="btn ghost" id="verify-cancel">Cancel</button>';
+  $('verify').classList.add('on');
+  $('verify-cancel').onclick = closeVerifyModal;
+  $('verify-submit').onclick = submitVerification;
+  $('verify-club').focus();
+}
+
+async function submitVerification() {
+  const clubName = $('verify-club')?.value.trim();
+  const role = $('verify-role')?.value;
+  const proofUrl = $('verify-proof')?.value.trim();
+  const errorBox = $('verify-err');
+  if (!clubName || !proofUrl) {
+    if (errorBox) errorBox.textContent = 'Add your club name and official proof link.';
+    return;
+  }
+
+  const button = $('verify-submit');
+  button.disabled = true;
+  button.textContent = 'Submitting…';
+  try {
+    currentOrganiser = await U.requestOrganiser({ clubName, role, proofUrl });
+    closeVerifyModal();
+    await renderProfile();
+    toast('Verification request submitted.');
+  } catch (error) {
+    if (errorBox) errorBox.textContent = error?.message || 'Could not submit verification request.';
+    button.disabled = false;
+    button.textContent = 'Submit for review';
+  }
 }
 
 function openPostModal() {
@@ -1783,6 +1835,9 @@ function closeSheet() {
 async function renderProfile() {
   try {
     profile = await U.getProfile();
+    if (!currentOrganiser) {
+      try { currentOrganiser = await U.myOrganiser(); } catch { currentOrganiser = null; }
+    }
     profile.email = currentUser?.email || profile.email;
     const u = profile.university || {};
     const cross = saved.filter((e) => e.cross_campus).length;
@@ -1813,6 +1868,15 @@ async function renderProfile() {
       </div>
       <p class="note">Choose up to 5 categories. Updating them immediately re-ranks your event deck.</p>
 
+      <p class="sect">Club organiser</p>
+      <div class="orgbox">
+        ${currentOrganiser?.status === 'verified'
+          ? `<b>${esc(currentOrganiser.clubName)} <span class="verified">✓ verified</span></b><span class="st">${esc(currentOrganiser.role)} · You can post events from Browse.</span>`
+          : currentOrganiser?.status === 'pending'
+            ? `<b>${esc(currentOrganiser.clubName)} <span class="pill">Pending review</span></b><span class="st">A reviewer is checking your club details.</span><button class="btn ghost small" id="profile-verify-refresh">Refresh status</button>`
+            : `<b>Run a student club?</b><span class="st">Get verified to add your club’s events from a Humanitix, Rubric or Eventbrite link.</span><button class="btn small" id="profile-verify">Get verified</button>`}
+      </div>
+
       <p class="sect">Account</p>
       <div class="rowline"><span class="lb">Home</span><span class="vl">${esc(profile.home_suburb || 'Campus')}</span></div>
       <div class="rowline"><span class="lb">Budget</span><span class="vl">${profile.budget_cents == null ? 'No limit' : '$' + (profile.budget_cents / 100).toFixed(0)}</span></div>
@@ -1835,6 +1899,21 @@ async function renderProfile() {
           toast(error?.message || 'Could not update interests.');
         }
       });
+    });
+
+    $('profile-verify')?.addEventListener('click', openVerifyModal);
+    $('profile-verify-refresh')?.addEventListener('click', async () => {
+      try {
+        currentOrganiser = await U.myOrganiser();
+        await renderProfile();
+        if (currentOrganiser?.status === 'verified') {
+          $('postbar').hidden = false;
+          $('live-ind').innerHTML = '<i></i> verified club';
+          toast('You are verified.');
+        }
+      } catch (error) {
+        toast(error?.message || 'Could not refresh verification status.');
+      }
     });
 
     $('profile-signout')?.addEventListener('click', async () => {
